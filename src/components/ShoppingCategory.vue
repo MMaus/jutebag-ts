@@ -16,6 +16,8 @@
 
 <script>
 import ToShopItem from "@/components/ToShopItem.vue";
+import {Category, Item} from "@/use/itemStore";
+
 export default {
   data: function() {
     return {
@@ -24,11 +26,11 @@ export default {
   },
   props: {
     category: {
-      type: Object,
+      type: Category,
       required: true
     },
     categorylist : {
-      type : Array,
+      type : Array, 
       required : true
     }
   },

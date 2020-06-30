@@ -14,7 +14,7 @@ interface Item {
     suppliers: Array<string>;
 }
 
-function createAnItem(id: number, itemName: string, categoryName: string, qty = 1) {
+function createAnItem(id: number, itemName: string, categoryName: string, qty = 1): Item{
     console.log("creating item with id = " + id);
     return {
         id: id,
@@ -24,21 +24,20 @@ function createAnItem(id: number, itemName: string, categoryName: string, qty = 
         stored: false,
         suppliers: []
     };
-
 }
 
-const itemStore = {
+class ItemStore {
 
-    nextItemId: 1,
-    nextCategoryId: 1,
+    nextItemId = 1;
+    nextCategoryId = 1;
 
-    splitInCategories: function (itemData: Array<Item>) {
+    splitInCategories(itemData: Array<Item>): Array<Category> {
         const categoryNames = Array.from(new Set(itemData.map(elem => elem.category)));
         const categories = categoryNames.map(name => this.createCategory(name, itemData));
         return categories;
-    },
+    }
 
-    createCategory: function (categoryName: string, itemData: Array<Item>) {
+    createCategory(categoryName: string, itemData: Array<Item>): Category {
         const matchingItems = itemData.filter(item => item.category === categoryName);
         const isDone = matchingItems.every(item => item.stored);
         const categoryId = this.nextCategoryId;
@@ -49,15 +48,15 @@ const itemStore = {
             items: matchingItems,
             isDone: isDone
         };
-    },
+    }
 
-    createShoppingItem: function (itemName: string, categoryName: string, qty = 1) {
+    createShoppingItem(itemName: string, categoryName: string, qty = 1): Item {
         this.nextItemId = this.nextItemId + 1;
         console.log("nextItemID = " + this.nextItemId);
         return createAnItem(this.nextItemId, itemName, categoryName, qty);
-    },
+    }
 
-    loadItems: function () {
+    loadItems(): Array<Item> {
         const storedContent = localStorage.getItem('_jutebag_shoppinglist');
         if (storedContent) {
             const parsedContent = JSON.parse(storedContent);
@@ -70,12 +69,14 @@ const itemStore = {
         }
         console.log("No stored items found");
         return [];
-    },
+    }
 
-    storeItems: function (itemList: Array<Item>) {
+    storeItems(itemList: Array<Item>) {
         localStorage.setItem('_jutebag_shoppinglist', JSON.stringify(itemList));
-    },
-
+    }
 }
 
+const itemStore = new ItemStore();
+
 export default itemStore;
+export {Item, Category}
