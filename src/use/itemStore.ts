@@ -79,4 +79,4 @@ class ItemStore {
 const itemStore = new ItemStore();
 
 export default itemStore;
-export {Item, Category}
+export {Item, Category};
