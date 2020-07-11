@@ -1,6 +1,8 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <input id="reply" ref="reply" placeholder="(reply here)">
+    <button type="button" id="submitter" @click="fetchStuff">Test API</button> 
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
@@ -34,11 +36,31 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Ref } from 'vue-property-decorator';
 
 @Component
 export default class HelloWorld extends Vue {
   @Prop() private msg!: string;
+
+  @Ref('reply') reply!: HTMLInputElement
+
+private async fetchIt(): Promise<any> {
+  // TODO: switch between production and dev HERE
+    const url = new URL("/bag/hello", window.location.href);
+    url.searchParams.append("you", "yourName");
+    const urlString = url.toString();
+    console.log("gonna fetch " + urlString)
+    const response = await fetch(urlString);
+    return response.text(); //  json();
+}
+  private fetchStuff(): void {
+    console.log("BEFORE");
+    this.fetchIt().then(res => this.reply.value = res);
+    console.log("AFTER");
+    // const response = fetch(urlString)
+    //   .then(res => this.reply.value = res.body())
+    // this.reply.value = "Method called";
+  }
 }
 </script>
 

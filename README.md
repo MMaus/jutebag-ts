@@ -1,4 +1,10 @@
+
 # jutebag
+
+## Build & Deploy
+
+npm run build
+firebase deploy
 
 ## Project setup
 

@@ -75,7 +75,8 @@
   </div>
 </template>
 
-<script>
+<script> 
+/* TODO: make <script lang="ts"> everything in typescript! */
 import ShoppingCategory from "@/components/ShoppingCategory.vue";
 
 import itemStore from "../use/itemStore";

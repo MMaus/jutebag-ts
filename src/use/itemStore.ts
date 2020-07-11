@@ -14,7 +14,7 @@ interface Item {
     suppliers: Array<string>;
 }
 
-function createAnItem(id: number, itemName: string, categoryName: string, qty = 1): Item{
+function createAnItem(id: number, itemName: string, categoryName: string, qty = 1): Item {
     console.log("creating item with id = " + id);
     return {
         id: id,
@@ -57,15 +57,20 @@ class ItemStore {
     }
 
     loadItems(): Array<Item> {
-        const storedContent = localStorage.getItem('_jutebag_shoppinglist');
-        if (storedContent) {
-            const parsedContent = JSON.parse(storedContent);
-            if (Array.isArray(parsedContent)) {
-                console.log("Read content with " + parsedContent.length + " items");
-                this.nextItemId = parsedContent.map(item => item.id).reduce((first, second) => Math.max(first, second), 0);
-                return parsedContent;
-            }
+        try {
+            const storedContent = localStorage.getItem('_jutebag_shoppinglist');
+            if (storedContent) {
+                const parsedContent = JSON.parse(storedContent);
+                if (Array.isArray(parsedContent)) {
+                    console.log("Read content with " + parsedContent.length + " items");
+                    this.nextItemId = parsedContent.map(item => item.id).reduce((first, second) => Math.max(first, second), 0);
+                    return parsedContent;
+                }
 
+            }
+        } catch (error) {
+            console.log("Error during initalization" + error);
+            return [this.createShoppingItem("ERROR", "E:" + error)];
         }
         console.log("No stored items found");
         return [];
@@ -79,4 +84,4 @@ class ItemStore {
 const itemStore = new ItemStore();
 
 export default itemStore;
-export {Item, Category};
+export { Item, Category };
