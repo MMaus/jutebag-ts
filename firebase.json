@@ -6,15 +6,25 @@
       "**/.*",
       "**/node_modules/**"
     ],
-
-    "rewrites" : [ {
-    "source": "/bag/**",
-    "run": {
-      "serviceId": "jutebag-bag",  
-      "region": "europe-west1"    
-    }
-    }
-   ]
-
+    "rewrites": [
+      {
+        "source": "/bag/**",
+        "run": {
+          "serviceId": "jutebag-bag",
+          "region": "europe-west1"
+        }
+      }
+    ],
+    "headers": [
+      {
+        "source": "/bag/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=1"
+          }
+        ]
+      }
+    ]
   }
 }

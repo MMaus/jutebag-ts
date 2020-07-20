@@ -1,5 +1,9 @@
 <template>
   <div class="container-fluid p-1 bg-secondary">
+    <div v-if="loggedIn">
+      <button class="button btn btn-warning" @click="upload">Save</button>
+      <button class="button btn btn-warning" @click="download">Load</button>
+    </div>
     <hr />
     <div class="d-sm-flex flex-wrap">
       <shopping-category
@@ -21,7 +25,7 @@
       <br />
     </div>
 
-    <div class="p-2 addItem fixed-bottom">
+    <div class="p-2 newItems fixed-bottom">
       <div class="input-group mb-2 p-1">
         <input
           type="text"
@@ -66,9 +70,9 @@
         />
         <datalist id="categorylist">
           <option v-for="cat in categories" :key="cat.name" :value="cat.name">{{cat.name}}</option>
-        <!-- <option value="foo">foo</option>
+          <!-- <option value="foo">foo</option>
         <option value="bar">bar</option>
-        <option value="baz">baz</option> -->
+          <option value="baz">baz</option>-->
         </datalist>
       </div>
     </div>
@@ -78,8 +82,10 @@
 <script>
 import ShoppingCategory from "@/components/ShoppingCategory.vue";
 
-import itemStore from "../use/itemStore";
+import * as firebase from "firebase/app";
+import "firebase/auth";
 
+import itemStore from "../use/itemStore";
 
 function createItem(itemName, categoryName, qty) {
   const anItem = itemStore.createShoppingItem(itemName, categoryName, qty);
@@ -90,13 +96,19 @@ function createItem(itemName, categoryName, qty) {
 const initialItems = itemStore.loadItems();
 
 export default {
+  mounted: function() {
+    firebase.auth().onAuthStateChanged(user => this.checkLogin(user));
+  },
+
   data: function() {
     return {
       user: "Moritz",
       items: initialItems,
       showAddItemEnh: false,
       newCategory: "",
-      someCats: ["Primary", "Secondary", "Tertiary", "Quartary"]
+      someCats: ["Primary", "Secondary", "Tertiary", "Quartary"],
+      loggedIn: false,
+      userEmail : ""
     };
   },
   methods: {
@@ -112,6 +124,49 @@ export default {
         category = "undefined";
       }
       return category;
+    },
+
+    checkLogin: function(user) {
+      if (!user) {
+        this.loggedIn = false;
+      } else {
+        this.loggedIn = user.emailVerified;
+        this.userEmail = user.email;
+      }
+    },
+
+    upload: function() {
+      console.log("going to upload " + this.items.length + " items");
+      const postData = {
+        email : this.userEmail,
+        items : this.items.map(item => itemStore.toStorableItem(item))
+      }
+      console.log("Sending POST with " + JSON.stringify(postData))
+      fetch("/bag/saveBag", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(postData) 
+      })
+        .then(res => res.json())
+        .then(json => console.log("received POST result:" + JSON.stringify(json)))
+        .catch(err => console.log("POST error: " + err));
+    },
+
+    download: function() {
+      const user = firebase.auth().currentUser.email;
+      console.log("querying items for " + user);
+      fetch("/bag/loadBag?user=" + user)
+        .then(res => res.json())
+        .then(json => this.setNewItems(json))
+        .catch(err => console.log(err));
+    },
+
+    setNewItems: function(items) {
+      console.log("received items:" + items);
+      console.log("received items:" + JSON.stringify(items));
+      items.forEach(it => console.log("an item is " + JSON.stringify(it)));
     },
 
     addItem: function() {
@@ -177,7 +232,9 @@ export default {
       this.items
         .filter(anItem => anItem.id == item.id)
         .forEach(anItem => {
-          console.log("changing categroy of " + anItem.name + " to " + item.category);
+          console.log(
+            "changing categroy of " + anItem.name + " to " + item.category
+          );
           anItem.category = item.category;
         });
       itemStore.storeItems(this.items);
@@ -195,7 +252,7 @@ export default {
 };
 </script>
 <style scoped>
-.addItem {
-  background-color: lemonchiffon;
+.newItems {
+  background-color: #ffeaed;
 }
 </style>

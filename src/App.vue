@@ -4,7 +4,7 @@
       <h2><img src="favicon.png" height="30em">JuteBag.IO</h2>
       <h3>Your Shopping Bag</h3>
     </div>
-    <div id="nav" class="navbar mt-0 navbar-expand-sm navbar-dark bg-secondary sticky-top">
+    <div id="nav" class="navbar mt-0 navbar-expand-sm navbar-dark bg-secondary mb-1 pb-1 sticky-top">
       <button
         class="navbar-toggler"
         type="button"
@@ -44,7 +44,8 @@
         >Go Shopping!</router-link>
       </div>
       <div class="boxed bg-success text-white lead p-2" v-if="loggedIn">Signed In</div>
-      <div class="boxed bg-warning text-white lead p-2" v-else>Not logged in</div>
+      <div class="boxed bg-warning text-white lead p-2" v-if="loggedOut">Not logged in</div>
+      <div class="boxed bg-warning text-white lead p-2" v-if="verificationRequired">verify email!</div>
     </div>
     <router-view />
   </div>
@@ -102,11 +103,15 @@ import "firebase/auth";
 //   // Other config options...
 // });
 
-function isSignedIn(user) {
+function loginComplete(user) {
   console.log("=== YEAH ===")
   console.log("=== User: ===" + user)
+  // console.log("=== User.emailVerified: ===" + user.emailVerified)
   if (user) {
+    if (user.emailVerified) {
     return true;
+    } 
+    return false;
   }
   return false;
 }
@@ -121,13 +126,24 @@ export default {
   methods : {
     toggleSignIn(user) {
       console.log("user changed to " + user);
-      this.loggedIn = isSignedIn(user);
+      this.loggedIn = loginComplete(user);
+      if (user) {
+        this.verificationRequired = !user.emailVerified;
+        this.loggedOut = false;
+      } else {
+        this.verificationRequired = false;
+        this.loggedOut = true;
+      }
     }
   },
 
+
+
   data: function() {
     return {
-      loggedIn: isSignedIn(firebase.auth().currentUser)
+      loggedIn: loginComplete(firebase.auth().currentUser),
+      verificationRequired : false,
+      loggedOut: true
     };
   }
 };

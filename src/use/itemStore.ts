@@ -11,7 +11,14 @@ interface Item {
     category: string;
     qty: number;
     stored: boolean;
-    suppliers: Array<string>;
+}
+
+interface StorableItem {
+    id: number;
+    name: string;
+    qty: number;
+    categoryId: number;
+    stored: boolean;
 }
 
 function createAnItem(id: number, itemName: string, categoryName: string, qty = 1): Item {
@@ -22,9 +29,9 @@ function createAnItem(id: number, itemName: string, categoryName: string, qty = 
         category: categoryName,
         qty: qty,
         stored: false,
-        suppliers: []
     };
 }
+
 
 class ItemStore {
 
@@ -78,6 +85,17 @@ class ItemStore {
 
     storeItems(itemList: Array<Item>) {
         localStorage.setItem('_jutebag_shoppinglist', JSON.stringify(itemList));
+    }
+
+    toStorableItem(item: Item): StorableItem {
+        const sItem = {
+            id: item.id,
+            name: item.name,
+            qty: item.qty,
+            stored: item.stored,
+            categoryId: 0
+        }
+        return sItem;
     }
 }
 

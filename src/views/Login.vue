@@ -3,24 +3,28 @@
     <div class="jumbotron">
       <h1>Login</h1>
       <div v-if="loggedIn">
-        <span class="lead">Logged in as</span> {{ currentUser }}
-        <button
-          type="button"
-          class="button btn btn-primary"
-          @click="logout"
-        >logout</button>
+        <span class="lead">Logged in as</span>
+        {{ currentUser }}
+        <button type="button" class="button btn btn-primary" @click="logout">logout</button>
+          <button :class="{'collapse' : userVerified}" 
+            type="button"
+            class="button btn btn-warning"
+            @click="sendVerification"
+          >Verify Email!</button>
       </div>
       <div v-else>
         <input type="email" v-model="email" placeholder="email" />
         <input type="password" v-model="password" placeholder="password" />
         <button type="button" class="button btn btn-primary" @click="login">login</button>
-        <hr>
-        <span class="lead"><b>or</b></span>
-        <hr>
+        <hr />
+        <span class="lead">
+          <b>or</b>
+        </span>
+        <hr />
         <button type="button" class="button btn btn-warning" @click="signUp">Sign Up!</button>
       </div>
     </div>
-    <div class="bg-danger text-white" v-if="showError">  
+    <div class="bg-danger text-white" v-if="showError">
       <h4 class="text-white">ERROR</h4>
       {{errMsg}}
     </div>
@@ -39,13 +43,13 @@ import "firebase/auth";
 
 @Component
 export default class Login extends Vue {
-
   email = "";
   password = "";
   showError = false;
   errMsg = "";
   showSuccess = false;
   successMsg = "";
+  userVerified = false;
 
   mounted() {
     const user = firebase.auth().currentUser;
@@ -58,9 +62,11 @@ export default class Login extends Vue {
     if (user) {
       this.loggedIn = true;
       this.currentUser = user.email!;
+      this.userVerified = user.emailVerified;
     } else {
       this.loggedIn = false;
       this.currentUser = "(no user)";
+      this.userVerified = false;
     }
   }
 
@@ -96,8 +102,18 @@ export default class Login extends Vue {
     firebase
       .auth()
       .createUserWithEmailAndPassword(this.email, this.password)
+      .then(u => this.displaySuccess())
       .catch(error => this.displayError(error));
-     }
+  }
+
+  sendVerification() {
+    firebase
+      .auth()
+      .currentUser?.sendEmailVerification()
+      .then(function() {
+        alert("Email Verification Sent!");
+      });
+  }
 
   logout() {
     console.log("logout clicked");
