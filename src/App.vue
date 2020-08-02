@@ -1,10 +1,15 @@
 <template>
   <div id="app">
     <div id="title" class="bg-dark text-light p-3">
-      <h2><img src="favicon.png" height="30em">JuteBag.IO</h2>
+      <h2>
+        <img src="favicon.png" height="30em" />JuteBag.IO
+      </h2>
       <h3>Your Shopping Bag</h3>
     </div>
-    <div id="nav" class="navbar mt-0 navbar-expand-sm navbar-dark bg-secondary mb-1 pb-1 sticky-top">
+    <div
+      id="nav"
+      class="navbar mt-0 navbar-expand-sm navbar-dark bg-secondary mb-1 pb-1 sticky-top"
+    >
       <button
         class="navbar-toggler"
         type="button"
@@ -60,57 +65,13 @@ import "firebase/auth";
 // If you enabled Analytics in your project, add the Firebase SDK for Analytics
 // import "firebase/analytics";
 
-// import "firebase/firestore";
-
-// const firebase = require('firebase');
-
-// const firebaseui = require('firebaseui');
-
-// const firebaseConfig = {
-//   apiKey: "AIzaSyCjjVJikqJ1KwGPuOm8NOdZPt5ICrtCyg8",
-//   authDomain: "jutebag.firebaseapp.com",
-//   databaseURL: "https://jutebag.firebaseio.com",
-//   projectId: "jutebag",
-//   storageBucket: "jutebag.appspot.com",
-//   messagingSenderId: "595630917273",
-//   appId: "1:595630917273:web:b1d564c3efbc0461655a08",
-//   measurementId: "G-JLRRL13388"
-// };
-
-// // TODO: Replace the following with your app's Firebase project configuration
-// const firebaseConfig = {
-//   // ...
-// };
-
-// Initialize Firebase
-// firebase.initializeApp(firebaseConfig);
-
-// firebase.initializeApp()
-
-// const actionCodeSettings = {
-//   // URL you want to redirect back to. The domain (www.example.com) for this
-//   // URL must be whitelisted in the Firebase Console.
-//   url: 'https://jutebag.web.app/#/about',
-//   handleCodeInApp: false,
-
-// }
-
-// const ui = new firebaseui.auth.AuthUI(firebase.auth());
-// ui.start('#firebaseui-auth-container', {
-//   signInOptions: [
-//     firebase.auth.EmailAuthProvider.PROVIDER_ID
-//   ],
-//   // Other config options...
-// });
-
 function loginComplete(user) {
-  console.log("=== YEAH ===")
-  console.log("=== User: ===" + user)
-  // console.log("=== User.emailVerified: ===" + user.emailVerified)
+  console.log("=== YEAH ===");
+  console.log("=== User: ===" + user);
   if (user) {
     if (user.emailVerified) {
-    return true;
-    } 
+      return true;
+    }
     return false;
   }
   return false;
@@ -118,12 +79,18 @@ function loginComplete(user) {
 
 export default {
   created: function() {
-    firebase
-      .auth()
-      .onAuthStateChanged(user => this.toggleSignIn(user));
+    firebase.auth().onAuthStateChanged(user => this.toggleSignIn(user));
   },
 
-  methods : {
+  data: function() {
+    return {
+      loggedIn: loginComplete(firebase.auth().currentUser),
+      verificationRequired: false,
+      loggedOut: true
+    };
+  },
+
+  methods: {
     toggleSignIn(user) {
       console.log("user changed to " + user);
       this.loggedIn = loginComplete(user);
@@ -135,17 +102,8 @@ export default {
         this.loggedOut = true;
       }
     }
-  },
-
-
-
-  data: function() {
-    return {
-      loggedIn: loginComplete(firebase.auth().currentUser),
-      verificationRequired : false,
-      loggedOut: true
-    };
   }
+
 };
 </script>
 
