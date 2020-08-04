@@ -85,16 +85,19 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 
 import { User } from "firebase/app";
-import itemStore from "../use/itemStore";
-import { Item, Category } from "../use/itemStore";
+// import itemStore from "../use/itemStore";
+import { Item, Category, ItemRepository } from "../use/itemStore";
+
+const itemRepo = new ItemRepository('jutebag.shoppinglist');
+itemRepo.loadLocal(); // TODO: move into CTOR
+const initialItems = itemRepo.itemList;
 
 function createItem(itemName: string, categoryName: string, qty: number): Item {
-  const anItem = itemStore.createShoppingItem(itemName, categoryName, qty);
+  const anItem = itemRepo.createShoppingItem(itemName, categoryName, qty);
   console.log("itemId :" + anItem.id);
   return anItem;
 }
 
-const initialItems = itemStore.loadItems();
 
 @Component({
   components : {
@@ -144,7 +147,7 @@ export default class ShopplingList extends Vue {
     console.log("going to upload " + this.items.length + " items");
     const postData = {
       email: this.userEmail,
-      items: this.items.map(item => itemStore.toStorableItem(item))
+      items: this.items.map(item => itemRepo.toStorableItem(item))
     };
     console.log("Sending POST with " + JSON.stringify(postData));
     fetch("/bag/saveBag", {
@@ -190,19 +193,19 @@ export default class ShopplingList extends Vue {
     const newQty = 1; // TODO: parse from string etc.
     const newShoppingItem = createItem(itemName, category, newQty);
     this.items.push(newShoppingItem);
-    itemStore.storeItems(this.items);
+    itemRepo.storeItems(this.items);
     console.log("added 1 " + itemName + " to shopping list");
     this.newItem.focus();
   }
 
   deleteItem(itemId: number) {
     this.items = this.items.filter(item => item.id != itemId);
-    itemStore.storeItems(this.items);
+    itemRepo.storeItems(this.items);
   }
 
   toggleCart(item: Item) {
     item.stored = !item.stored;
-    itemStore.storeItems(this.items);
+    itemRepo.storeItems(this.items);
   }
 
   onInputFocus() {
@@ -239,7 +242,7 @@ export default class ShopplingList extends Vue {
         console.log("increasing qty of " + anItem.name + ":" + anItem.qty);
         anItem.qty = item.qty;
       });
-    itemStore.storeItems(this.items);
+    itemRepo.storeItems(this.items);
     console.log("item = " + item.name + ":" + item.qty);
   }
 
@@ -254,13 +257,13 @@ export default class ShopplingList extends Vue {
         );
         anItem.category = item.category;
       });
-    itemStore.storeItems(this.items);
+    itemRepo.storeItems(this.items);
     console.log("item = " + item.name + ":" + item.qty);
   }
 
   // "get" makes this a "computed property"
-  get categories() {
-    return itemStore.splitInCategories(this.items);
+  get categories(): Array<Category> {
+    return itemRepo.getCategories(this.items);
   }
 
 }

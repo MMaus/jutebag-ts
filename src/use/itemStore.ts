@@ -1,3 +1,7 @@
+
+/**
+ * The Category groups shopping cart items
+ */
 interface Category {
     id: number;
     name: string;
@@ -5,6 +9,10 @@ interface Category {
     isDone: boolean;
 }
 
+
+/**
+ * An item in a shopping cart
+ */
 interface Item {
     id: number;
     name: string;
@@ -13,6 +21,9 @@ interface Item {
     stored: boolean;
 }
 
+/**
+ * The variant of an item which can be stored on the server.
+ */
 interface StorableItem {
     id: number;
     name: string;
@@ -21,30 +32,46 @@ interface StorableItem {
     stored: boolean;
 }
 
-function createAnItem(id: number, itemName: string, categoryName: string, qty = 1): Item {
-    console.log("creating item with id = " + id);
-    return {
-        id: id,
-        name: itemName,
-        category: categoryName,
-        qty: qty,
-        stored: false,
-    };
-}
 
-
-class ItemStore {
+/**
+ * The Item repository
+ */
+class ItemRepository {
 
     nextItemId = 1;
     nextCategoryId = 1;
+    itemList: Array<Item> = [];
+    categoryList: Array<Category> = [];
 
-    splitInCategories(itemData: Array<Item>): Array<Category> {
+    readonly storeName: string;
+
+    constructor(storeName: string) {
+        this.storeName = storeName;
+        this.loadLocal();
+    }
+
+    /**
+     * Return the list of known categories
+     * @param itemData the items from which to determine the categories
+     */
+    getCategories(itemData: Array<Item>): Array<Category> {
         const categoryNames = Array.from(new Set(itemData.map(elem => elem.category)));
         const categories = categoryNames.map(name => this.createCategory(name, itemData));
         return categories;
     }
 
-    createCategory(categoryName: string, itemData: Array<Item>): Category {
+    private createAnItem(id: number, itemName: string, categoryName: string, qty = 1): Item {
+        console.log("creating item with id = " + id);
+        return {
+            id: id,
+            name: itemName,
+            category: categoryName,
+            qty: qty,
+            stored: false,
+        };
+    }
+
+    private createCategory(categoryName: string, itemData: Array<Item>): Category {
         const matchingItems = itemData.filter(item => item.category === categoryName);
         const isDone = matchingItems.every(item => item.stored);
         const categoryId = this.nextCategoryId;
@@ -57,21 +84,15 @@ class ItemStore {
         };
     }
 
-    createShoppingItem(itemName: string, categoryName: string, qty = 1): Item {
-        this.nextItemId = this.nextItemId + 1;
-        console.log("nextItemID = " + this.nextItemId);
-        return createAnItem(this.nextItemId, itemName, categoryName, qty);
-    }
-
-    loadItems(): Array<Item> {
+    loadLocal() {
         try {
-            const storedContent = localStorage.getItem('_jutebag_shoppinglist');
+            const storedContent = localStorage.getItem(this.storeName);
             if (storedContent) {
                 const parsedContent = JSON.parse(storedContent);
                 if (Array.isArray(parsedContent)) {
-                    console.log("Read content with " + parsedContent.length + " items");
                     this.nextItemId = parsedContent.map(item => item.id).reduce((first, second) => Math.max(first, second), 0);
-                    return parsedContent;
+                    this.itemList = parsedContent;
+                    this.categoryList = this.getCategories(this.itemList);
                 }
 
             }
@@ -83,10 +104,26 @@ class ItemStore {
         return [];
     }
 
-    storeItems(itemList: Array<Item>) {
-        localStorage.setItem('_jutebag_shoppinglist', JSON.stringify(itemList));
+    /**
+     * Create a shoppping list item
+     * @param itemName the name of the item
+     * @param categoryName name of the category
+     * @param qty required quantity 
+     */
+    createShoppingItem(itemName: string, categoryName: string, qty = 1): Item {
+        this.nextItemId = this.nextItemId + 1;
+        console.log("nextItemID = " + this.nextItemId);
+        return this.createAnItem(this.nextItemId, itemName, categoryName, qty);
     }
 
+    storeItems(itemList: Array<Item>) {
+        localStorage.setItem(this.storeName, JSON.stringify(itemList));
+    }
+
+    /**
+     * Convert the given item into an item which can be stored on the server
+     * @param item the item to convert
+     */
     toStorableItem(item: Item): StorableItem {
         const sItem = {
             id: item.id,
@@ -99,7 +136,4 @@ class ItemStore {
     }
 }
 
-const itemStore = new ItemStore();
-
-export default itemStore;
-export { Item, Category };
+export { Item, Category, ItemRepository };
