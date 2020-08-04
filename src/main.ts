@@ -1,7 +1,7 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 
-import Vue from 'vue'
+import { createApp } from 'vue';
 import App from './App.vue'
 import './registerServiceWorker'
 import router from './router'
@@ -42,17 +42,11 @@ console.log("firebase initialized");
 console.log("firebase auth change feedback initiated");
 
 
-Vue.config.productionTip = false
-
-let app: Vue;
-
-
+let app: any;
 
 firebase.auth().onAuthStateChanged(user => {
   if (!app) {
-    app = new Vue({
-      router,
-      render: h => h(App)
-    }).$mount('#app')
+    // NOTE: VS code gives an error here, but npm run build / serve does not give an error. I
+    app = createApp(App).use(router).mount('#app'); 
   }
 })

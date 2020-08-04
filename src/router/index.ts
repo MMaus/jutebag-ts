@@ -1,12 +1,9 @@
-import Vue from 'vue'
-import VueRouter, { RouteConfig } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router';
 import Home from '../views/Home.vue'
-
-Vue.use(VueRouter)
 
 console.log("Creating router");
 
-const routes: Array<RouteConfig> = [
+const routes: Array<any> = [
   {
     path: '/',
     name: 'Home',
@@ -35,7 +32,8 @@ const routes: Array<RouteConfig> = [
 ]
 
 console.log("Routes defined:" + routes.length);
-const router = new VueRouter({
+const router = createRouter({
+  history: createWebHashHistory(),
   routes
 })
 
