@@ -88,7 +88,9 @@ import { User } from "firebase/app";
 // import itemStore from "../use/itemStore";
 import { Item, Category, ItemRepository } from "../use/itemStore";
 
-const itemRepo = new ItemRepository('jutebag.shoppinglist');
+import { defineComponent, onMounted, computed, ref } from "vue";
+
+const itemRepo = new ItemRepository("jutebag.shoppinglist");
 itemRepo.loadLocal(); // TODO: move into CTOR
 const initialItems = itemRepo.itemList;
 
@@ -98,175 +100,229 @@ function createItem(itemName: string, categoryName: string, qty: number): Item {
   return anItem;
 }
 
+// @Component({
+//   components : {
+//     "shopping-category" : ShoppingCategory
+//   }
+// })
+// export default class ShopplingList extends Vue {
+export default defineComponent({
+  // @Ref("categoryList") categoryList!: HTMLInputElement;
+  // @Ref("categoryText") categoryText!: HTMLInputElement;
+  // @Ref("newItem") newItem!: HTMLInputElement;
 
-@Component({
-  components : {
-    "shopping-category" : ShoppingCategory
-  }
-})
-export default class ShopplingList extends Vue {
-  @Ref("categoryList") categoryList!: HTMLInputElement;
-  @Ref("categoryText") categoryText!: HTMLInputElement;
-  @Ref("newItem") newItem!: HTMLInputElement;
+  setup() {
+    const user = ref("Moritz");
+    const items = ref(initialItems);
+    const showAddItemEnh = ref(false);
+    const newCategory = ref("");
+    const loggedIn = ref(false);
+    const userEmail = ref("");
 
-  user = "Moritz";
-  items = initialItems;
-  showAddItemEnh = false;
-  newCategory = "";
-  loggedIn = false;
-  userEmail = "";
+    // properties to be filled by the setup method
+    const newItem: Vue.Ref<null | HTMLInputElement> = ref(null);
+    const categoryText: Vue.Ref<null | HTMLInputElement> = ref(null);
+    const categoryList: Vue.Ref<null | HTMLSelectElement> = ref(null);
 
-  mounted() {
-    firebase.auth().onAuthStateChanged(user => this.checkLogin(user));
-  }
+    const categories = computed(() => itemRepo.getCategories(items.value));
 
-  /**
-   * Add a new item from the input field to cart
-   */
-  readCategory() {
-    let category = this.categoryList.value;
-    if (!category) {
-      category = this.categoryText.value;
-    }
-    if (!category) {
-      category = "undefined";
-    }
-    return category;
-  }
-
-  checkLogin(user: User | null) {
-    if (!user) {
-      this.loggedIn = false;
-    } else {
-      this.loggedIn = user.emailVerified;
-      this.userEmail = user.email ?? "<no email>";
-    }
-  }
-
-  upload() {
-    console.log("going to upload " + this.items.length + " items");
-    const postData = {
-      email: this.userEmail,
-      items: this.items.map(item => itemRepo.toStorableItem(item))
+    /**
+     * Add a new item from the input field to cart
+     */
+    const readCategory: () => string = () => {
+      let category: string | undefined = categoryList.value?.value;
+      if (!category) {
+        category = categoryText.value?.value;
+      }
+      if (!category) {
+        category = "undefined";
+      }
+      return category;
     };
-    console.log("Sending POST with " + JSON.stringify(postData));
-    fetch("/bag/saveBag", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(postData)
-    })
-      .then(res => res.json())
-      .then(json => console.log("received POST result:" + JSON.stringify(json)))
-      .catch(err => console.log("POST error: " + err));
-  }
 
-  download() {
-    const user = firebase.auth().currentUser?.email;
-    if (user == null) {
-      console.error("Unknown user, cannot download cart items.");
-      return;
-    }
-    console.log("querying items for " + user);
-    fetch("/bag/loadBag?user=" + user)
-      .then(res => res.json())
-      .then(json => this.setNewItems(json))
-      .catch(err => console.log(err));
-  }
+    const checkLogin = (user: User | null) => {
+      if (!user) {
+        loggedIn.value = false;
+      } else {
+        loggedIn.value = user.emailVerified;
+        userEmail.value = user.email ?? "<no email>";
+      }
+    };
 
-  setNewItems(items: Array<Item>) {
-    console.log("received items:" + items);
-    console.log("received items:" + JSON.stringify(items));
-    items.forEach(it => console.log("an item is " + JSON.stringify(it)));
-  }
+    const setNewItems = (items: Array<Item>) => {
+      console.log("received items:" + items);
+      console.log("received items:" + JSON.stringify(items));
+      items.forEach((it) => console.log("an item is " + JSON.stringify(it)));
+    };
 
-  addItem() {
-    const itemName = this.newItem.value;
-    if (!itemName) {
-      return;
-    }
-    const category = this.readCategory();
-    this.newItem.value = "";
-    this.categoryList.value = "";
-    this.categoryText.value = "";
-    const newQty = 1; // TODO: parse from string etc.
-    const newShoppingItem = createItem(itemName, category, newQty);
-    this.items.push(newShoppingItem);
-    itemRepo.storeItems(this.items);
-    console.log("added 1 " + itemName + " to shopping list");
-    this.newItem.focus();
-  }
+    const upload = () => {
+      console.log("going to upload " + items.value.length + " items");
+      const postData = {
+        email: userEmail.value,
+        items: items.value.map((item) => itemRepo.toStorableItem(item)),
+      };
+      console.log("Sending POST with " + JSON.stringify(postData));
+      fetch("/bag/saveBag", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(postData),
+      })
+        .then((res) => res.json())
+        .then((json) =>
+          console.log("received POST result:" + JSON.stringify(json))
+        )
+        .catch((err) => console.log("POST error: " + err));
+    };
 
-  deleteItem(itemId: number) {
-    this.items = this.items.filter(item => item.id != itemId);
-    itemRepo.storeItems(this.items);
-  }
+    const download = () => {
+      const user = firebase.auth().currentUser?.email;
+      if (user == null) {
+        console.error("Unknown user, cannot download cart items.");
+        return;
+      }
+      console.log("querying items for " + user);
+      fetch("/bag/loadBag?user=" + user)
+        .then((res) => res.json())
+        .then((json) => setNewItems(json))
+        .catch((err) => console.log(err));
+    };
 
-  toggleCart(item: Item) {
-    item.stored = !item.stored;
-    itemRepo.storeItems(this.items);
-  }
+    const addItem = () => {
+      console.log("CLICKED ON addItem!");
+      // disabled for now
+      const itemName = newItem.value?.value;
+      console.log("newItem = " + itemName);
+      if (!itemName) {
+        return;
+      }
+      const category = readCategory();
+      newItem.value!.value = "";
+      categoryList.value!.value = "";
+      categoryText.value!.value = "";
+      const newQty = 1; // TODO: parse from string etc.
+      const newShoppingItem = createItem(itemName!, category, newQty);
+      items.value.push(newShoppingItem);
+      itemRepo.storeItems(items.value);
+      console.log("added 1 " + itemName + " to shopping list");
+      newItem.value!.focus();
+    };
 
-  onInputFocus() {
-    console.log("input got focus");
-    this.showAddItemEnh = true;
-  }
+    const deleteItem = (itemId: number) => {
+      items.value = items.value.filter((item) => item.id != itemId);
+      itemRepo.storeItems(items.value);
+    };
 
-  categoryListChange(event: Event) {
-    if (event?.target) {
-      this.categoryText.value = "";
-    }
-  }
+    const toggleCart = (item: Item) => {
+      item.stored = !item.stored;
+      itemRepo.storeItems(items.value);
+    };
 
-  onCategoryTextChange() {
-    if (this.categoryText.value) {
-      this.categoryList.value = "";
-    }
-  }
+    const onInputFocus = () => {
+      console.log("input got focus");
+      showAddItemEnh.value = true;
+    };
 
-  toggleAddItemEnh() {
-    this.showAddItemEnh = !this.showAddItemEnh;
-  }
+    const categoryListChange = (event: Event) => {
+      console.log("Category List Change! event target=" + event?.target);
+      // disabled for now
+      // if (event?.target) {
+      //   categoryText.value = "";
+      // }
+    };
 
-  onBlur() {
-    console.log("blurred");
-  }
+    const onCategoryTextChange = () => {
+      console.log("Category Text Change! event target=" + event?.target);
+      // disabled for now
+      // if (categoryText.value) {
+      //   categoryList.value = "";
+      // }
+    };
 
-  updateQty(item: Item) {
-    const itemId = item.id;
-    console.log("filtering for items with id " + itemId);
-    this.items
-      .filter(anItem => anItem.id == item.id)
-      .forEach(anItem => {
-        console.log("increasing qty of " + anItem.name + ":" + anItem.qty);
-        anItem.qty = item.qty;
-      });
-    itemRepo.storeItems(this.items);
-    console.log("item = " + item.name + ":" + item.qty);
-  }
+    const toggleAddItemEnh = () => {
+      showAddItemEnh.value = !showAddItemEnh.value;
+    };
 
-  updateCategory(item: Item) {
-    const itemId = item.id;
-    console.log("filtering for items with id " + itemId);
-    this.items
-      .filter(anItem => anItem.id == item.id)
-      .forEach(anItem => {
-        console.log(
-          "changing categroy of " + anItem.name + " to " + item.category
-        );
-        anItem.category = item.category;
-      });
-    itemRepo.storeItems(this.items);
-    console.log("item = " + item.name + ":" + item.qty);
-  }
+    const onBlur = () => {
+      console.log("blurred");
+    };
 
-  // "get" makes this a "computed property"
-  get categories(): Array<Category> {
-    return itemRepo.getCategories(this.items);
-  }
+    const updateQty = (item: Item) => {
+      const itemId = item.id;
+      console.log("filtering for items with id " + itemId);
+      items.value
+        .filter((anItem) => anItem.id == item.id)
+        .forEach((anItem) => {
+          console.log("increasing qty of " + anItem.name + ":" + anItem.qty);
+          anItem.qty = item.qty;
+        });
+      itemRepo.storeItems(items.value);
+      console.log("item = " + item.name + ":" + item.qty);
+    };
 
-}
+    const updateCategory = (item: Item) => {
+      const itemId = item.id;
+      console.log("filtering for items with id " + itemId);
+      items.value
+        .filter((anItem) => anItem.id == item.id)
+        .forEach((anItem) => {
+          console.log(
+            "changing categroy of " + anItem.name + " to " + item.category
+          );
+          anItem.category = item.category;
+        });
+      itemRepo.storeItems(items.value);
+      console.log("item = " + item.name + ":" + item.qty);
+    };
+
+    onMounted(() => {
+      // just a synatx reminder for myself:
+      // `checkLogin` is short for `user => checkLogin(user)`
+      firebase.auth().onAuthStateChanged(checkLogin);
+    });
+
+    return {
+      user,
+      items,
+      showAddItemEnh,
+      newCategory,
+      loggedIn,
+      userEmail,
+      newItem,
+      categoryText,
+      categoryList,
+      categories,
+      // TODO: check which functions really need to be exported!
+      readCategory,
+      checkLogin,
+      setNewItems,
+      upload,
+      download,
+      addItem,
+      deleteItem,
+      toggleCart,
+      onInputFocus,
+      categoryListChange,
+      onCategoryTextChange,
+      toggleAddItemEnh,
+      onBlur,
+      updateQty,
+      updateCategory,
+    };
+  },
+
+  components: {
+    "shopping-category": ShoppingCategory,
+  },
+
+  // // "get" makes this a "computed property"
+  // get categories(): Array<Category> {
+  //   return itemRepo.getCategories(this.items);
+  // }
+
+  // }
+});
 </script>
 
 <style scoped>
