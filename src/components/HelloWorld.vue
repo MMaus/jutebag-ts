@@ -113,11 +113,6 @@ export default defineComponent({
 
 });
 
-
-  // @Prop() private msg!: string;
-
-  // @Ref('reply') reply!: HTMLInputElement
-
 // private async fetchIt(): Promise<any> {
 //   // TODO: switch between production and dev HERE
 //     const url = new URL("/bag/hello", window.location.href);

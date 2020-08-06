@@ -84,6 +84,9 @@ class ItemRepository {
         };
     }
 
+    /**
+     * Read data from localstorage
+     */
     loadLocal() {
         try {
             const storedContent = localStorage.getItem(this.storeName);
@@ -93,6 +96,7 @@ class ItemRepository {
                     this.nextItemId = parsedContent.map(item => item.id).reduce((first, second) => Math.max(first, second), 0);
                     this.itemList = parsedContent;
                     this.categoryList = this.getCategories(this.itemList);
+                    console.log("Loaded " + this.categoryList.length + " items from localstore");
                 }
 
             }
@@ -116,8 +120,14 @@ class ItemRepository {
         return this.createAnItem(this.nextItemId, itemName, categoryName, qty);
     }
 
+    /**
+     * Store items to localStorage
+     * @param itemList the list of Item to store
+     */
     storeItems(itemList: Array<Item>) {
         localStorage.setItem(this.storeName, JSON.stringify(itemList));
+        this.itemList = itemList;
+        console.log("Stored " + itemList.length + " items to localstorage");
     }
 
     /**

@@ -85,7 +85,6 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 
 import { User } from "firebase/app";
-// import itemStore from "../use/itemStore";
 import { Item, Category, ItemRepository } from "../use/itemStore";
 
 import { defineComponent, onMounted, computed, ref } from "vue";
@@ -100,16 +99,7 @@ function createItem(itemName: string, categoryName: string, qty: number): Item {
   return anItem;
 }
 
-// @Component({
-//   components : {
-//     "shopping-category" : ShoppingCategory
-//   }
-// })
-// export default class ShopplingList extends Vue {
 export default defineComponent({
-  // @Ref("categoryList") categoryList!: HTMLInputElement;
-  // @Ref("categoryText") categoryText!: HTMLInputElement;
-  // @Ref("newItem") newItem!: HTMLInputElement;
 
   setup() {
     const user = ref("Moritz");
@@ -191,7 +181,6 @@ export default defineComponent({
 
     const addItem = () => {
       console.log("CLICKED ON addItem!");
-      // disabled for now
       const itemName = newItem.value?.value;
       console.log("newItem = " + itemName);
       if (!itemName) {
@@ -226,26 +215,20 @@ export default defineComponent({
 
     const categoryListChange = (event: Event) => {
       console.log("Category List Change! event target=" + event?.target);
-      // disabled for now
-      // if (event?.target) {
-      //   categoryText.value = "";
-      // }
+      if (event?.target) {
+        categoryText.value!.value = "";
+      }
     };
 
     const onCategoryTextChange = () => {
       console.log("Category Text Change! event target=" + event?.target);
-      // disabled for now
-      // if (categoryText.value) {
-      //   categoryList.value = "";
-      // }
+      if (categoryText.value?.value) {
+         categoryList.value!.value = "";
+      }
     };
 
     const toggleAddItemEnh = () => {
       showAddItemEnh.value = !showAddItemEnh.value;
-    };
-
-    const onBlur = () => {
-      console.log("blurred");
     };
 
     const updateQty = (item: Item) => {
@@ -279,6 +262,8 @@ export default defineComponent({
     onMounted(() => {
       // just a synatx reminder for myself:
       // `checkLogin` is short for `user => checkLogin(user)`
+      console.log("(Re-)Initialized ShoppingList");
+      items.value = itemRepo.itemList;
       firebase.auth().onAuthStateChanged(checkLogin);
     });
 
@@ -294,9 +279,6 @@ export default defineComponent({
       categoryList,
       categories,
       // TODO: check which functions really need to be exported!
-      readCategory,
-      checkLogin,
-      setNewItems,
       upload,
       download,
       addItem,
@@ -306,7 +288,6 @@ export default defineComponent({
       categoryListChange,
       onCategoryTextChange,
       toggleAddItemEnh,
-      onBlur,
       updateQty,
       updateCategory,
     };
@@ -316,12 +297,6 @@ export default defineComponent({
     "shopping-category": ShoppingCategory,
   },
 
-  // // "get" makes this a "computed property"
-  // get categories(): Array<Category> {
-  //   return itemRepo.getCategories(this.items);
-  // }
-
-  // }
 });
 </script>
 
