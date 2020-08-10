@@ -90,8 +90,7 @@ import { Item, Category, ItemRepository } from "../use/itemStore";
 import { defineComponent, onMounted, computed, ref } from "vue";
 
 const itemRepo = new ItemRepository("jutebag.shoppinglist");
-itemRepo.loadLocal(); // TODO: move into CTOR
-const initialItems = itemRepo.itemList;
+// const initialItems = itemRepo.itemList;
 
 function createItem(itemName: string, categoryName: string, qty: number): Item {
   const anItem = itemRepo.createShoppingItem(itemName, categoryName, qty);
@@ -103,7 +102,10 @@ export default defineComponent({
 
   setup() {
     const user = ref("Moritz");
-    const items = ref(initialItems);
+
+    const items = itemRepo.itemsRef; //ref(initialItems);
+    const categories = itemRepo.categoriesRef; // note: this is a reactive vue property ("ref")
+
     const showAddItemEnh = ref(false);
     const newCategory = ref("");
     const loggedIn = ref(false);
@@ -114,7 +116,6 @@ export default defineComponent({
     const categoryText: Vue.Ref<null | HTMLInputElement> = ref(null);
     const categoryList: Vue.Ref<null | HTMLSelectElement> = ref(null);
 
-    const categories = computed(() => itemRepo.getCategories(items.value));
 
     /**
      * Add a new item from the input field to cart
@@ -180,9 +181,7 @@ export default defineComponent({
     };
 
     const addItem = () => {
-      console.log("CLICKED ON addItem!");
       const itemName = newItem.value?.value;
-      console.log("newItem = " + itemName);
       if (!itemName) {
         return;
       }
@@ -190,22 +189,19 @@ export default defineComponent({
       newItem.value!.value = "";
       categoryList.value!.value = "";
       categoryText.value!.value = "";
-      const newQty = 1; // TODO: parse from string etc.
+      const newQty = 1; // TODO: parse from string etc.; e.g. "milk !!!"" => 3x milk
       const newShoppingItem = createItem(itemName!, category, newQty);
-      items.value.push(newShoppingItem);
-      itemRepo.storeItems(items.value);
+      itemRepo.addItem(newShoppingItem);
       console.log("added 1 " + itemName + " to shopping list");
       newItem.value!.focus();
     };
 
     const deleteItem = (itemId: number) => {
-      items.value = items.value.filter((item) => item.id != itemId);
-      itemRepo.storeItems(items.value);
+      itemRepo.deleteItem(itemId);
     };
 
     const toggleCart = (item: Item) => {
-      item.stored = !item.stored;
-      itemRepo.storeItems(items.value);
+      itemRepo.toggleCart(item);
     };
 
     const onInputFocus = () => {
@@ -232,38 +228,18 @@ export default defineComponent({
     };
 
     const updateQty = (item: Item) => {
-      const itemId = item.id;
-      console.log("filtering for items with id " + itemId);
-      items.value
-        .filter((anItem) => anItem.id == item.id)
-        .forEach((anItem) => {
-          console.log("increasing qty of " + anItem.name + ":" + anItem.qty);
-          anItem.qty = item.qty;
-        });
-      itemRepo.storeItems(items.value);
-      console.log("item = " + item.name + ":" + item.qty);
+      itemRepo.updateQty(item.id, item.qty);
     };
 
     const updateCategory = (item: Item) => {
-      const itemId = item.id;
-      console.log("filtering for items with id " + itemId);
-      items.value
-        .filter((anItem) => anItem.id == item.id)
-        .forEach((anItem) => {
-          console.log(
-            "changing categroy of " + anItem.name + " to " + item.category
-          );
-          anItem.category = item.category;
-        });
-      itemRepo.storeItems(items.value);
-      console.log("item = " + item.name + ":" + item.qty);
+      itemRepo.updateCategory(item.id, item.category);
     };
 
     onMounted(() => {
       // just a synatx reminder for myself:
       // `checkLogin` is short for `user => checkLogin(user)`
       console.log("(Re-)Initialized ShoppingList");
-      items.value = itemRepo.itemList;
+      // items.value = itemRepo.itemList;
       firebase.auth().onAuthStateChanged(checkLogin);
     });
 

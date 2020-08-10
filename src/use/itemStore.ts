@@ -1,4 +1,6 @@
 
+import { ref, Ref } from 'vue';
+
 /**
  * The Category groups shopping cart items
  */
@@ -40,24 +42,85 @@ class ItemRepository {
 
     nextItemId = 1;
     nextCategoryId = 1;
-    itemList: Array<Item> = [];
-    categoryList: Array<Category> = [];
+    private itemData: Array<Item> = [];
+    private categoryData: Array<Category> = [];
+
+    categoriesRef: Ref<Array<Category>> = ref(this.categoryData);
+    itemsRef: Ref<Array<Item>> = ref(this.itemData);
 
     readonly storeName: string;
 
     constructor(storeName: string) {
         this.storeName = storeName;
         this.loadLocal();
+        // this.categoriesRef.value = this.calcCategories();
     }
+
+    // private calcCategories(): Array<Category> {
+    //     const categoryNames = Array.from(new Set(this.itemList.map(elem => elem.category)));
+    //     const categories = categoryNames.map(name => this.createCategory(name, this.itemList));
+    //     return categories;
+    // }
 
     /**
      * Return the list of known categories
      * @param itemData the items from which to determine the categories
      */
-    getCategories(itemData: Array<Item>): Array<Category> {
+    private calcCategories(itemData: Array<Item>): Array<Category> {
         const categoryNames = Array.from(new Set(itemData.map(elem => elem.category)));
         const categories = categoryNames.map(name => this.createCategory(name, itemData));
         return categories;
+    }
+
+    deleteItem(itemId: number) {
+        const newList = this.itemsRef.value.filter((item) => item.id != itemId);
+        this.categoriesRef.value = this.calcCategories(newList);
+        this.itemsRef.value = newList;
+        this.storeLocal();
+    }
+
+    addItem(item: Item) {
+        console.debug("== newList raw = " + this.itemsRef);
+        console.debug("== item data raw = " + this.itemData);
+        const newList = this.itemsRef.value;
+        console.debug("== newList = " + newList);
+        newList.push(item);
+        this.categoriesRef.value = this.calcCategories(newList);
+        this.itemsRef.value = newList;
+    }
+
+    toggleCart(item: Item) {
+        item.stored = !item.stored;
+        this.storeLocal();
+        //   this.storeItems(items.value);
+    }
+
+    storeLocal() {
+        localStorage.setItem(this.storeName, JSON.stringify(this.itemsRef.value));
+        console.log("Stored " + this.itemsRef.value.length + " items to localstorage");
+    }
+
+    updateQty(itemId: number, qty: number) {
+        this.itemsRef.value
+            .filter((anItem) => anItem.id == itemId)
+            .forEach((anItem) => {
+                console.log("increasing qty of " + anItem.name + ":" + anItem.qty);
+                anItem.qty = qty;
+            });
+        this.storeLocal();
+        //   itemRepo.storeItems(items.value);
+        //   console.log("item = " + item.name + ":" + item.qty);
+    }
+
+    updateCategory(itemId: number, categoryName: string) {
+        this.itemsRef.value
+            .filter((anItem) => anItem.id == itemId)
+            .forEach((anItem) => {
+                console.log( "changing category of " + anItem.name + " to " + categoryName);
+                anItem.category = categoryName;
+            });
+        this.storeLocal();
+        this.categoriesRef.value = this.calcCategories(this.itemsRef.value);
     }
 
     private createAnItem(id: number, itemName: string, categoryName: string, qty = 1): Item {
@@ -87,16 +150,20 @@ class ItemRepository {
     /**
      * Read data from localstorage
      */
-    loadLocal() {
+    private loadLocal() {
         try {
             const storedContent = localStorage.getItem(this.storeName);
             if (storedContent) {
                 const parsedContent = JSON.parse(storedContent);
                 if (Array.isArray(parsedContent)) {
                     this.nextItemId = parsedContent.map(item => item.id).reduce((first, second) => Math.max(first, second), 0);
-                    this.itemList = parsedContent;
-                    this.categoryList = this.getCategories(this.itemList);
-                    console.log("Loaded " + this.categoryList.length + " items from localstore");
+                    // this.itemList = parsedContent;
+                    // this.categoryList = this.calcCategories(this.itemList);
+                    this.categoriesRef.value = this.calcCategories(parsedContent);
+                    this.itemsRef.value = parsedContent;
+                    console.log("Loaded " +
+                        this.itemsRef.value.length + " items in " +
+                        this.categoriesRef.value.length + " categories from localstore");
                 }
 
             }
@@ -125,8 +192,9 @@ class ItemRepository {
      * @param itemList the list of Item to store
      */
     storeItems(itemList: Array<Item>) {
+        console.warn("== IGNORING STOREITEMS FOR NOW!! ")
         localStorage.setItem(this.storeName, JSON.stringify(itemList));
-        this.itemList = itemList;
+        // this.itemsRef.value = itemList;
         console.log("Stored " + itemList.length + " items to localstorage");
     }
 
