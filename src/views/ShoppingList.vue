@@ -15,6 +15,8 @@
         @delete-item="deleteItem"
         @update-qty="updateQty"
         @update-category="updateCategory"
+        @pull-category="pullCategory"
+        @push-category="pushCategory"
       >
         category : {{ cat.name }}, isDone: {{ cat.isDone }}
         items: {{ cat.items }}
@@ -77,7 +79,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Ref } from "vue-property-decorator";
+// import { Component, Prop, Vue, Ref } from "vue-property-decorator";
+import { Ref } from "vue";
 
 import ShoppingCategory from "@/components/ShoppingCategory.vue";
 
@@ -101,10 +104,11 @@ function createItem(itemName: string, categoryName: string, qty: number): Item {
 export default defineComponent({
 
   setup() {
-    const user = ref("Moritz");
+    const user = ref("Moritz"); // some initial value
 
-    const items = itemRepo.itemsRef; //ref(initialItems);
-    const categories = itemRepo.categoriesRef; // note: this is a reactive vue property ("ref")
+    // note: this is a reactive vue property ("ref")
+    const items: Ref<Array<Item>> = itemRepo.itemsRef; //ref(initialItems);
+    const categories: Ref<Array<Category>> = itemRepo.categoriesRef; 
 
     const showAddItemEnh = ref(false);
     const newCategory = ref("");
@@ -112,9 +116,9 @@ export default defineComponent({
     const userEmail = ref("");
 
     // properties to be filled by the setup method
-    const newItem: Vue.Ref<null | HTMLInputElement> = ref(null);
-    const categoryText: Vue.Ref<null | HTMLInputElement> = ref(null);
-    const categoryList: Vue.Ref<null | HTMLSelectElement> = ref(null);
+    const newItem: Ref<null | HTMLInputElement> = ref(null);
+    const categoryText: Ref<null | HTMLInputElement> = ref(null);
+    const categoryList: Ref<null | HTMLSelectElement> = ref(null);
 
 
     /**
@@ -140,31 +144,8 @@ export default defineComponent({
       }
     };
 
-    const setNewItems = (items: Array<Item>) => {
-      console.log("received items:" + items);
-      console.log("received items:" + JSON.stringify(items));
-      items.forEach((it) => console.log("an item is " + JSON.stringify(it)));
-    };
-
     const upload = () => {
-      console.log("going to upload " + items.value.length + " items");
-      const postData = {
-        email: userEmail.value,
-        items: items.value.map((item) => itemRepo.toStorableItem(item)),
-      };
-      console.log("Sending POST with " + JSON.stringify(postData));
-      fetch("/bag/saveBag", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(postData),
-      })
-        .then((res) => res.json())
-        .then((json) =>
-          console.log("received POST result:" + JSON.stringify(json))
-        )
-        .catch((err) => console.log("POST error: " + err));
+      itemRepo.upload(userEmail.value);
     };
 
     const download = () => {
@@ -173,11 +154,7 @@ export default defineComponent({
         console.error("Unknown user, cannot download cart items.");
         return;
       }
-      console.log("querying items for " + user);
-      fetch("/bag/loadBag?user=" + user)
-        .then((res) => res.json())
-        .then((json) => setNewItems(json))
-        .catch((err) => console.log(err));
+      itemRepo.download(user);
     };
 
     const addItem = () => {
@@ -235,6 +212,14 @@ export default defineComponent({
       itemRepo.updateCategory(item.id, item.category);
     };
 
+    const pullCategory = (categoryName: string) => {
+      itemRepo.pullCategory(categoryName);
+    };
+
+    const pushCategory = (categoryName: string) => {
+      itemRepo.pushCategory(categoryName);
+    };
+
     onMounted(() => {
       // just a synatx reminder for myself:
       // `checkLogin` is short for `user => checkLogin(user)`
@@ -254,18 +239,21 @@ export default defineComponent({
       categoryText,
       categoryList,
       categories,
-      // TODO: check which functions really need to be exported!
+      // UI functionality
+      onInputFocus,
+      categoryListChange,
+      onCategoryTextChange,
+      toggleAddItemEnh,
+      // Cart change functionality
       upload,
       download,
       addItem,
       deleteItem,
       toggleCart,
-      onInputFocus,
-      categoryListChange,
-      onCategoryTextChange,
-      toggleAddItemEnh,
       updateQty,
       updateCategory,
+      pushCategory,
+      pullCategory
     };
   },
 

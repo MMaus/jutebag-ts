@@ -1,27 +1,8 @@
 
 import { ref, Ref } from 'vue';
+import { Item, Category } from '@/use/localApi';
 
-/**
- * The Category groups shopping cart items
- */
-interface Category {
-    id: number;
-    name: string;
-    items: Array<Item>;
-    isDone: boolean;
-}
-
-
-/**
- * An item in a shopping cart
- */
-interface Item {
-    id: number;
-    name: string;
-    category: string;
-    qty: number;
-    stored: boolean;
-}
+import { MemorizingSequencer } from '@/use/categorySequencer';
 
 /**
  * The variant of an item which can be stored on the server.
@@ -34,7 +15,6 @@ interface StorableItem {
     stored: boolean;
 }
 
-
 /**
  * The Item repository
  */
@@ -45,31 +25,27 @@ class ItemRepository {
     private itemData: Array<Item> = [];
     private categoryData: Array<Category> = [];
 
-    categoriesRef: Ref<Array<Category>> = ref(this.categoryData);
-    itemsRef: Ref<Array<Item>> = ref(this.itemData);
+    readonly categoriesRef: Ref<Array<Category>> = ref(this.categoryData);
+    readonly itemsRef: Ref<Array<Item>> = ref(this.itemData);
+
+    readonly categorySequencer: MemorizingSequencer;
 
     readonly storeName: string;
 
     constructor(storeName: string) {
         this.storeName = storeName;
+        this.categorySequencer = new MemorizingSequencer(storeName);
         this.loadLocal();
-        // this.categoriesRef.value = this.calcCategories();
     }
-
-    // private calcCategories(): Array<Category> {
-    //     const categoryNames = Array.from(new Set(this.itemList.map(elem => elem.category)));
-    //     const categories = categoryNames.map(name => this.createCategory(name, this.itemList));
-    //     return categories;
-    // }
 
     /**
      * Return the list of known categories
      * @param itemData the items from which to determine the categories
      */
     private calcCategories(itemData: Array<Item>): Array<Category> {
-        const categoryNames = Array.from(new Set(itemData.map(elem => elem.category)));
-        const categories = categoryNames.map(name => this.createCategory(name, itemData));
-        return categories;
+        const uniqueCategoryNames = Array.from(new Set(itemData.map(elem => elem.category)));
+        const categories = uniqueCategoryNames.map(name => this.createCategory(name, itemData));
+        return this.categorySequencer.getSequence(categories);
     }
 
     deleteItem(itemId: number) {
@@ -80,13 +56,11 @@ class ItemRepository {
     }
 
     addItem(item: Item) {
-        console.debug("== newList raw = " + this.itemsRef);
-        console.debug("== item data raw = " + this.itemData);
         const newList = this.itemsRef.value;
-        console.debug("== newList = " + newList);
         newList.push(item);
         this.categoriesRef.value = this.calcCategories(newList);
         this.itemsRef.value = newList;
+        this.storeLocal();
     }
 
     toggleCart(item: Item) {
@@ -95,33 +69,37 @@ class ItemRepository {
         //   this.storeItems(items.value);
     }
 
-    storeLocal() {
-        localStorage.setItem(this.storeName, JSON.stringify(this.itemsRef.value));
-        console.log("Stored " + this.itemsRef.value.length + " items to localstorage");
-    }
 
     updateQty(itemId: number, qty: number) {
         this.itemsRef.value
             .filter((anItem) => anItem.id == itemId)
             .forEach((anItem) => {
-                console.log("increasing qty of " + anItem.name + ":" + anItem.qty);
                 anItem.qty = qty;
             });
         this.storeLocal();
-        //   itemRepo.storeItems(items.value);
-        //   console.log("item = " + item.name + ":" + item.qty);
     }
 
     updateCategory(itemId: number, categoryName: string) {
         this.itemsRef.value
             .filter((anItem) => anItem.id == itemId)
             .forEach((anItem) => {
-                console.log( "changing category of " + anItem.name + " to " + categoryName);
+                console.log("changing category of " + anItem.name + " to " + categoryName);
                 anItem.category = categoryName;
             });
         this.storeLocal();
         this.categoriesRef.value = this.calcCategories(this.itemsRef.value);
     }
+
+    pullCategory(categoryName: string) {
+        this.categorySequencer.moveCategory(categoryName, -1);
+        this.categoriesRef.value = this.calcCategories(this.itemsRef.value);
+    }
+
+    pushCategory(categoryName: string) {
+        this.categorySequencer.moveCategory(categoryName, +1);
+        this.categoriesRef.value = this.calcCategories(this.itemsRef.value);
+    }
+
 
     private createAnItem(id: number, itemName: string, categoryName: string, qty = 1): Item {
         console.log("creating item with id = " + id);
@@ -148,6 +126,14 @@ class ItemRepository {
     }
 
     /**
+     * Store items to localstorage
+     */
+    private storeLocal() {
+        localStorage.setItem(this.storeName, JSON.stringify(this.itemsRef.value));
+        console.log("Stored " + this.itemsRef.value.length + " items to localstorage");
+    }
+
+    /**
      * Read data from localstorage
      */
     private loadLocal() {
@@ -157,8 +143,6 @@ class ItemRepository {
                 const parsedContent = JSON.parse(storedContent);
                 if (Array.isArray(parsedContent)) {
                     this.nextItemId = parsedContent.map(item => item.id).reduce((first, second) => Math.max(first, second), 0);
-                    // this.itemList = parsedContent;
-                    // this.categoryList = this.calcCategories(this.itemList);
                     this.categoriesRef.value = this.calcCategories(parsedContent);
                     this.itemsRef.value = parsedContent;
                     console.log("Loaded " +
@@ -171,8 +155,41 @@ class ItemRepository {
             console.log("Error during initalization" + error);
             return [this.createShoppingItem("ERROR", "E:" + error)];
         }
-        console.log("No stored items found");
-        return [];
+    }
+
+    upload(userEmail: string) {
+        const itemData = this.itemsRef.value.map(this.toStorableItem);
+        console.log("going to upload " + itemData.length + " items");
+        const postData = {
+            email: userEmail,
+            items: itemData
+        };
+        console.log("Sending POST with " + JSON.stringify(postData));
+        fetch("/bag/saveBag", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(postData),
+        })
+            .then((res) => res.json())
+            .then((json) =>
+                console.log("received POST result:" + JSON.stringify(json))
+            )
+            .catch((err) => console.log("POST error: " + err));
+    }
+
+    download(userEmail: string) {
+      console.log("querying items for " + userEmail);
+      fetch("/bag/loadBag?user=" + userEmail)
+        .then((res) => res.json())
+        .then((json) => this.setNewItems(json))
+        .catch((err) => console.log(err));
+    }
+
+    setNewItems(items: Array<Item>) {
+        console.log("Retrieved " + items.length + " items from remote."); 
+        // TODO: set the item list to the remote data and update everything!
     }
 
     /**

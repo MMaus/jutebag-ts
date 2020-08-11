@@ -32,8 +32,7 @@
             class="btn btn-danger text-white font-weight-bold mr-3"
             v-on:click="notifyDelete()"
           >x</button>
-          <select id="category" ref="category"
-              @change="changeCategory($event)">
+          <select id="category" ref="category" @change="changeCategory($event)">
             <option
               v-for="cat in categories"
               :key="cat.name"
@@ -48,27 +47,26 @@
 </template>
 <script>
 export default {
-  data: function() {
+  data: function () {
     return {
-      showOptions: false
+      showOptions: false,
     };
   },
   methods: {
-    toggleCollapse: function() {
+    toggleCollapse: function () {
       this.showOptions = !this.showOptions;
     },
-    notifyDelete: function() {
+    notifyDelete: function () {
       this.emitChained("delete-item", this.item.id);
       console.log("Deleting " + this.item.name);
     },
-    increaseQty: function() {
+    increaseQty: function () {
       const copy = {};
       Object.assign(copy, this.item);
       copy.qty = this.item.qty + 1;
       this.emitChained("update-qty", copy);
-      console.log("Notifying cart toggle " + this.item.name);
     },
-    emitChained: function(eventName, eventData) {
+    emitChained: function (eventName, eventData) {
       this.$emit(eventName, eventData);
       let vm = this.$parent;
       while (vm) {
@@ -76,14 +74,18 @@ export default {
         vm = vm.$parent;
       }
     },
-    changeCategory : function(event) {
+
+    changeCategory: function (event) {
       const copy = {};
       Object.assign(copy, this.item);
       copy.category = event.target.value;
       this.emitChained("update-category", copy);
-      console.log("Category of " + this.item.name + " changed to " + event.target.value);
+      console.log(
+        "Category of " + this.item.name + " changed to " + event.target.value
+      );
     },
-    decreaseQty: function() {
+
+    decreaseQty: function () {
       const copy = {};
       Object.assign(copy, this.item);
       copy.qty = this.item.qty - 1;
@@ -91,24 +93,21 @@ export default {
       console.log("Notifying cart toggle " + this.item.name);
     },
 
-    onClickHandler: function() {
+    onClickHandler: function () {
       this.emitChained("toggle-cart", this.item);
-      console.log("event emitted");
-      // console.log("item qty = " + this.item.qty);
-      // this.item.qty = this.item.qty + 1;
-      // console.log("item qty now = " + this.item.qty);
     }
+
   },
   props: {
     item: {
       type: Object,
-      required: true
+      required: true,
     },
     categories: {
       type: Array,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 };
 </script>
 <style scoped>
