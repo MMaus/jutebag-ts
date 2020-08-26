@@ -36,4 +36,31 @@ interface Item {
     stored: boolean;
 }
 
+
+/**
+ * A topic to be done adds context to an enclosed list of tasks
+ */
+enum TaskStatus {
+    TODO,
+    DONE
+}
+
+interface TodoTask {
+    label: string;
+    status: TaskStatus;
+}
+
+interface TodoItem {
+    taskList: Array<TodoTask>;
+    nextActionTime: Date;
+    label: string;
+}
+
+
+export {
+    TodoItem,
+    TaskStatus,
+    TodoTask
+};
+
 export { Item, Category, CategorySequencer };

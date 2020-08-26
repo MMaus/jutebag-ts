@@ -28,6 +28,12 @@ const routes: Array<any> = [
     name: 'Login',
     // route level code-splitting
     component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue')
+  },
+  {
+    path: '/todo',
+    name: 'Todo',
+    // route level code-splitting
+    component: () => import(/* webpackChunkName: "todo" */ '../views/Todo.vue')
   }
 ]
 

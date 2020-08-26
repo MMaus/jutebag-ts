@@ -1,7 +1,23 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
+    <img alt="jutebag logo" src="../assets/logo.png">
+    <div class="jumbotron">
+      <h2>Welcome to Jutebag.IO!</h2><br />
+      Please select one of the pages to go to from the menu.
+
+      </div>
+    <hr />
+    <a href="#/about">about (direct link)</a>
+
+<hr />
+        <router-link to="login" >Account (router link)</router-link>
+        <hr />
+        <router-link to="todo" >Todo (router link)</router-link>
+        <hr />
+        <router-link to="shoppinglist" >shopping (router link)</router-link>
+        <!--
     <HelloWorld msg="Welcome to Your Vue.js App"/>
+     -->
   </div>
 </template>
 
@@ -12,7 +28,7 @@ import HelloWorld from '@/components/HelloWorld.vue'
 export default {
   name: 'Home',
   components: {
-    HelloWorld
+    // HelloWorld
   }
 }
 </script>
