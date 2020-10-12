@@ -1,10 +1,7 @@
 <template>
   <div id="todoComp">
-    <div class="jumbotron bg-warning">
-      <span class="p-2 bg-danger">Warning</span> This component does not yet feature persistence!
-      </div>
     <div class="d-sm-flex flex-wrap border">
-        <todo-item v-for="todo in todoItems" :key="todo" :label="todo" />
+        <todo-item v-for="todo in todoItems" :key="todo.label" :data="todo" @data-change="onDataChage" @clear-item="onClearItem"/>
     </div>
     <div class="p-2 fixed-bottom text-right float-right bg-secondary text-white">
       <button class="btn bg-primary text-white" @click="openModal">
@@ -27,11 +24,15 @@
 import { defineComponent } from "vue";
 import TodoItem from "@/components/TodoItem.vue";
 import AddTodoModal from "@/components/AddTodoModal.vue";
+import { TodoDAO, LocalTodoItem, LocalTodoTask } from "@/use/todoUtil";
+
+const todoDao = new TodoDAO("todo_v1");
+
 
 export default defineComponent({
   data: function () {
     return {
-      todoItems: ["one", "two", "three"],
+      todoItems: todoDao.todoItemsRef,
       showModal: false,
     };
   },
@@ -41,9 +42,29 @@ export default defineComponent({
       console.log("opening modal dialog");
       this.showModal = true;
     },
+    onDataChage: function(todoId: string, todoText: string) {
+      console.log("Data changed in " + todoId + " - " + todoText);
+      const todoTask = new LocalTodoTask(todoText);
+      const todoItem = todoDao.getItem(todoId);
+      console.log("retrieved item " + todoItem);
+      todoItem?.taskList.push(todoTask);
+      if (todoItem) {
+        todoDao.storeLocally();
+      }
+    },
+    onClearItem: function(todoId: string) {
+      console.log("requested to clear " + todoId);
+      const copyWithout = todoDao.todoItemsRef.value.filter(item => item.label != todoId);
+      todoDao.todoItemsRef.value = copyWithout;
+      todoDao.storeLocally();
+    },
     onNewItem: function(newItem: string) {
+      console.log("on new Item called.");
+      console.log("newItem is: " + newItem);
       if (newItem) {
-        this.todoItems.push(newItem);
+        todoDao.createTodo(newItem);
+        // this.todoItems.value.push(new LocalTodoItem(newItem));
+        // todoDao.storeLocally();
       }
       this.showModal = false;
 

@@ -4,11 +4,17 @@
       <div class="card-header text-left"> 
         <div class="row">
           <div class="col">
-            <span class="category-title">{{ label }}</span>
+            <span class="category-title">{{ data.label }}</span>
           </div>
           <div class="col">
             <span class="float-right">
               <div class="btn-group">
+                <button class="btn border" @click="deleteItem">
+                  <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-x-square" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M14 1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                    <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                  </svg>
+                </button>
                 <button class="btn border" @click="pullItem">
                   <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-arrow-up-square" fill="currentColor" xmlns="http://www.w3.org/2000/svg" >
                     <path fill-rule="evenodd" d="M14 1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
@@ -55,33 +61,47 @@
 
 <script lang="ts">
 import { defineComponent, ref, Ref } from "vue";
-import { TodoTask } from "@/use/localApi";
+import { TodoTask, TodoItem } from "@/use/localApi";
 
-import { LocalTodoTask } from "@/use/todoUtil";
+import { LocalTodoItem, LocalTodoTask } from "@/use/todoUtil";
 
 export default defineComponent({
 
-  setup() {
+  setup(props, context) {
+
+    console.log("props:" + props.data);
+    console.log("props.data:" + JSON.stringify(props));
+    console.log("context.data:" + JSON.stringify(context));
 
     const showAdd = ref(true);
 
     const newTask: Ref<null | HTMLInputElement> = ref(null); // will be set by Vue
- 
-    const tasks: Ref<Array<TodoTask>> = ref([]);
+
+    const tasks: Ref<Array<TodoTask>> = ref(props.data.taskList);
+    // props.data.tasks = ref([]); // Ref<Array<TodoTask>> = ref([]);
+    // const tasks = props.data.tasks;
+
 
     const pullItem = function() {
       console.log("pull item ");
     }
 
     const pushItem = function() {
-      console.log("pull item ");
+      console.log("push item ");
+    }
+
+    const deleteItem = function() {
+      context.emit("clear-item", props.data.label);
     }
 
     const addTask = function() {
       if (newTask.value?.value) {
         const taskLabel = newTask.value!.value;
         console.log("taskLabel = " + taskLabel)
-        tasks.value.push(new LocalTodoTask(taskLabel));
+        const item = new LocalTodoTask(taskLabel);
+      //  taskList); tasks.value.push(item);
+        context.emit("data-change", props.data.label, taskLabel);
+        // props.data.tasks.push(item);
       }
       showAdd.value = false;
     }
@@ -100,6 +120,7 @@ export default defineComponent({
       pullItem,
       pushItem,
       addTask,
+      deleteItem,
       toggleShowAdd
     }
   },
@@ -109,8 +130,8 @@ export default defineComponent({
   },
 
   props: {
-    label: {
-      type: String,
+    data: {
+      type: Object,
       required: true,
     },
   },

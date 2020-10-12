@@ -231,4 +231,4 @@ class ItemRepository {
     }
 }
 
-export { Item, Category, ItemRepository };
+export { ItemRepository };

@@ -56,11 +56,12 @@ interface TodoItem {
     label: string;
 }
 
-
 export {
     TodoItem,
     TaskStatus,
-    TodoTask
+    TodoTask,
+    Item,
+    Category,
+    CategorySequencer
 };
 
-export { Item, Category, CategorySequencer };
