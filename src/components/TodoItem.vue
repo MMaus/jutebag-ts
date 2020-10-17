@@ -4,7 +4,8 @@
       <div class="card-header text-left"> 
         <div class="row">
           <div class="col">
-            <span class="category-title">{{ data.label }}</span>
+            <span class="category-title">{{ data.label }}</span><br>
+            <span class="category-date">Next action {{ formatDate() }}</span>
           </div>
           <div class="col">
             <span class="float-right">
@@ -13,6 +14,11 @@
                   <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-x-square" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" d="M14 1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
                     <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                  </svg>
+                </button>
+                <button class="btn border" @click="showActionTime">
+                  <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-alarm" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/>
                   </svg>
                 </button>
                 <button class="btn border" @click="pullItem">
@@ -56,6 +62,9 @@
         </div>
       </div>
     </div>
+    <choose-date-modal v-if="showDateModal" @close="onNewDate">
+  
+    </choose-date-modal>
   </div>
 </template>
 
@@ -64,6 +73,7 @@ import { defineComponent, ref, Ref } from "vue";
 import { TodoTask, TodoItem } from "@/use/localApi";
 
 import { LocalTodoItem, LocalTodoTask } from "@/use/todoUtil";
+import ChooseDateModal from './ChooseDateModal.vue';
 
 export default defineComponent({
 
@@ -80,6 +90,8 @@ export default defineComponent({
     const tasks: Ref<Array<TodoTask>> = ref(props.data.taskList);
     // props.data.tasks = ref([]); // Ref<Array<TodoTask>> = ref([]);
     // const tasks = props.data.tasks;
+    
+    const showDateModal: Ref<boolean> = ref(false);
 
 
     const pullItem = function() {
@@ -94,6 +106,11 @@ export default defineComponent({
       context.emit("clear-item", props.data.label);
     }
 
+    const showActionTime = function() {
+      console.log("show action time modal");
+      showDateModal.value = true; 
+    }
+
     const addTask = function() {
       if (newTask.value?.value) {
         const taskLabel = newTask.value!.value;
@@ -104,6 +121,40 @@ export default defineComponent({
         // props.data.tasks.push(item);
       }
       showAdd.value = false;
+    }
+
+    const formatDate = function() {
+      const myDate = new Date(props.data.nextActionTime); //props.data.nextActionTime;
+
+      console.log("Date = " + myDate);
+      console.log("Date (string)= " + JSON.stringify(myDate));
+
+      let remainingSeconds: number = Math.round(myDate.getTime() - Date.now()) / 1000;
+
+      console.log("elapsed seconds: " + remainingSeconds)
+      
+      const isDue = remainingSeconds < 0;
+      let result = isDue ? "due since " : "in ";
+      remainingSeconds = Math.abs(remainingSeconds);
+      if (remainingSeconds <  60 * 60 * 24) {
+
+        const hours = Math.floor(remainingSeconds / (60 * 60));
+        const minutes = Math.floor((remainingSeconds % 3600) / 60);
+        if (hours != 0) {
+          result += "" + hours + "h "
+        }
+        result += "" + minutes + "m "
+      } else {
+        const days = Math.floor(remainingSeconds / (60 * 60 * 24));
+        result += "" + days + " days"
+      }
+      // date.
+      return result;
+    }
+
+    const onNewDate = function(newDate: any) {
+      console.log("on New Date: " + newDate);
+      showDateModal.value = false;
     }
 
     const toggleShowAdd = () => {
@@ -121,12 +172,16 @@ export default defineComponent({
       pushItem,
       addTask,
       deleteItem,
+      showActionTime,
+      formatDate,
+      onNewDate,
+      showDateModal,
       toggleShowAdd
     }
   },
 
   components: {
-
+    "choose-date-modal" : ChooseDateModal
   },
 
   props: {
@@ -147,6 +202,11 @@ export default defineComponent({
 .category-title {
   text-transform: capitalize;
   font-size: 120%;
+  font-weight: bold;
+}
+.category-date {
+  white-space: nowrap;
+  font-size: 90%;
   font-weight: bold;
 }
 .category-done {
