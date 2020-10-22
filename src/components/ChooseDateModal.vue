@@ -1,70 +1,125 @@
 <template>
-        <transition name="modal">
-        <div class="modal-mask">
-          <div class="modal-wrapper">
-            <div class="modal-container">
+  <transition name="date-modal">
+    <div class="date-modal-mask">
+      <div class="date-modal-wrapper">
+        <div class="date-modal-container">
+          <div class="date-modal-header">
+            <slot name="header"> Choose next action time </slot>
+          </div>
+          <div>{{ showDate() }}</div><div>{{ showTime() }}</div>
 
-              <div class="modal-header">
-                <slot name="header">
-                  Choose next action time
-                </slot>
-              </div>
-
-              <div class="modal-body">
-                <slot name="body">
-                    Hour
-                </slot>
-                  <input type="text"
-                  placeholder="new todo item"
-                  ref="newItem"
-                  @keyup.enter="submit"
-                  >
-              </div>
-
-              <div class="modal-footer">
-                <slot name="footer">
-                  <button class="modal-default-button" @click="submit">
-                    Choose
-                  </button>
-                </slot>
-              </div>
+          <div class="date-modal-body">
+            <!-- "snooze selection" with exponential zoom -->
+            <!-- -->
+            <div>
+            Day
+            <div class="btn-group">
+              <button class="btn bg-secondary text-white pm-0" @click="incDate(1)">+1</button>
+              <button class="btn bg-primary text-white pm-0" @click="incDate(2)">+2</button>
+              <button class="btn bg-primary text-white pm-0" @click="incDate(5)">+5</button>
+              <button class="btn bg-primary text-white pm-0" @click="incDate(7)">+7</button>
+              <button class="btn bg-primary text-white pm-0" @click="incDate(28)">+28</button>
             </div>
+            </div>
+
+
+            <div class="mt-2">
+              Time
+            <div class="btn-group">
+              <button class="btn bg-secondary text-white pm-0" @click="setTime(8, 0)">morning</button>
+              <button class="btn bg-primary text-white pm-0" @click="setTime(15, 0)">afternoon</button>
+            </div>
+            </div>
+
+
+            <input
+              type="text"
+              placeholder="new todo item"
+              ref="newItem"
+              @keyup.enter="submit"
+            />
+          </div>
+
+          <div class="date-modal-footer">
+            <slot name="footer">
+              <button class="modal-default-button" @click="submit">
+                Choose
+              </button>
+            </slot>
           </div>
         </div>
-      </transition>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from 'vue';
-
+import { defineComponent, Ref, ref } from "vue";
 
 export default defineComponent({
+  setup(props, { emit }) {
+    const newItem: Ref<null | HTMLInputElement> = ref(null);
+    // const data = [];
+    const proposedDate = new Date();
+    proposedDate.setDate(proposedDate.getDate() + 1);
+    proposedDate.setHours(8);
+    proposedDate.setMinutes(0);
+    const selectedTime = ref(proposedDate);
+    let itemData = "";
+    const submit = () => {
+      if (newItem.value?.value) {
+        itemData = newItem.value.value!;
+        console.log("You entered " + itemData);
+      }
+      emit("close", itemData);
+    };
 
-    setup(props, { emit }) {
-        const newItem: Ref<null | HTMLInputElement> = ref(null);
-        const data = [];
-        let itemData = "";
-        const submit = () => {
-            if (newItem.value?.value) {
-                itemData = newItem.value.value!
-                console.log("You entered " + itemData);
-            }
-            emit("close", itemData);
-        };
+    const incDate = function(nDays: number) {
+      const copy = new Date(selectedTime.value.getTime());
+      copy.setDate(selectedTime.value.getDate() + nDays);
+      console.log("updated date")
+      selectedTime.value = copy;
+    }
 
-        return {
-            submit,
-            newItem
-            };
-        }
+    const showDate = () => {
+      // const formatter = new Intl.DateTimeFormat();
+      // const formattedDate = formatter.format(selectedTime.value);
+      // return "" + JSON.stringify(formattedDate); //selectedTime.value;
+      const t = selectedTime.value;
+      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]; // note that weeks start with Sundays!
+      const daytime = "" + t.getHours() + ":" + (t.getMinutes() < 10 ? "0" : "") + t.getMinutes();
+      return "" + days[t.getDay()] + ", " + t.getDate() + "." + (t.getMonth() + 1) + "." + t.getFullYear();
+    };
 
-})
+    const showTime = () => {
+      const t = selectedTime.value;
+      const daytime = "" + t.getHours() + ":" + (t.getMinutes() < 10 ? "0" : "") + t.getMinutes();
+      return daytime;
+    };
 
+    const setTime = (hours: number, minutes: number) => {
+      console.log("function called with " + hours)
+      console.log("function called with " + minutes)
+      const currentDate = new Date(selectedTime.value);
+      currentDate.setHours(hours);
+      currentDate.setMinutes(minutes);
+      selectedTime.value = currentDate;
+    };
+
+    return {
+      submit,
+      newItem,
+      showDate,
+      showTime,
+      incDate,
+      setTime
+    };
+  },
+});
 </script>
 
 <style>
-
-.modal-mask {
+.date-modal-mask {
   position: fixed;
   z-index: 9997;
   top: 0;
@@ -76,15 +131,15 @@ export default defineComponent({
   transition: opacity 0.3s ease;
 }
 
-.modal-wrapper {
+.date-modal-wrapper {
   display: table-cell;
   vertical-align: middle;
 }
 
-.modal-container {
-  width: 300px;
+.date-modal-container {
+  width: 400px;
   margin: 0px auto;
-  padding: 20px 30px;
+  padding: 10px 20px;
   background-color: #fff;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
@@ -92,16 +147,16 @@ export default defineComponent({
   font-family: Helvetica, Arial, sans-serif;
 }
 
-.modal-header h3 {
+.date-modal-header h3 {
   margin-top: 0;
   color: #42b983;
 }
 
-.modal-body {
+.date-modal-body {
   margin: 20px 0;
 }
 
-.modal-default-button {
+.date-modal-default-button {
   float: right;
 }
 
@@ -114,18 +169,19 @@ export default defineComponent({
  * these styles.
  */
 
-.modal-enter {
+.date-modal-enter {
   opacity: 0;
 }
 
-.modal-leave-active {
+.date-modal-leave-active {
   opacity: 0;
 }
 
-.modal-enter .modal-container,
-.modal-leave-active .modal-container {
+.date-modal-enter .date-modal-container,
+.date-modal-leave-active .date-modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
 }
+
 
 </style>

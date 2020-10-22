@@ -41,9 +41,7 @@
         </div>
       </div>
       <div class="card-body text-left">
-        <ul> 
-          <li v-for="task in tasks" :key="task.label">{{task.label}}</li>
-        </ul>
+          <div v-for="task in tasks" :key="task.label"><button class="btn bg-danger" @click="remove(task.label)">X</button><span class="m-3">{{task.label}}</span><button class="btn bg-info" @click="raise(task.label)">!</button></div>
           <span class="float-right">
             <button class="btn border" @click="toggleShowAdd">
               <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-patch-plus" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -152,6 +150,34 @@ export default defineComponent({
       return result;
     }
 
+    const remove = (taskLabel: string) => {
+      let idx = 0;
+      while(idx < tasks.value.length) {
+        if (tasks.value[idx].label === taskLabel) {
+          tasks.value.splice(idx, 1);
+        }
+        idx++;
+      }
+      // tasks.value.filter(val => val.label != itemText)
+      // tasks.value = copy
+      console.log("removing " + taskLabel);
+      context.emit("remove-task", props.data.label, taskLabel);
+    }
+
+    const raise = (taskLabel: string) => {
+      console.log("raising " + taskLabel);
+      let idx = 0;
+      while(idx < tasks.value.length) {
+        if (tasks.value[idx].label === taskLabel) {
+          const itemToRaise = tasks.value.splice(idx, 1)[0];
+          tasks.value.splice(0, 0, itemToRaise);
+          break;
+        }
+        idx++;
+      }
+      context.emit("rearranged-tasks", props.data.label);
+    }
+
     const onNewDate = function(newDate: any) {
       console.log("on New Date: " + newDate);
       showDateModal.value = false;
@@ -176,7 +202,9 @@ export default defineComponent({
       formatDate,
       onNewDate,
       showDateModal,
-      toggleShowAdd
+      toggleShowAdd,
+      remove,
+      raise
     }
   },
 

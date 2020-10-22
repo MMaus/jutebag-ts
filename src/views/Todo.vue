@@ -1,7 +1,11 @@
 <template>
   <div id="todoComp">
     <div class="d-sm-flex flex-wrap border">
-        <todo-item v-for="todo in todoItems" :key="todo.label" :data="todo" @data-change="onDataChage" @clear-item="onClearItem"/>
+        <todo-item v-for="todo in todoItems" :key="todo.label" :data="todo" @data-change="onDataChage" 
+        @clear-item="onClearItem"
+        @remove-task="onRemoveTask"
+        @rearranged-tasks="onRearrangedTasks"
+        />
     </div>
     <div class="p-2 fixed-bottom text-right float-right bg-secondary text-white">
       <button class="btn bg-primary text-white" @click="openModal">
@@ -42,6 +46,12 @@ export default defineComponent({
       console.log("opening modal dialog");
       this.showModal = true;
     },
+
+    onRemoveTask: function(todoId: string, todoTaskLabel: string) {
+      console.log("removed task from " + todoId + ". now storing stuff");
+      todoDao.storeLocally();
+    },
+
     onDataChage: function(todoId: string, todoText: string) {
       console.log("Data changed in " + todoId + " - " + todoText);
       const todoTask = new LocalTodoTask(todoText);
@@ -56,6 +66,10 @@ export default defineComponent({
       console.log("requested to clear " + todoId);
       const copyWithout = todoDao.todoItemsRef.value.filter(item => item.label != todoId);
       todoDao.todoItemsRef.value = copyWithout;
+      todoDao.storeLocally();
+    },
+    onRearrangedTasks: function(todoId: string) {
+      console.log("tasks rearranged, storing locally");
       todoDao.storeLocally();
     },
     onNewItem: function(newItem: string) {
