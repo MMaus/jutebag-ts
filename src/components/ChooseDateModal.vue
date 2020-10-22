@@ -2,7 +2,7 @@
   <transition name="date-modal">
     <div class="date-modal-mask">
       <div class="date-modal-wrapper">
-        <div class="date-modal-container">
+        <div class="date-modal-container border">
           <div class="date-modal-header">
             <slot name="header"> Choose next action time </slot>
           </div>
@@ -32,21 +32,16 @@
             </div>
 
 
-            <input
-              type="text"
-              placeholder="new todo item"
-              ref="newItem"
-              @keyup.enter="submit"
-            />
           </div>
 
           <div class="date-modal-footer">
+              <button class="btn bg-success text-white" @click="submit">
             <slot name="footer">
-              <button class="modal-default-button" @click="submit">
                 Choose
-              </button>
             </slot>
+              </button>
           </div>
+          <div><hr></div>
         </div>
       </div>
     </div>
@@ -58,20 +53,14 @@ import { defineComponent, Ref, ref } from "vue";
 
 export default defineComponent({
   setup(props, { emit }) {
-    const newItem: Ref<null | HTMLInputElement> = ref(null);
-    // const data = [];
     const proposedDate = new Date();
     proposedDate.setDate(proposedDate.getDate() + 1);
     proposedDate.setHours(8);
     proposedDate.setMinutes(0);
     const selectedTime = ref(proposedDate);
-    let itemData = "";
     const submit = () => {
-      if (newItem.value?.value) {
-        itemData = newItem.value.value!;
-        console.log("You entered " + itemData);
-      }
-      emit("close", itemData);
+      console.log("You entered " + selectedTime.value);
+      emit("close", selectedTime.value);
     };
 
     const incDate = function(nDays: number) {
@@ -108,7 +97,6 @@ export default defineComponent({
 
     return {
       submit,
-      newItem,
       showDate,
       showTime,
       incDate,

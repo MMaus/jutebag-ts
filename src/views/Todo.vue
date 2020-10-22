@@ -5,6 +5,7 @@
         @clear-item="onClearItem"
         @remove-task="onRemoveTask"
         @rearranged-tasks="onRearrangedTasks"
+        @date-changed="onDateChanged"
         />
     </div>
     <div class="p-2 fixed-bottom text-right float-right bg-secondary text-white">
@@ -71,6 +72,12 @@ export default defineComponent({
     onRearrangedTasks: function(todoId: string) {
       console.log("tasks rearranged, storing locally");
       todoDao.storeLocally();
+    },
+    onDateChanged: function(todoId: string, newDate: Date) {
+      const todoItem = todoDao.getItem(todoId);
+      if (todoItem) {
+        todoItem.nextActionTime = newDate;
+      }
     },
     onNewItem: function(newItem: string) {
       console.log("on new Item called.");

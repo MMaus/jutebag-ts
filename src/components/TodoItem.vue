@@ -134,7 +134,7 @@ export default defineComponent({
       const isDue = remainingSeconds < 0;
       let result = isDue ? "due since " : "in ";
       remainingSeconds = Math.abs(remainingSeconds);
-      if (remainingSeconds <  60 * 60 * 24) {
+      if (remainingSeconds <  60 * 60 * 24) { // less than one day => return hh:mm
 
         const hours = Math.floor(remainingSeconds / (60 * 60));
         const minutes = Math.floor((remainingSeconds % 3600) / 60);
@@ -142,8 +142,10 @@ export default defineComponent({
           result += "" + hours + "h "
         }
         result += "" + minutes + "m "
-      } else {
-        const days = Math.floor(remainingSeconds / (60 * 60 * 24));
+      } else {  // more than one day => return only days
+        // FIXME: this should actually count mightnight crossings! e.g. from Friday evening to Sunday morning its 2 days.
+        // Q: from Friday evening to Saturday morning, do we want to display "1 day" or e.g. "12h:03m"?
+        const days = Math.round(remainingSeconds / (60 * 60 * 24));
         result += "" + days + " days"
       }
       // date.
@@ -181,6 +183,7 @@ export default defineComponent({
     const onNewDate = function(newDate: any) {
       console.log("on New Date: " + newDate);
       showDateModal.value = false;
+      context.emit("date-changed", props.data.label, newDate);
     }
 
     const toggleShowAdd = () => {
