@@ -1,12 +1,23 @@
 <template>
   <div id="todoComp">
     <div class="d-sm-flex flex-wrap border">
-        <todo-item v-for="todo in todoItems" :key="todo.label" :data="todo" @data-change="onDataChage" 
+        <todo-item v-for="todo in sortedList" :key="todo.label" :data="todo" 
+        @data-change="onDataChage" 
         @clear-item="onClearItem"
         @remove-task="onRemoveTask"
         @rearranged-tasks="onRearrangedTasks"
         @date-changed="onDateChanged"
         />
+    </div>
+    <div>
+      <h4>Howto TODO-List</h4>
+      <ul>
+        <li>Click "+" to create a new TODO item</li>
+        <li>Every item has a list of associated tasks</li>
+        <li>There is always one task to do next. Click on the blue button to mark it as "do next".</li>
+        <li>There is one time associated with each TODO item, the "time for next action". Click on the timer to set it.</li>
+      </ul>
+      
     </div>
     <div class="p-2 fixed-bottom text-right float-right bg-secondary text-white">
       <button class="btn bg-primary text-white" @click="openModal">
@@ -27,9 +38,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import TodoItem from "@/components/TodoItem.vue";
 import AddTodoModal from "@/components/AddTodoModal.vue";
 import { TodoDAO, LocalTodoItem, LocalTodoTask } from "@/use/todoUtil";
+import { TodoItem } from '@/use/localApi';
+import TodoITemComponent from "@/components/TodoItemComponent.vue";
 
 const todoDao = new TodoDAO("todo_v1");
 
@@ -42,11 +54,27 @@ export default defineComponent({
     };
   },
 
+  computed: {
+    sortedList: function(): TodoItem[] {
+      if (!todoDao.todoItemsRef?.value) {
+        console.log("===todoitems unclear")
+        return [];
+      }
+      console.log("?? WHY HERE?")
+      // console.log("FOUND DATA:" + JSON.stringify(this.todoItems.value));
+      // const itemListCopy = [... this.todoItems.value]; 
+      const itemListCopy = [... todoDao.todoItemsRef.value]; 
+      itemListCopy.sort( (a, b) => new Date(a.nextActionTime).getTime() - new Date(b.nextActionTime).getTime());
+      return itemListCopy;
+    },
+  },
+
   methods: {
     openModal: function() {
       console.log("opening modal dialog");
       this.showModal = true;
     },
+
 
     onRemoveTask: function(todoId: string, todoTaskLabel: string) {
       console.log("removed task from " + todoId + ". now storing stuff");
@@ -77,6 +105,7 @@ export default defineComponent({
       const todoItem = todoDao.getItem(todoId);
       if (todoItem) {
         todoItem.nextActionTime = newDate;
+        todoDao.storeLocally();
       }
     },
     onNewItem: function(newItem: string) {
@@ -94,7 +123,7 @@ export default defineComponent({
 
   components: {
     "add-todo-modal" : AddTodoModal,
-    "todo-item": TodoItem,
+    "todo-item": TodoITemComponent,
   },
 });
 </script>
