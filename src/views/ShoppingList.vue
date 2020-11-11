@@ -88,7 +88,8 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 
 import { User } from "firebase/app";
-import { Item, Category, ItemRepository } from "../use/itemStore";
+import { ItemRepository } from "../use/itemStore";
+import { Item, Category } from "../use/localApi";
 
 import { defineComponent, onMounted, computed, ref } from "vue";
 
