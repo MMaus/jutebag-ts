@@ -39,7 +39,7 @@
 
 <script>
 import ToShopItem from "@/components/ToShopItem.vue";
-import { Category, Item } from "@/use/itemStore";
+import { Category } from "@/use/localApi";
 
 export default {
 data: function () {

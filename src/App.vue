@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="mainapp">
     <div id="title" class="bg-dark text-light p-3">
       <h2>
         <img src="favicon.png" height="30em" />JuteBag.IO
@@ -41,6 +41,12 @@
           data-toggle="collapse"
           data-target=".navbar-collapse.show"
         >Account</router-link>
+        <router-link
+          to="todo"
+          class="nav-item nav-link"
+          data-toggle="collapse"
+          data-target=".navbar-collapse.show"
+        >Todo List</router-link>
         <router-link
           to="shoppinglist"
           class="nav-item nav-link"
