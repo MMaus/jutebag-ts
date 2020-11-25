@@ -1,8 +1,10 @@
 
-import { ref, Ref } from 'vue';
+import { reactive, ref, Ref } from 'vue';
 import { Item, Category } from '@/use/localApi';
 
 import { MemorizingSequencer } from '@/use/categorySequencer';
+
+import { RemoteCategory, RemoteSaveRequest, RemoteShoppingItem } from '@/use/remoteApi'
 
 /**
  * The variant of an item which can be stored on the server.
@@ -13,6 +15,54 @@ interface StorableItem {
     qty: number;
     categoryId: number;
     stored: boolean;
+}
+
+class TheRemoteCategory implements RemoteCategory {
+    constructor(id: number, name: string) {
+        this.id = id;
+        this.name = name;
+    }
+    id: number;
+    name: string;
+}
+
+class TheRemoteShoppingItem implements RemoteShoppingItem {
+    constructor(item: Item) {
+        this.id = item.id;
+        this.name = item.name;
+        this.qty = item.qty;
+        this.category = item.category;
+        this.stored = item.stored;
+    }
+    id: number;
+    name: string;
+    qty: number;
+    category: string;
+    stored: boolean;
+}
+
+class UploadRequest implements RemoteSaveRequest {
+
+    constructor(email: string, items: Array<Item>) {
+        this.email = email;
+        const categoryNames = new Set<string>()
+        items.forEach(it => categoryNames.add(it.category));
+        let catId = 0
+        // const categoryById = new Map<string, number>()
+        this.categories = []
+        for (const cn of categoryNames) {
+            this.categories.push(new TheRemoteCategory(catId, cn))
+            catId = catId + 1;
+        }
+        this.items = [];
+        items.forEach(it => this.items.push(new TheRemoteShoppingItem(it)));
+        this.revision = 1; // TODO: make proper revision counting!
+    }
+
+    email: string;
+    items: RemoteShoppingItem[];
+    categories: RemoteCategory[];
+    revision: number;
 }
 
 /**
@@ -160,17 +210,16 @@ class ItemRepository {
     upload(userEmail: string) {
         const itemData = this.itemsRef.value.map(this.toStorableItem);
         console.log("going to upload " + itemData.length + " items");
-        const postData = {
-            email: userEmail,
-            items: itemData
-        };
-        console.log("Sending POST with " + JSON.stringify(postData));
+        const uploadData = new UploadRequest(userEmail, this.itemsRef.value);
+
+        const stringifiedData = JSON.stringify(uploadData);
+        console.log("Sending POST with " + stringifiedData);
         fetch("/bag/saveBag", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(postData),
+            body: stringifiedData
         })
             .then((res) => res.json())
             .then((json) =>
@@ -189,6 +238,9 @@ class ItemRepository {
 
     setNewItems(items: Array<Item>) {
         console.log("Retrieved " + items.length + " items from remote."); 
+        this.categoriesRef.value = this.calcCategories(items);
+        this.itemsRef.value = items;
+        this.storeLocal();
         // TODO: set the item list to the remote data and update everything!
     }
 

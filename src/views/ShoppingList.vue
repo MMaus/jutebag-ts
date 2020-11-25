@@ -80,7 +80,7 @@
 
 <script lang="ts">
 // import { Component, Prop, Vue, Ref } from "vue-property-decorator";
-import { Ref } from "vue";
+import { Ref, reactive } from "vue";
 
 import ShoppingCategory from "@/components/ShoppingCategory.vue";
 
