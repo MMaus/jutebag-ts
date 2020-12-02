@@ -13,7 +13,15 @@
           "serviceId": "jutebag-bag",
           "region": "europe-west1"
         }
+      },
+	{
+        "source": "/bagpy/**",
+        "run": {
+          "serviceId": "jutebag-py",
+          "region": "europe-west1"
+        }
       }
+
     ],
     "headers": [
       {
@@ -24,7 +32,17 @@
             "value": "max-age=1"
           }
         ]
+      },
+      {
+        "source": "/bagpy/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=1"
+          }
+        ]
       }
+
     ]
   }
 }

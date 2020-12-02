@@ -214,7 +214,7 @@ class ItemRepository {
 
         const stringifiedData = JSON.stringify(uploadData);
         console.log("Sending POST with " + stringifiedData);
-        fetch("/bag/saveBag", {
+        fetch("/bagpy/" + userEmail, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -230,9 +230,9 @@ class ItemRepository {
 
     download(userEmail: string) {
       console.log("querying items for " + userEmail);
-      fetch("/bag/loadBag?user=" + userEmail)
+      fetch("/bagpy/" + userEmail)
         .then((res) => res.json())
-        .then((json) => this.setNewItems(json))
+        .then((json) => this.setNewItems(json['items']))
         .catch((err) => console.log(err));
     }
 
