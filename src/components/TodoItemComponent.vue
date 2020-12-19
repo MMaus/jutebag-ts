@@ -1,7 +1,7 @@
 <template>
   <div class="p-1 m-2">
     <div class="card border todo-background">
-      <div class="card-header text-left"> 
+      <div class="card-header text-left" v-bind:class="{due : data.isDue, overdue: data.isOverdue}"> 
         <div class="row">
           <div class="col">
             <span class="category-title">{{ data.label }}</span><br>
@@ -98,7 +98,7 @@ export default defineComponent({
       showAdd.value = false;
     }
 
-    const formatDate = function() {
+    const formatDate = function(): string {
       const myDate = new Date(props.data.nextActionTime); //props.data.nextActionTime;
 
       console.log("Date = " + myDate);
@@ -218,4 +218,14 @@ export default defineComponent({
 .category-done {
   background-color: papayawhip;
 }
+
+.due {
+  background-color: gold;
+}
+
+.overdue {
+  background-color: crimson;
+}
+
+
 </style>
