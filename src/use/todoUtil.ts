@@ -14,9 +14,6 @@ class LocalTodoItem implements TodoItem {
     label: string;
     taskList = [];
     nextActionTime = new Date();
-    isDue = true;
-    isOverdue = false
-
 }
 
 /**
@@ -80,10 +77,7 @@ class TodoDAO {
             if (storedContent) {
                 const parsedContent = JSON.parse(storedContent);
                 if (Array.isArray(parsedContent)) {
-                    // parsedContent.map(item => this.updateTodo(item))
-                    const updatedItems = parsedContent.map(item => this.updateTodo(item));
-                    console.log("setting content to => " + JSON.stringify(updatedItems))
-                    this.todoItemsRef.value = updatedItems
+                    this.todoItemsRef.value = parsedContent
                 }
 
             } else {
@@ -92,23 +86,6 @@ class TodoDAO {
         } catch(error) {
             console.log("ERROR during initialization of todo list data" + error);
         }
-    }
-
-    /**
-     * Update the due and overdue properties of a todo item
-     * @param item the item to update
-     * @returns an updated todo item (due and overdue properties updated)
-     */
-    updateTodo(item: TodoItem): TodoItem {
-      const date = (item.nextActionTime instanceof Date) ? item.nextActionTime : new Date(item.nextActionTime)
-      const remainingSeconds: number = Math.round(new Date(item.nextActionTime).getTime() - Date.now()) / 1000;
-      const isDue = remainingSeconds < 0;
-      const isOverdue = remainingSeconds < -1 * 3600 * 24;
-      const copy = Object.assign({}, item);
-      copy.isDue = isDue;
-      copy.isOverdue = isOverdue;
-      console.log("updated stuff = " + JSON.stringify(copy))
-      return copy;
     }
 
 }

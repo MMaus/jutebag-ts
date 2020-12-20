@@ -54,8 +54,6 @@ interface TodoItem {
     taskList: Array<TodoTask>;
     nextActionTime: Date;
     label: string;
-    isDue: boolean;
-    isOverdue: boolean;
 }
 
 export {

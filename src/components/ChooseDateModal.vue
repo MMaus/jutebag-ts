@@ -12,14 +12,17 @@
             <!-- "snooze selection" with exponential zoom -->
             <!-- -->
             <div>
-            Day
-            <div class="btn-group">
-              <button class="btn bg-secondary text-white pm-0" @click="incDate(1)">+1</button>
-              <button class="btn bg-primary text-white pm-0" @click="incDate(2)">+2</button>
-              <button class="btn bg-primary text-white pm-0" @click="incDate(5)">+5</button>
-              <button class="btn bg-primary text-white pm-0" @click="incDate(7)">+7</button>
-              <button class="btn bg-primary text-white pm-0" @click="incDate(28)">+28</button>
+                <button class="btn bg-secondary text-white pm-0" @click="resetDate()">now</button>
             </div>
+            <div>
+            Day
+              <div class="btn-group">
+                <button class="btn bg-secondary text-white pm-0" @click="incDate(1)">+1</button>
+                <button class="btn bg-primary text-white pm-0" @click="incDate(2)">+2</button>
+                <button class="btn bg-primary text-white pm-0" @click="incDate(5)">+5</button>
+                <button class="btn bg-primary text-white pm-0" @click="incDate(7)">+7</button>
+                <button class="btn bg-primary text-white pm-0" @click="incDate(28)">+28</button>
+              </div>
             </div>
 
 
@@ -70,6 +73,10 @@ export default defineComponent({
       selectedTime.value = copy;
     }
 
+    const resetDate = function() {
+      selectedTime.value = new Date();
+    }
+
     const showDate = () => {
       // const formatter = new Intl.DateTimeFormat();
       // const formattedDate = formatter.format(selectedTime.value);
@@ -100,7 +107,8 @@ export default defineComponent({
       showDate,
       showTime,
       incDate,
-      setTime
+      setTime,
+      resetDate
     };
   },
 });
