@@ -14,7 +14,6 @@ class LocalTodoItem implements TodoItem {
     label: string;
     taskList = [];
     nextActionTime = new Date();
-
 }
 
 /**
@@ -78,7 +77,7 @@ class TodoDAO {
             if (storedContent) {
                 const parsedContent = JSON.parse(storedContent);
                 if (Array.isArray(parsedContent)) {
-                    this.todoItemsRef.value = parsedContent;
+                    this.todoItemsRef.value = parsedContent
                 }
 
             } else {

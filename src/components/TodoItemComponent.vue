@@ -1,7 +1,7 @@
 <template>
   <div class="p-1 m-2">
     <div class="card border todo-background">
-      <div class="card-header text-left"> 
+      <div class="card-header text-left" v-bind:class="{due : isDue(), overdue: isOverdue()}"> 
         <div class="row">
           <div class="col">
             <span class="category-title">{{ data.label }}</span><br>
@@ -98,16 +98,19 @@ export default defineComponent({
       showAdd.value = false;
     }
 
-    const formatDate = function() {
+    const getRemainingSeconds = () => {
       const myDate = new Date(props.data.nextActionTime); //props.data.nextActionTime;
 
       console.log("Date = " + myDate);
       console.log("Date (string)= " + JSON.stringify(myDate));
 
-      let remainingSeconds: number = Math.round(myDate.getTime() - Date.now()) / 1000;
+      const remainingSeconds: number = Math.round(myDate.getTime() - Date.now()) / 1000;
+      return remainingSeconds;
+    }
 
-      console.log("elapsed seconds: " + remainingSeconds)
-      
+    const formatDate = function(): string {
+
+      let remainingSeconds = getRemainingSeconds()
       const isDue = remainingSeconds < 0;
       let result = isDue ? "due since " : "in ";
       remainingSeconds = Math.abs(remainingSeconds);
@@ -127,6 +130,14 @@ export default defineComponent({
       }
       // date.
       return result;
+    }
+
+    const isDue = () => {
+      return getRemainingSeconds() < 0;
+    }
+
+    const isOverdue = () => {
+      return getRemainingSeconds() < -1 * 3600 * 24; // more than 24 overdue
     }
 
     const remove = (taskLabel: string) => {
@@ -182,7 +193,9 @@ export default defineComponent({
       showDateModal,
       toggleShowAdd,
       remove,
-      raise
+      raise,
+      isDue,
+      isOverdue
     }
   },
 
@@ -218,4 +231,14 @@ export default defineComponent({
 .category-done {
   background-color: papayawhip;
 }
+
+.due {
+  background-color: gold;
+}
+
+.overdue {
+  background-color: crimson;
+}
+
+
 </style>

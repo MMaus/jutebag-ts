@@ -1,7 +1,7 @@
 <template>
   <div id="todoComp">
     <div class="d-sm-flex flex-wrap border">
-        <todo-item v-for="todo in sortedList" :key="todo.label" :data="todo" 
+        <todo-item v-for="todo in sortedList" :key="todo.label" :data="todo"
         @data-change="onDataChage" 
         @clear-item="onClearItem"
         @remove-task="onRemoveTask"
@@ -64,6 +64,7 @@ export default defineComponent({
       // console.log("FOUND DATA:" + JSON.stringify(this.todoItems.value));
       // const itemListCopy = [... this.todoItems.value]; 
       const itemListCopy = [... todoDao.todoItemsRef.value]; 
+      console.log("RENDERING LIST: " + JSON.stringify(itemListCopy))
       itemListCopy.sort( (a, b) => new Date(a.nextActionTime).getTime() - new Date(b.nextActionTime).getTime());
       return itemListCopy;
     },
@@ -136,6 +137,5 @@ export default defineComponent({
   text-align: center;
   color: #2c3e50;
 }
-
 
 </style>
