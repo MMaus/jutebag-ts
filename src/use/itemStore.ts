@@ -77,7 +77,9 @@ class ItemRepository {
 
     readonly categoriesRef: Ref<Array<Category>> = ref(this.categoryData);
     readonly itemsRef: Ref<Array<Item>> = ref(this.itemData);
+    readonly itemsReactive: Array<Item> = reactive(this.itemData);
 
+    readonly categoriesReactive: Array<Category> = reactive(this.categoryData);
     readonly categorySequencer: MemorizingSequencer;
 
     readonly storeName: string;
@@ -101,20 +103,33 @@ class ItemRepository {
     deleteItem(itemId: number) {
         const newList = this.itemsRef.value.filter((item) => item.id != itemId);
         this.categoriesRef.value = this.calcCategories(newList);
+        this.recomputeReactiveCategories();
         this.itemsRef.value = newList;
         this.storeLocal();
+    }
+
+    private recomputeReactiveCategories() {
+        this.categoriesReactive.length = 0;
+        this.calcCategories(this.itemsRef.value).forEach(it => this.categoriesReactive.push(it))
     }
 
     addItem(item: Item) {
         const newList = this.itemsRef.value;
         newList.push(item);
         this.categoriesRef.value = this.calcCategories(newList);
+        // FIXME: why clear and re-add all items? At the very least make a manual modification check here, right?
+        this.recomputeReactiveCategories()
+
         this.itemsRef.value = newList;
         this.storeLocal();
     }
 
     toggleCart(item: Item) {
         item.stored = !item.stored;
+        const sameCategoryItems = this.itemsRef.value.filter(it => it.category === item.category)
+        const isCategoryDone = sameCategoryItems.every(it => it.stored)
+        this.categoriesReactive.find(it => it.name === item.category)!.isDone = isCategoryDone
+
         this.storeLocal();
         //   this.storeItems(items.value);
     }
@@ -138,16 +153,19 @@ class ItemRepository {
             });
         this.storeLocal();
         this.categoriesRef.value = this.calcCategories(this.itemsRef.value);
+        this.recomputeReactiveCategories();
     }
 
     pullCategory(categoryName: string) {
         this.categorySequencer.moveCategory(categoryName, -1);
         this.categoriesRef.value = this.calcCategories(this.itemsRef.value);
+        this.recomputeReactiveCategories();
     }
 
     pushCategory(categoryName: string) {
         this.categorySequencer.moveCategory(categoryName, +1);
         this.categoriesRef.value = this.calcCategories(this.itemsRef.value);
+        this.recomputeReactiveCategories();
     }
 
 
@@ -195,6 +213,7 @@ class ItemRepository {
                     this.nextItemId = parsedContent.map(item => item.id).reduce((first, second) => Math.max(first, second), 0);
                     this.categoriesRef.value = this.calcCategories(parsedContent);
                     this.itemsRef.value = parsedContent;
+                    this.recomputeReactiveCategories();
                     console.log("Loaded " +
                         this.itemsRef.value.length + " items in " +
                         this.categoriesRef.value.length + " categories from localstore");

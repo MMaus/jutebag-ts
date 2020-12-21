@@ -7,7 +7,7 @@
     <hr />
     <div class="d-sm-flex flex-wrap">
       <shopping-category
-        v-for="cat in categories"
+        v-for="cat in categoriesReactive"
         :key="cat.name"
         :category="cat"
         :categorylist="categories"
@@ -18,8 +18,6 @@
         @pull-category="pullCategory"
         @push-category="pushCategory"
       >
-        category : {{ cat.name }}, isDone: {{ cat.isDone }}
-        items: {{ cat.items }}
       </shopping-category>
     </div>
 
@@ -110,6 +108,9 @@ export default defineComponent({
     // note: this is a reactive vue property ("ref")
     const items: Ref<Array<Item>> = itemRepo.itemsRef; //ref(initialItems);
     const categories: Ref<Array<Category>> = itemRepo.categoriesRef; 
+    const categoriesReactive: Array<Category> = itemRepo.categoriesReactive; 
+
+    console.log("=== reactive cat: " + JSON.stringify(categoriesReactive))
 
     const showAddItemEnh = ref(false);
     const newCategory = ref("");
@@ -240,6 +241,7 @@ export default defineComponent({
       categoryText,
       categoryList,
       categories,
+      categoriesReactive,
       // UI functionality
       onInputFocus,
       categoryListChange,
