@@ -7,10 +7,10 @@
     <hr />
     <div class="d-sm-flex flex-wrap">
       <shopping-category
-        v-for="cat in categories"
+        v-for="cat in categoriesReactive"
         :key="cat.name"
         :category="cat"
-        :categorylist="categories"
+        :categorylist="categoriesReactive"
         @toggle-cart="toggleCart"
         @delete-item="deleteItem"
         @update-qty="updateQty"
@@ -18,8 +18,6 @@
         @pull-category="pullCategory"
         @push-category="pushCategory"
       >
-        category : {{ cat.name }}, isDone: {{ cat.isDone }}
-        items: {{ cat.items }}
       </shopping-category>
     </div>
 
@@ -57,7 +55,7 @@
           @keyup.enter="addItem()"
         >
           <option value></option>
-          <option v-for="cat in categories" :key="cat.name" :value="cat.name">{{cat.name}}</option>
+          <option v-for="cat in categoriesReactive" :key="cat.name" :value="cat.name">{{cat.name}}</option>
         </select>
         <input
           type="text"
@@ -71,7 +69,7 @@
           placeholder="new category"
         />
         <datalist id="categorylist">
-          <option v-for="cat in categories" :key="cat.name" :value="cat.name">{{cat.name}}</option>
+          <option v-for="cat in categoriesReactive" :key="cat.name" :value="cat.name">{{cat.name}}</option>
         </datalist>
       </div>
     </div>
@@ -79,7 +77,6 @@
 </template>
 
 <script lang="ts">
-// import { Component, Prop, Vue, Ref } from "vue-property-decorator";
 import { Ref, reactive } from "vue";
 
 import ShoppingCategory from "@/components/ShoppingCategory.vue";
@@ -108,8 +105,8 @@ export default defineComponent({
     const user = ref("Moritz"); // some initial value
 
     // note: this is a reactive vue property ("ref")
-    const items: Ref<Array<Item>> = itemRepo.itemsRef; //ref(initialItems);
-    const categories: Ref<Array<Category>> = itemRepo.categoriesRef; 
+    const items: Ref<Array<Item>> = itemRepo.itemsRef; 
+    const categoriesReactive: Array<Category> = itemRepo.categoriesReactive; 
 
     const showAddItemEnh = ref(false);
     const newCategory = ref("");
@@ -239,7 +236,7 @@ export default defineComponent({
       newItem,
       categoryText,
       categoryList,
-      categories,
+      categoriesReactive,
       // UI functionality
       onInputFocus,
       categoryListChange,
