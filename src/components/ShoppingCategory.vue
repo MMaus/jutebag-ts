@@ -41,58 +41,74 @@
 import ToShopItem from "@/components/ToShopItem.vue";
 import { Category } from "@/use/localApi";
 
-export default {
-data: function () {
-  return {
-    showNevertheless: false,
-  };
-},
 
-props: {
-  category: {
-    type: Category,
-    required: true,
-  },
-  categorylist: {
-    type: Array,
-    required: true,
-  },
-},
+const instance = {
 
-methods: {
-  toggleShowNevertheless: function () {
-    if (!this.isDone) {
-      this.showNevertheless = false; // debatable behaviour
-      // deactivate toggling when not done
-      return;
+  data: function () {
+    return {
+      showNevertheless: false,
+    };
+  },
+
+
+  props: {
+    category: {
+      type: Category,
+      required: true,
+    },
+    categorylist: {
+      type: Array,
+      required: true,
+    },
+  },
+
+  methods: {
+    toggleShowNevertheless: function () {
+      if (!this.isDone) {
+        this.showNevertheless = false; // debatable behaviour
+        // deactivate toggling when not done
+        return;
+      }
+      
+      this.showNevertheless = !this.showNevertheless;
+    },
+
+    pullCategory: function () {
+      this.$emit("pull-category", this.category.name);
+    },
+    pushCategory: function () {
+      this.$emit("push-category", this.category.name);
+    },
+  },
+
+  computed: {
+    items: function () {
+      return this.category.items;
+    },
+    isDone: function () {
+      return this.category.isDone;
+    },
+    showItems: function () {
+      return !this.isDone || this.showNevertheless;
+    },
+  },
+
+  watch: {
+    // reset "showNevertheless" if category is not done, so that it always collapses when just being finished
+    isDone: function(newIsDone, oldIsDone) {
+      if (!newIsDone) {
+        this.showNevertheless = false;
+      }
     }
-    this.showNevertheless = !this.showNevertheless;
   },
 
-  pullCategory: function () {
-    this.$emit("pull-category", this.category.name);
-  },
-  pushCategory: function () {
-    this.$emit("push-category", this.category.name);
-  },
-},
-
-computed: {
-  items: function () {
-    return this.category.items;
-  },
-  isDone: function () {
-    return this.category.isDone;
-  },
-  showItems: function () {
-    return !this.isDone || this.showNevertheless;
-  },
-},
-
-components: {
-  "to-shop-item": ToShopItem,
-},
+  components: {
+    "to-shop-item": ToShopItem,
+  }
 };
+
+export default instance;
+
 </script>
 
 <style scoped>
