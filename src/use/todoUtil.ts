@@ -1,5 +1,5 @@
 
-import { ref, Ref } from "vue";
+import { ref, Ref, reactive } from "vue";
 import { TodoItem, TodoTask, TaskStatus} from "@/use/localApi";
 
 /**
@@ -33,10 +33,7 @@ class LocalTodoTask implements TodoTask {
 
 class TodoDAO {
     
-    // apparently you must not use this directly...
-    private todoItems: Array<TodoItem> = [];
-
-    readonly todoItemsRef: Ref<Array<TodoItem>> = ref(this.todoItems);
+    readonly todoItemsReactive: Array<TodoItem> = reactive([]);
 
     private storeName: string;
 
@@ -46,13 +43,26 @@ class TodoDAO {
     }
 
     createTodo(label: string) {
-        this.todoItemsRef.value.push(new LocalTodoItem(label));
+        this.todoItemsReactive.push(new LocalTodoItem(label));
         this.storeLocally();
     }
 
     getItem(todoId: string): TodoItem|undefined {
-        const item = this.todoItemsRef.value.find(item => item.label === todoId);
+        // const item = this.todoItemsRef.value.find(item => item.label === todoId);
+        const item = this.todoItemsReactive.find(item => item.label === todoId);
         return item;
+    }
+
+    removeByLabel(todoId: string) {
+    //   const copyWithout = todoDao.todoItemsReactive.filter(item => item.label != todoId);
+      let count = 0;
+      while(count < this.todoItemsReactive.length) {
+          if (this.todoItemsReactive[count].label == todoId) {
+              this.todoItemsReactive.splice(count, 1);
+          }
+        count++;
+      }
+      this.storeLocally();
     }
 
     /**
@@ -60,9 +70,7 @@ class TodoDAO {
      */
     storeLocally() {
         console.log("storing locally...");
-        let stringified = JSON.stringify(this.todoItems);
-        console.log("Stringified todoItems:" + stringified);
-        stringified = JSON.stringify(this.todoItemsRef.value);
+        const stringified = JSON.stringify(this.todoItemsReactive);
         console.log("Stringified todoItems (from ref):" + stringified);
         localStorage.setItem(this.storeName, stringified);
         console.log("Stored todo items to localStorage");
@@ -77,7 +85,8 @@ class TodoDAO {
             if (storedContent) {
                 const parsedContent = JSON.parse(storedContent);
                 if (Array.isArray(parsedContent)) {
-                    this.todoItemsRef.value = parsedContent
+                    this.todoItemsReactive.length = 0;
+                    parsedContent.forEach(it => this.todoItemsReactive.push(it))
                 }
 
             } else {
