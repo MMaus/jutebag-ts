@@ -97,6 +97,47 @@ class TodoDAO {
         }
     }
 
+    upload(userEmail: string) {
+        /* FIXME: create proper data format class or the like, see shopping list */
+        const uploadData = {
+            'version' : 1, /* stub for now */
+            'tasks' : this.todoItemsReactive
+        };
+
+        const stringifiedData = JSON.stringify(uploadData);
+        console.log("Sending POST with " + stringifiedData);
+        fetch("/bagpy/todo/" + userEmail, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: stringifiedData
+        })
+            .then((res) => res.json())
+            .then((json) =>
+                console.log("received POST result:" + JSON.stringify(json))
+            )
+            .catch((err) => console.log("POST error: " + err));
+    }
+
+    download(userEmail: string) {
+      console.log("downloading todo list for " + userEmail );
+      console.log("querying items for " + userEmail);
+      fetch("/bagpy/todo/" + userEmail)
+        .then((res) => res.json())
+        .then((json) => {
+            console.log("TODO DOWNLOAD: received " + JSON.stringify(json));
+            this.setNewItems(json['tasks']);
+        })
+        .catch((err) => console.log(err));
+    }
+
+    private setNewItems(items: Array<TodoItem>) {
+        console.log("setting todolist to " + JSON.stringify(items));
+        this.todoItemsReactive.length = 0;
+        items.forEach(it => this.todoItemsReactive.push(it))
+    }
+
 }
 
 

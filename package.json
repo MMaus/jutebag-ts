@@ -37,11 +37,6 @@
     "typescript": "~3.9.3",
     "vue-cli-plugin-vue-next": "~0.1.3"
   },
-  "vue": {
-    "pwa": {
-      "name": "JuteBag"
-    }
-  },
   "eslintConfig": {
     "root": true,
     "env": {

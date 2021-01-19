@@ -57,7 +57,7 @@ export default defineComponent({
   data: function () {
     return {
       showModal: false,
-      user: "",
+      userEmail: "",
       isLoggedIn: false,
     };
   },
@@ -80,14 +80,25 @@ export default defineComponent({
       console.log("opening modal dialog");
       this.showModal = true;
     },
+
     storeRemote: function() {
-      console.log("storing remotely");
+      if (this.userEmail) {
+        todoDao.upload(this.userEmail);
+        console.log("storing remotely");
+      } else {
+        console.error("user not logged in / email not verified");
+      }
     },
 
     loadRemote: function() {
-      console.log("loading from remote remotely");
-    },
+      if (this.userEmail) {
+        console.log("fetching items from remote for " + this.userEmail);
+        todoDao.download(this.userEmail);
+      } else {
+        console.error("user not logged in / user not verified");
 
+      }
+    },
 
     onRemoveTask: function(todoId: string, todoTaskLabel: string) {
       console.log("removed task from " + todoId + ". now storing stuff");
@@ -114,6 +125,7 @@ export default defineComponent({
       console.log("tasks rearranged, storing locally");
       todoDao.storeLocally();
     },
+
     onDateChanged: function(todoId: string, newDate: Date) {
       const todoItem = todoDao.getItem(todoId);
       if (todoItem) {
@@ -121,6 +133,7 @@ export default defineComponent({
         todoDao.storeLocally();
       }
     },
+
     onNewItem: function(newItem: string) {
       console.log("on new Item called.");
       console.log("newItem is: " + newItem);
@@ -136,14 +149,13 @@ export default defineComponent({
         this.isLoggedIn = false;
       } else {
         this.isLoggedIn = user.emailVerified;
-        this.user = user.email ?? "<no email>";
+        this.userEmail = user.email ?? "<no email>";
       }
       console.log("user logged in?" + this.isLoggedIn)
       if (this.isLoggedIn) {
-        console.log("logged in as " + this.user)
+        console.log("logged in as " + this.userEmail)
       }
     }
-
 
   },
 
@@ -151,12 +163,9 @@ export default defineComponent({
   mounted: function() {
       // just a synatx reminder for myself:
       // `checkLogin` is short for `user => checkLogin(user)`
-      console.log("(Re-)Initialized ShoppingList");
-      // items.value = itemRepo.itemList;
       firebase.auth().onAuthStateChanged(this.checkLogin);
     }
   ,
-
 
   components: {
     "add-todo-modal" : AddTodoModal,
