@@ -5,37 +5,41 @@
       <div v-if="loggedIn">
         <span class="lead">Logged in as</span>
         {{ currentUser }}
+        <button type="button" class="button btn btn-primary" @click="logout">
+          logout
+        </button>
         <button
-          type="button"
-          class="button btn btn-primary"
-          @click="logout"
-        >logout</button>
-        <button
-          :class="{'collapse' : userVerified}"
+          v-if="!userVerified"
           type="button"
           class="button btn btn-warning"
           @click="sendVerification"
-        >Verify Email!</button>
+        >
+          Verify Email!
+        </button>
       </div>
       <div v-else>
         <input type="email" v-model="email" placeholder="email" />
         <input type="password" v-model="password" placeholder="password" />
-        <button type="button" class="button btn btn-primary" @click="login">login</button>
+        <button type="button" class="button btn btn-primary" @click="login">
+          login
+        </button>
         <hr />
         <span class="lead">
           <b>or</b>
         </span>
         <hr />
-        <button type="button" class="button btn btn-warning" @click="signUp">Sign Up!</button>
+        <button type="button" class="button btn btn-warning" @click="signUp">
+          Sign Up!
+        </button>
       </div>
     </div>
     <div class="bg-danger text-white" v-if="showError">
       <h4 class="text-white">ERROR</h4>
-      {{errMsg}}
+      {{ errMsg }}
     </div>
     <div class="bg-success text-white" v-if="showSuccess">
       <h4 class="text-white">Success!</h4>
-      {{successMsg}}
+      {{ successMsg }}
     </div>
   </div>
 </template>
@@ -45,7 +49,7 @@ import { Component, Prop, Vue, Ref } from "vue-property-decorator";
 
 import * as firebase from "firebase/app";
 import "firebase/auth";
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, onMounted } from "vue";
 
 // @Component
 // export default class Login extends Vue {
@@ -63,7 +67,7 @@ export default {
     const loggedIn = ref(false);
     const currentUser = ref("");
 
-    const setUser = (user: firebase.User | null): void => {
+    const setUser = function(user: firebase.User | null): void {
       console.log("setting user to " + user);
       if (user) {
         loggedIn.value = true;
@@ -76,13 +80,18 @@ export default {
       }
     };
 
-    const displaySuccess = () => {
+    onMounted(function() {
+      console.log("login page loaded");
+      firebase.auth().onAuthStateChanged(setUser);
+    });
+
+    const displaySuccess = function() {
       showError.value = false;
       showSuccess.value = true;
       successMsg.value = "Ois guad!";
     };
 
-    const displayError = (error: any): void => {
+    const displayError = function(error: any): void {
       console.log("received error: " + error);
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -92,7 +101,7 @@ export default {
       console.log("error displayed: " + error);
     };
 
-    const login = () => {
+    const login = function() {
       console.log("login clicked");
       firebase
         .auth()
@@ -101,7 +110,7 @@ export default {
         .catch((error) => displayError(error));
     };
 
-    const signUp = () => {
+    const signUp = function() {
       firebase
         .auth()
         .createUserWithEmailAndPassword(email.value, password.value)
@@ -109,16 +118,16 @@ export default {
         .catch((error) => displayError(error));
     };
 
-    const sendVerification = () => {
+    const sendVerification = function() {
       firebase
         .auth()
         .currentUser?.sendEmailVerification()
-        .then(function () {
+        .then(function() {
           alert("Email Verification Sent!");
         });
     };
 
-    const logout = () => {
+    const logout = function() {
       console.log("logout clicked");
       firebase.auth().signOut();
     };
@@ -141,76 +150,6 @@ export default {
       displaySuccess,
     };
   },
-
-  // setUser(user: firebase.User | null): void {
-  //   console.log("setting user to " + user);
-  //   if (user) {
-  //     this.loggedIn = true;
-  //     this.currentUser = user.email!;
-  //     this.userVerified = user.emailVerified;
-  //   } else {
-  //     this.loggedIn = false;
-  //     this.currentUser = "(no user)";
-  //     this.userVerified = false;
-  //   }
-  // },
-
-  // mounted() {
-  //   const user = firebase.auth().currentUser;
-  //   // this.setUser(user);
-  //   // firebase.auth().onAuthStateChanged(user => this.setUser(user));
-  //   setUser(user);
-  //   firebase.auth().onAuthStateChanged(user => setUser(user));
-  // },
-
-  // login() {
-  //   console.log("login clicked");
-  //   firebase
-  //     .auth()
-  //     .signInWithEmailAndPassword(this.email, this.password)
-  //     .then(res => this.displaySuccess())
-  //     .catch(error => this.displayError(error));
-  // },
-
-  // displaySuccess() {
-  //   this.showError = false;
-  //   this.showSuccess = true;
-  //   this.successMsg = "Ois guad!";
-  // },
-
-  // displayError(error: any): void {
-  //   console.log("received error: " + error);
-  //   const errorCode = error.code;
-  //   const errorMessage = error.message;
-  //   this.showError = true;
-  //   this.showSuccess = false;
-  //   this.errMsg = errorMessage;
-  //   console.log("error displayed: " + error);
-  // },
-
-  // signUp() {
-  //   firebase
-  //     .auth()
-  //     .createUserWithEmailAndPassword(this.email, this.password)
-  //     .then(u => this.displaySuccess())
-  //     .catch(error => this.displayError(error));
-  // },
-
-  // sendVerification() {
-  //   firebase
-  //     .auth()
-  //     .currentUser?.sendEmailVerification()
-  //     .then(function() {
-  //       alert("Email Verification Sent!");
-  //     });
-  // },
-
-  // logout() {
-  //   console.log("logout clicked");
-  //   firebase.auth().signOut();
-  // }
-
-  // });
 
   components: {
     // add stuff here like ShoppingList if it was imported like import ShoppingList from "./ShoppingList.vue"
