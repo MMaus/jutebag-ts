@@ -1,14 +1,12 @@
 <template>
   <div id="mainapp">
-    <div id="title" class="bg-dark text-light p-3">
-      <h2>
-        <img src="favicon.png" height="30em" />JuteBag.IO
-      </h2>
+    <div id="title" class="bg-dark text-light p-1">
+      <h2><img src="favicon.png" height="30em" />JuteBag.IO</h2>
       <h3>Your Shopping Bag</h3>
     </div>
     <div
       id="nav"
-      class="navbar mt-0 navbar-expand-sm navbar-dark bg-secondary mb-1 pb-1 sticky-top"
+      class="navbar m-0 navbar-expand-sm navbar-dark bg-secondary mb-1 pb-1 sticky-top"
     >
       <button
         class="navbar-toggler"
@@ -28,37 +26,51 @@
           class="nav-item nav-link"
           data-toggle="collapse"
           data-target=".navbar-collapse.show"
-        >Home</router-link>
+          >Home</router-link
+        >
         <router-link
           to="about"
           class="nav-item nav-link"
           data-toggle="collapse"
           data-target=".navbar-collapse.show"
-        >About</router-link>
+          >About</router-link
+        >
         <router-link
           to="login"
           class="nav-item nav-link"
           data-toggle="collapse"
           data-target=".navbar-collapse.show"
-        >Account</router-link>
+          >Account</router-link
+        >
         <router-link
           to="todo"
           class="nav-item nav-link"
           data-toggle="collapse"
           data-target=".navbar-collapse.show"
-        >Todo List</router-link>
+          >Todo List</router-link
+        >
         <router-link
           to="shoppinglist"
           class="nav-item nav-link"
           data-toggle="collapse"
           data-target=".navbar-collapse.show"
-        >Go Shopping!</router-link>
+          >Go Shopping!</router-link
+        >
       </div>
-      <div class="boxed bg-success text-white lead p-2" v-if="loggedIn">Signed In</div>
-      <div class="boxed bg-warning text-white lead p-2" v-if="loggedOut">Not logged in</div>
-      <div class="boxed bg-warning text-white lead p-2" v-if="verificationRequired">verify email!</div>
+      <div class="boxed bg-success text-white lead p-2" v-if="loggedIn">
+        Signed In
+      </div>
+      <div class="boxed bg-warning text-white lead p-2" v-if="loggedOut">
+        Not logged in
+      </div>
+      <div
+        class="boxed bg-warning text-white lead p-2"
+        v-if="verificationRequired"
+      >
+        verify email!
+      </div>
     </div>
-    <router-view />
+    <router-view></router-view>
   </div>
 </template>
 
@@ -72,7 +84,6 @@ import "firebase/auth";
 // import "firebase/analytics";
 
 function loginComplete(user) {
-  console.log("=== YEAH ===");
   console.log("=== User: ===" + user);
   if (user) {
     if (user.emailVerified) {
@@ -85,14 +96,14 @@ function loginComplete(user) {
 
 export default {
   created: function() {
-    firebase.auth().onAuthStateChanged(user => this.toggleSignIn(user));
+    firebase.auth().onAuthStateChanged((user) => this.toggleSignIn(user));
   },
 
   data: function() {
     return {
       loggedIn: loginComplete(firebase.auth().currentUser),
       verificationRequired: false,
-      loggedOut: true
+      loggedOut: true,
     };
   },
 
@@ -107,9 +118,8 @@ export default {
         this.verificationRequired = false;
         this.loggedOut = true;
       }
-    }
-  }
-
+    },
+  },
 };
 </script>
 
@@ -123,7 +133,7 @@ export default {
 }
 
 #nav {
-  padding: 30px;
+  /* padding: 30px; */
 }
 
 #nav a {

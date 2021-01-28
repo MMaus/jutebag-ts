@@ -4,41 +4,62 @@
       v-if="item.stored"
       class="storedItem mt-1 text-success text-left font-weight-bold"
       v-on:click="onClickHandler"
-    >{{item.qty}}x {{item.name}}</div>
+    >
+      {{ item.qty }}x {{ item.name }}
+    </div>
 
-    <div v-else class="card bg-secondary m-1 itemsized">
-      <div class="card-head text-white font-italic small">Qty: {{item.qty}}, DEBUG:ID={{item.id}}</div>
+    <div v-else class="card bg-secondary m-1 border border-success">
       <div class="card-body p-1 font-weight-bold text-light">
         <div class="row">
           <div class="col-auto">
             <div class="btn-group" role="group">
-              <button type="button" class="btn btn-primary" v-on:click="decreaseQty">-</button>
-              <button type="button" class="btn btn-outline-primary bg-white">
-                <b>{{item.qty}}</b>
+              <button
+                type="button"
+                class="btn btn-primary"
+                v-on:click="decreaseQty"
+              >
+                -
               </button>
-              <button type="button" class="btn btn-primary" v-on:click="increaseQty">+</button>
+              <button type="button" class="btn btn-outline-primary bg-white">
+                <b>{{ item.qty }}</b>
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                v-on:click="increaseQty"
+              >
+                +
+              </button>
             </div>
           </div>
-          <div class="col text-left my-auto" v-on:click="onClickHandler">{{ item.name }}</div>
+          <div class="col text-left my-auto" v-on:click="onClickHandler">
+            {{ item.name }}
+          </div>
           <div class="col-auto" aria-label="change quantity">
-            <button type="button" class="btn btn-warning" v-on:click="toggleCollapse()">
+            <button
+              type="button"
+              class="btn btn-warning"
+              v-on:click="toggleCollapse()"
+            >
               <span class="nav-item dropdown-toggle"></span>
             </button>
           </div>
         </div>
-        <div class="w-100"></div>
-        <div class="collapse pt-2" v-bind:class="{'show' : showOptions}">
+        <div class="collapse pt-2" v-bind:class="{ show: showOptions }">
           <button
             class="btn btn-danger text-white font-weight-bold mr-3"
             v-on:click="notifyDelete()"
-          >x</button>
+          >
+            x
+          </button>
           <select id="category" ref="category" @change="changeCategory($event)">
             <option
               v-for="cat in categories"
               :key="cat.name"
               :value="cat.name"
               :selected="cat.name === item.category"
-            >{{cat.name}}</option>
+              >{{ cat.name }}</option
+            >
           </select>
         </div>
       </div>
@@ -47,26 +68,26 @@
 </template>
 <script>
 export default {
-  data: function () {
+  data: function() {
     return {
       showOptions: false,
     };
   },
   methods: {
-    toggleCollapse: function () {
+    toggleCollapse: function() {
       this.showOptions = !this.showOptions;
     },
-    notifyDelete: function () {
+    notifyDelete: function() {
       this.emitChained("delete-item", this.item.id);
       console.log("Deleting " + this.item.name);
     },
-    increaseQty: function () {
+    increaseQty: function() {
       const copy = {};
       Object.assign(copy, this.item);
       copy.qty = this.item.qty + 1;
       this.emitChained("update-qty", copy);
     },
-    emitChained: function (eventName, eventData) {
+    emitChained: function(eventName, eventData) {
       this.$emit(eventName, eventData);
       let vm = this.$parent;
       while (vm) {
@@ -75,7 +96,7 @@ export default {
       }
     },
 
-    changeCategory: function (event) {
+    changeCategory: function(event) {
       const copy = {};
       Object.assign(copy, this.item);
       copy.category = event.target.value;
@@ -85,7 +106,7 @@ export default {
       );
     },
 
-    decreaseQty: function () {
+    decreaseQty: function() {
       const copy = {};
       Object.assign(copy, this.item);
       copy.qty = this.item.qty - 1;
@@ -93,10 +114,9 @@ export default {
       console.log("Notifying cart toggle " + this.item.name);
     },
 
-    onClickHandler: function () {
+    onClickHandler: function() {
       this.emitChained("toggle-cart", this.item);
-    }
-
+    },
   },
   props: {
     item: {
@@ -111,9 +131,6 @@ export default {
 };
 </script>
 <style scoped>
-.itemsized {
-  min-width: 20rem;
-}
 .stored-item {
   background-color: palegoldenrod;
 }
