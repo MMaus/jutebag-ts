@@ -9,65 +9,63 @@
     </div>
 
     <div v-else class="bg-secondary rounded p-0 m-1">
-      <div class="py-1 font-weight-bold text-light">
-        <div class=" p-0 m-0 align-items-center">
-          <div class="col-4 p-0 text-left">
-            <div class="btn-group m-0 p-0" role="group">
-              <button
-                type="button"
-                class="btn btn-primary btn-sm"
-                v-on:click="decreaseQty"
-              >
-                -
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline-primary bg-white btn-sm"
-              >
-                <b>{{ item.qty }}</b>
-              </button>
-              <button
-                type="button"
-                class="btn btn-primary btn-sm"
-                v-on:click="increaseQty"
-              >
-                +
-              </button>
-            </div>
-          </div>
-          <div class="col-6 p-0 text-left mt-1" @click="onClickHandler">
-            {{ item.name }}
-          </div>
-          <div
-            class="col-2 float-right border border-white"
-            aria-label="change quantity"
-          >
+      <div class="d-flex py-1 align-items-center font-weight-bold text-light">
+        <div class="pl-1 text-left">
+          <div class="btn-group m-0 p-0" role="group">
             <button
               type="button"
-              class="btn btn-warning btn-sm"
-              v-on:click="toggleCollapse()"
+              class="btn btn-primary btn-sm"
+              v-on:click="decreaseQty"
             >
-              <span class="nav-item dropdown-toggle"></span>
+              -
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-primary bg-white btn-sm"
+            >
+              <b>{{ item.qty }}</b>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              v-on:click="increaseQty"
+            >
+              +
             </button>
           </div>
         </div>
-        <div class="collapse pt-2" v-bind:class="{ show: showOptions }">
-          <button
-            class="btn btn-danger text-white font-weight-bold mr-3"
-            v-on:click="notifyDelete()"
-          >
-            x
-          </button>
-          <select id="category" ref="category" @change="changeCategory($event)">
-            <option
-              v-for="cat in categories"
-              :key="cat.name"
-              :value="cat.name"
-              :selected="cat.name === item.category"
-              >{{ cat.name }}</option
-            >
-          </select>
+        <div
+          class="container-fluid pl-3 text-left mt-1"
+          @click="onClickHandler"
+        >
+          {{ item.name }}
         </div>
+        <div class="ml-auto mr-1" aria-label="change quantity">
+          <button
+            type="button"
+            class="btn btn-warning btn-sm"
+            v-on:click="toggleCollapse()"
+          >
+            <span class="nav-item dropdown-toggle"></span>
+          </button>
+        </div>
+      </div>
+      <div class="collapse pt-2" v-bind:class="{ show: showOptions }">
+        <button
+          class="btn btn-danger text-white font-weight-bold mr-3"
+          v-on:click="notifyDelete()"
+        >
+          x
+        </button>
+        <select id="category" ref="category" @change="changeCategory($event)">
+          <option
+            v-for="cat in categories"
+            :key="cat.name"
+            :value="cat.name"
+            :selected="cat.name === item.category"
+            >{{ cat.name }}</option
+          >
+        </select>
       </div>
     </div>
   </div>
