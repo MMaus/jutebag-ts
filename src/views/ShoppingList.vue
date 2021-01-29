@@ -197,6 +197,7 @@ export default defineComponent({
     };
 
     const toggleCart = (item: Item) => {
+      console.log(`heard toggle cart for ${item.name}`);
       itemRepo.toggleCart(item);
     };
 

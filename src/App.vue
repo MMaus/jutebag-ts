@@ -57,14 +57,17 @@
           >Go Shopping!</router-link
         >
       </div>
-      <div class="boxed bg-success text-white lead p-2" v-if="loggedIn">
+      <div class="boxed bg-success text-white lead p-2 rounded" v-if="loggedIn">
         Signed In
       </div>
-      <div class="boxed bg-warning text-white lead p-2" v-if="loggedOut">
+      <div
+        class="boxed bg-warning text-white lead p-2 rounded"
+        v-if="loggedOut"
+      >
         Not logged in
       </div>
       <div
-        class="boxed bg-warning text-white lead p-2"
+        class="boxed bg-warning text-white lead p-2 rounded"
         v-if="verificationRequired"
       >
         verify email!

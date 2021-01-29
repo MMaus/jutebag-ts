@@ -1,16 +1,16 @@
 <template>
-  <div class="col-12 col-md-6 col-xl-4 p-1 m-0 border border-primary">
-    <div class="card border border-primary">
+  <div class="col-12 col-md-6 col-xl-4 p-1 m-0">
+    <div class="card">
       <div
-        class="card-header text-left border"
+        class="card-header text-left"
         v-bind:class="{ 'text-success': isDone, 'category-done': isDone }"
         @click="toggleShowNevertheless"
       >
         <div class="row">
-          <div class="col-9">
+          <div class="col-8">
             <span class="category-title">{{ category.name }}</span>
           </div>
-          <div class="col-3">
+          <div class="col-4 p-0">
             <span class="float-right">
               <button class="btn border" @click="pullCategory">
                 <svg

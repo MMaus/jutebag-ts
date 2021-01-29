@@ -87,10 +87,12 @@ export default {
       copy.qty = this.item.qty + 1;
       this.emitChained("update-qty", copy);
     },
+
     emitChained: function(eventName, eventData) {
       this.$emit(eventName, eventData);
       let vm = this.$parent;
       while (vm) {
+        console.log("emitting to:", vm);
         vm.$emit(eventName, eventData);
         vm = vm.$parent;
       }
@@ -115,6 +117,7 @@ export default {
     },
 
     onClickHandler: function() {
+      console.log(`toggling item ${this.item.name}`);
       this.emitChained("toggle-cart", this.item);
     },
   },
