@@ -1,5 +1,8 @@
 <template>
-  <div class="col-12 col-md-6 col-xl-4 p-1 m-0">
+  <div
+    class="col-md-6 col-xl-4 p-1 m-0"
+    :class="{ 'col-4 bg-success': !showItems, 'col-12': showItems }"
+  >
     <div class="card">
       <div
         class="card-header text-left"
@@ -7,10 +10,12 @@
         @click="toggleShowNevertheless"
       >
         <div class="row">
-          <div class="col-8">
-            <span class="category-title">{{ category.name }}</span>
+          <div :class="{ 'col-8': showItems, 'col-12': !showItems }">
+            <span class="category-title" :class="{ smallTitle: !showItems }">{{
+              category.name
+            }}</span>
           </div>
-          <div class="col-4 p-0">
+          <div class="col-4 p-0" v-if="showItems">
             <span class="float-right">
               <button class="btn border" @click="pullCategory">
                 <svg
@@ -68,6 +73,7 @@
           :key="item.id"
           :item="item"
           :categories="categorylist"
+          @toggle-cart="logToggle"
         ></to-shop-item>
       </div>
     </div>
@@ -113,6 +119,11 @@ const instance = {
     pushCategory: function() {
       this.$emit("push-category", this.category.name);
     },
+    logToggle: function(firstArg, secondArg) {
+      console.log("logtoggle called");
+      console.log("first arg:", firstArg);
+      console.log("second arg:", secondArg);
+    },
   },
 
   computed: {
@@ -150,7 +161,17 @@ export default instance;
   font-size: 1.2rem;
   font-weight: bold;
 }
+.smallTitle {
+  font-size: 0.82rem;
+  font-weight: normal;
+  padding: 0;
+  overflow: hidden;
+}
 .category-done {
   background-color: papayawhip;
+  padding: 1rem; /* FIXME: 0rem leads to overflow!! fix item hierarchy */
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  /* padding: 0.4rem; */
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="m-0 p-0">
     <div
       v-if="item.stored"
       class="storedItem mt-1 text-success text-left font-weight-bold"
@@ -8,37 +8,43 @@
       {{ item.qty }}x {{ item.name }}
     </div>
 
-    <div v-else class="card bg-secondary m-1 border border-success">
-      <div class="card-body p-1 font-weight-bold text-light">
-        <div class="row">
-          <div class="col-auto">
-            <div class="btn-group" role="group">
+    <div v-else class="bg-secondary rounded p-0 m-1">
+      <div class="py-1 font-weight-bold text-light">
+        <div class=" p-0 m-0 align-items-center">
+          <div class="col-4 p-0 text-left">
+            <div class="btn-group m-0 p-0" role="group">
               <button
                 type="button"
-                class="btn btn-primary"
+                class="btn btn-primary btn-sm"
                 v-on:click="decreaseQty"
               >
                 -
               </button>
-              <button type="button" class="btn btn-outline-primary bg-white">
+              <button
+                type="button"
+                class="btn btn-outline-primary bg-white btn-sm"
+              >
                 <b>{{ item.qty }}</b>
               </button>
               <button
                 type="button"
-                class="btn btn-primary"
+                class="btn btn-primary btn-sm"
                 v-on:click="increaseQty"
               >
                 +
               </button>
             </div>
           </div>
-          <div class="col text-left my-auto" v-on:click="onClickHandler">
+          <div class="col-6 p-0 text-left mt-1" @click="onClickHandler">
             {{ item.name }}
           </div>
-          <div class="col-auto" aria-label="change quantity">
+          <div
+            class="col-2 float-right border border-white"
+            aria-label="change quantity"
+          >
             <button
               type="button"
-              class="btn btn-warning"
+              class="btn btn-warning btn-sm"
               v-on:click="toggleCollapse()"
             >
               <span class="nav-item dropdown-toggle"></span>
@@ -89,7 +95,9 @@ export default {
     },
 
     emitChained: function(eventName, eventData) {
+      console.log(`emitting ${eventName} with data:`, eventData);
       this.$emit(eventName, eventData);
+      console.log("done emitting");
       let vm = this.$parent;
       while (vm) {
         console.log("emitting to:", vm);
