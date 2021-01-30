@@ -1,7 +1,7 @@
 <template>
   <div
     class="col-md-6 col-xl-4 p-1 m-0"
-    :class="{ 'col-4 bg-success': !showItems, 'col-12': showItems }"
+    :class="{ 'col-4 greenish': !showItems, 'col-12': showItems }"
   >
     <div class="card">
       <div
@@ -166,6 +166,9 @@ export default instance;
   font-weight: normal;
   padding: 0;
   overflow: hidden;
+}
+.greenish {
+  background-color: rgba(45, 189, 129, 0.616);
 }
 .category-done {
   background-color: papayawhip;

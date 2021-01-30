@@ -1,12 +1,15 @@
 <template>
-  <div class="bg-secondary p-1">
-    <div v-if="loggedIn">
-      <button class="button btn btn-warning" @click="upload">Save</button>
-      <button class="button btn btn-warning" @click="download">Load</button>
-      <hr />
+  <div class="bg-secondary p-1 shopping-background">
+    <div v-if="loggedIn" class="cardly">
+      <button class="button btn btn-warning rounded" @click="upload">
+        Save
+      </button>
+      <button class="button btn btn-warning rounded ml-2" @click="download">
+        Load
+      </button>
     </div>
 
-    <div class="container">
+    <div class="container mb-5">
       <div class="row">
         <shopping-category
           v-for="cat in categoriesReactive"
@@ -24,7 +27,9 @@
       </div>
     </div>
 
-    <div class="m-0 mt5 spacer"></div>
+    <div class="spacer"></div>
+
+    <!-- <div class="m-0 mt5 spacer"></div> -->
 
     <div class="p-2 newItems fixed-bottom">
       <div class="input-group mb-2 p-1">
@@ -289,7 +294,22 @@ export default defineComponent({
 }
 
 .spacer {
-  height: 10rem;
+  height: 5rem;
+}
+
+.shopping-background {
+  background-image: url("../assets/background-2.jpg");
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  /* filter: saturate(0.35); */
+}
+
+.cardly {
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  background-color: rgba(225, 213, 233, 0.95);
 }
 
 /* one way to fix the scrollbar issue */
