@@ -1,23 +1,27 @@
 <template>
   <div class="bg-secondary shopping-background">
     <div id="sidebar-wrapper" class="sidebar" v-if="sidebarVisible">
-      SIDEBAR
+      <h5 class="p-2">Categories</h5>
       <div class="sidebar-content">
-        <ul>
-          <li
-            v-for="cat in categoriesReactive"
-            :key="cat.name"
-            class="text-left"
+        <div
+          class="m-0 p-0 text-left"
+          v-for="cat in categoriesReactive"
+          :key="cat.name"
+        >
+          <button
+            class="btn shadow m-0 p-0 category-button px-1"
+            @click="scrollToCategory(cat.name)"
           >
             <span
               :class="{
-                'font-weight-bold': !cat.isDone,
-                'font-weight-light font-italic px-2': cat.isDone,
+                'category-active-sidebar': !cat.isDone,
+                'category-done-sidebar': cat.isDone,
               }"
-              >{{ cat.name }}</span
             >
-          </li>
-        </ul>
+              {{ cat.name }}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
     <div v-if="loggedIn" class="cardly">
@@ -35,6 +39,8 @@
           v-for="cat in categoriesReactive"
           :key="cat.name"
           :category="cat"
+          :id="'cat:' + cat.name"
+          :mitt="emitter"
           :categorylist="categoriesReactive"
           @toggle-cart="toggleCart"
           @delete-item="deleteItem"
@@ -148,6 +154,8 @@ import ShoppingCategory from "@/components/ShoppingCategory.vue";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 
+import mitt from "mitt";
+
 import { User } from "firebase/app";
 import { ItemRepository } from "../use/itemStore";
 import { Item, Category } from "../use/localApi";
@@ -156,6 +164,7 @@ import { defineComponent, onMounted, computed, ref } from "vue";
 
 const itemRepo = new ItemRepository("jutebag.shoppinglist");
 // const initialItems = itemRepo.itemList;
+const emitter = mitt();
 
 function createItem(itemName: string, categoryName: string, qty: number): Item {
   const anItem = itemRepo.createShoppingItem(itemName, categoryName, qty);
@@ -286,6 +295,28 @@ export default defineComponent({
       sidebarVisible.value = !sidebarVisible.value;
     };
 
+    const scrollToCategory = function(catName: string) {
+      console.log(`that cat is ${catName}`);
+
+      const catElem = document.getElementById("cat:" + catName);
+      const headerOffset = 56;
+      const elementPosition = catElem?.getBoundingClientRect().top;
+      console.log("elem top:" + elementPosition);
+      const elemPos2 = catElem?.offsetTop;
+      console.log("elem offsetTop:" + elemPos2);
+
+      // const offsetPosition = elementPosition ?? -headerOffset;
+      const offsetPosition = elemPos2! - headerOffset;
+      console.log(`scrolling to ${offsetPosition}`);
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+      // catElem?.scrollIntoView();
+      sidebarVisible.value = false;
+      emitter.emit("do-open", catName);
+    };
+
     onMounted(() => {
       // just a synatx reminder for myself:
       // `checkLogin` is short for `user => checkLogin(user)`
@@ -310,6 +341,8 @@ export default defineComponent({
       categoryListChange,
       onCategoryTextChange,
       toggleAddItemEnh,
+      //
+      emitter,
       // Cart change functionality
       upload,
       download,
@@ -322,6 +355,7 @@ export default defineComponent({
       pullCategory,
       showSidebar,
       sidebarVisible,
+      scrollToCategory,
     };
   },
 
@@ -356,7 +390,8 @@ export default defineComponent({
 }
 
 .sidebar {
-  background-color: indigo;
+  background-color: rgba(76, 0, 130, 0.853);
+  border-radius: 5px;
   color: aliceblue;
   position: fixed;
   bottom: 70px;
@@ -371,6 +406,28 @@ export default defineComponent({
 .sidebar-content {
   /* overflow: scroll; */
   text-align: left;
+}
+
+.category-button {
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  padding-left: 0.5rem;
+  margin-left: 20px;
+  /* background-color: azure; */
+  width: 100%;
+  text-align: left;
+  color: antiquewhite;
+}
+
+.category-done-sidebar {
+  font-size: 0.8rem;
+  font-weight: lighter;
+  padding-left: 20px;
+}
+.category-active-sidebar {
+  font-size: 1rem;
+  font-weight: bold;
+  padding-left: 5px;
 }
 
 /* one way to fix the scrollbar issue */

@@ -100,6 +100,14 @@ const instance = {
       type: Array,
       required: true,
     },
+    mitt: {
+      type: Object,
+      required: true,
+    },
+  },
+
+  created: function() {
+    this.mitt.on("do-open", this.doOpen);
   },
 
   methods: {
@@ -111,6 +119,12 @@ const instance = {
       }
 
       this.showNevertheless = !this.showNevertheless;
+    },
+
+    doOpen: function(catName) {
+      if (this.category.name === catName) {
+        this.showNevertheless = true;
+      }
     },
 
     pullCategory: function() {
