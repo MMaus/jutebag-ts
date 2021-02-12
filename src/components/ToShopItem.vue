@@ -1,81 +1,110 @@
 <template>
-  <div>
+  <div class="m-0 p-0">
     <div
       v-if="item.stored"
       class="storedItem mt-1 text-success text-left font-weight-bold"
       v-on:click="onClickHandler"
-    >{{item.qty}}x {{item.name}}</div>
+    >
+      {{ item.qty }}x {{ item.name }}
+    </div>
 
-    <div v-else class="card bg-secondary m-1 itemsized">
-      <div class="card-head text-white font-italic small">Qty: {{item.qty}}, DEBUG:ID={{item.id}}</div>
-      <div class="card-body p-1 font-weight-bold text-light">
-        <div class="row">
-          <div class="col-auto">
-            <div class="btn-group" role="group">
-              <button type="button" class="btn btn-primary" v-on:click="decreaseQty">-</button>
-              <button type="button" class="btn btn-outline-primary bg-white">
-                <b>{{item.qty}}</b>
-              </button>
-              <button type="button" class="btn btn-primary" v-on:click="increaseQty">+</button>
-            </div>
-          </div>
-          <div class="col text-left my-auto" v-on:click="onClickHandler">{{ item.name }}</div>
-          <div class="col-auto" aria-label="change quantity">
-            <button type="button" class="btn btn-warning" v-on:click="toggleCollapse()">
-              <span class="nav-item dropdown-toggle"></span>
+    <div v-else class="bg-secondary rounded p-0 m-1">
+      <div class="d-flex py-1 align-items-center font-weight-bold text-light">
+        <div class="pl-1 text-left">
+          <div class="btn-group m-0 p-0" role="group">
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              v-on:click="decreaseQty"
+            >
+              -
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-primary bg-white btn-sm"
+            >
+              <b>{{ item.qty }}</b>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              v-on:click="increaseQty"
+            >
+              +
             </button>
           </div>
         </div>
-        <div class="w-100"></div>
-        <div class="collapse pt-2" v-bind:class="{'show' : showOptions}">
-          <button
-            class="btn btn-danger text-white font-weight-bold mr-3"
-            v-on:click="notifyDelete()"
-          >x</button>
-          <select id="category" ref="category" @change="changeCategory($event)">
-            <option
-              v-for="cat in categories"
-              :key="cat.name"
-              :value="cat.name"
-              :selected="cat.name === item.category"
-            >{{cat.name}}</option>
-          </select>
+        <div
+          class="container-fluid pl-3 text-left mt-1"
+          @click="onClickHandler"
+        >
+          {{ item.name }}
         </div>
+        <div class="ml-auto mr-1" aria-label="change quantity">
+          <button
+            type="button"
+            class="btn btn-warning btn-sm"
+            v-on:click="toggleCollapse()"
+          >
+            <span class="nav-item dropdown-toggle"></span>
+          </button>
+        </div>
+      </div>
+      <div class="collapse pt-2" v-bind:class="{ show: showOptions }">
+        <button
+          class="btn btn-danger text-white font-weight-bold mr-3"
+          v-on:click="notifyDelete()"
+        >
+          x
+        </button>
+        <select id="category" ref="category" @change="changeCategory($event)">
+          <option
+            v-for="cat in categories"
+            :key="cat.name"
+            :value="cat.name"
+            :selected="cat.name === item.category"
+            >{{ cat.name }}</option
+          >
+        </select>
       </div>
     </div>
   </div>
 </template>
 <script>
 export default {
-  data: function () {
+  data: function() {
     return {
       showOptions: false,
     };
   },
   methods: {
-    toggleCollapse: function () {
+    toggleCollapse: function() {
       this.showOptions = !this.showOptions;
     },
-    notifyDelete: function () {
+    notifyDelete: function() {
       this.emitChained("delete-item", this.item.id);
       console.log("Deleting " + this.item.name);
     },
-    increaseQty: function () {
+    increaseQty: function() {
       const copy = {};
       Object.assign(copy, this.item);
       copy.qty = this.item.qty + 1;
       this.emitChained("update-qty", copy);
     },
-    emitChained: function (eventName, eventData) {
+
+    emitChained: function(eventName, eventData) {
+      console.log(`emitting ${eventName} with data:`, eventData);
       this.$emit(eventName, eventData);
+      console.log("done emitting");
       let vm = this.$parent;
       while (vm) {
+        console.log("emitting to:", vm);
         vm.$emit(eventName, eventData);
         vm = vm.$parent;
       }
     },
 
-    changeCategory: function (event) {
+    changeCategory: function(event) {
       const copy = {};
       Object.assign(copy, this.item);
       copy.category = event.target.value;
@@ -85,7 +114,7 @@ export default {
       );
     },
 
-    decreaseQty: function () {
+    decreaseQty: function() {
       const copy = {};
       Object.assign(copy, this.item);
       copy.qty = this.item.qty - 1;
@@ -93,10 +122,10 @@ export default {
       console.log("Notifying cart toggle " + this.item.name);
     },
 
-    onClickHandler: function () {
+    onClickHandler: function() {
+      console.log(`toggling item ${this.item.name}`);
       this.emitChained("toggle-cart", this.item);
-    }
-
+    },
   },
   props: {
     item: {
@@ -111,9 +140,6 @@ export default {
 };
 </script>
 <style scoped>
-.itemsized {
-  min-width: 20rem;
-}
 .stored-item {
   background-color: palegoldenrod;
 }

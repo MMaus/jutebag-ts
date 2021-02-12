@@ -1,78 +1,148 @@
 <template>
-  <div class="container-fluid p-1 bg-secondary">
-    <div v-if="loggedIn">
-      <button class="button btn btn-warning" @click="upload">Save</button>
-      <button class="button btn btn-warning" @click="download">Load</button>
-    </div>
-    <hr />
-    <div class="d-sm-flex flex-wrap">
-      <shopping-category
-        v-for="cat in categoriesReactive"
-        :key="cat.name"
-        :category="cat"
-        :categorylist="categoriesReactive"
-        @toggle-cart="toggleCart"
-        @delete-item="deleteItem"
-        @update-qty="updateQty"
-        @update-category="updateCategory"
-        @pull-category="pullCategory"
-        @push-category="pushCategory"
-      >
-      </shopping-category>
-    </div>
-
-    <div class="container-fluid mb-3 p-4">
-      <br />
-    </div>
-
-    <div class="p-2 newItems fixed-bottom">
-      <div class="input-group mb-2 p-1">
-        <input
-          type="text"
-          class="form-control"
-          id="newWhishlistItem"
-          ref="newItem"
-          v-on:keyup.enter="addItem()"
-          tabindex="1"
-          @focus="onInputFocus()"
-          placeholder="add item here"
-        />
-        <div class="input-group-append">
-          <button tabindex="5" class="btn btn-primary" type="button" @click="addItem()">Enter Item</button>
-        </div>
-        <div>
-          <button tabindex="6" type="button" class="btn btn-warning" @click="toggleAddItemEnh()">
-            <span class="nav-item dropdown-toggle"></span>
+  <div class="bg-secondary shopping-background">
+    <div id="sidebar-wrapper" class="sidebar" v-if="sidebarVisible">
+      <h5 class="p-2">Categories</h5>
+      <div class="sidebar-content">
+        <div
+          class="m-0 p-0 text-left"
+          v-for="cat in categoriesReactive"
+          :key="cat.name"
+        >
+          <button
+            class="btn shadow m-0 p-0 category-button px-1"
+            @click="scrollToCategory(cat.name)"
+          >
+            <span
+              :class="{
+                'category-active-sidebar': !cat.isDone,
+                'category-done-sidebar': cat.isDone,
+              }"
+            >
+              {{ cat.name }}
+            </span>
           </button>
         </div>
       </div>
-      <div class="input-group collapse" v-bind:class="{ show : showAddItemEnh}">
-        <select
-          tabindex="2"
-          id="categoryList"
-          ref="categoryList"
-          @change="categoryListChange($event)"
-          @keyup.enter="addItem()"
+    </div>
+    <div v-if="loggedIn" class="cardly">
+      <button class="button btn btn-warning rounded" @click="upload">
+        Save
+      </button>
+      <button class="button btn btn-warning rounded ml-2" @click="download">
+        Load
+      </button>
+    </div>
+
+    <div class="container mb-5">
+      <div class="row px-1">
+        <shopping-category
+          v-for="cat in categoriesReactive"
+          :key="cat.name"
+          :category="cat"
+          :id="'cat:' + cat.name"
+          :mitt="emitter"
+          :categorylist="categoriesReactive"
+          @toggle-cart="toggleCart"
+          @delete-item="deleteItem"
+          @update-qty="updateQty"
+          @update-category="updateCategory"
+          @pull-category="pullCategory"
+          @push-category="pushCategory"
         >
-          <option value></option>
-          <option v-for="cat in categoriesReactive" :key="cat.name" :value="cat.name">{{cat.name}}</option>
-        </select>
-        <input
-          type="text"
-          list="categorylist"
-          class="form-control"
-          id="categoryText"
-          ref="categoryText"
-          tabindex="3"
-          @keypress="onCategoryTextChange"
-          @keyup.enter="addItem()"
-          placeholder="new category"
-        />
-        <datalist id="categorylist">
-          <option v-for="cat in categoriesReactive" :key="cat.name" :value="cat.name">{{cat.name}}</option>
-        </datalist>
+        </shopping-category>
       </div>
     </div>
+
+    <div class="spacer"></div>
+
+    <footer class="footer fixed-bottom">
+      <div class="d-flex p-2 new-item-block">
+        <div class="">
+          <button
+            class="btn shadow-sm bg-white"
+            type="button"
+            @click="showSidebar"
+          >
+            <span v-if="!sidebarVisible">&gt;</span>
+            <span v-else>&lt;</span>
+            <!-- <span class="navbar-toggler-icon text-right"></span> -->
+          </button>
+        </div>
+        <div class="flex-grow-1">
+          <div class="input-group mb-2 p-1">
+            <input
+              type="text"
+              class="form-control"
+              id="newWhishlistItem"
+              ref="newItem"
+              v-on:keyup.enter="addItem()"
+              tabindex="1"
+              @focus="onInputFocus()"
+              placeholder="add item here"
+            />
+            <div class="input-group-append">
+              <button
+                tabindex="5"
+                class="btn btn-primary"
+                type="button"
+                @click="addItem()"
+              >
+                Enter Item
+              </button>
+            </div>
+            <div>
+              <button
+                tabindex="6"
+                type="button"
+                class="btn btn-warning"
+                @click="toggleAddItemEnh()"
+              >
+                <span class="nav-item dropdown-toggle"></span>
+              </button>
+            </div>
+          </div>
+          <div
+            class="input-group collapse"
+            v-bind:class="{ show: showAddItemEnh }"
+          >
+            <select
+              tabindex="2"
+              id="categoryList"
+              ref="categoryList"
+              @change="categoryListChange($event)"
+              @keyup.enter="addItem()"
+            >
+              <option value></option>
+              <option
+                v-for="cat in categoriesReactive"
+                :key="cat.name"
+                :value="cat.name"
+                >{{ cat.name }}</option
+              >
+            </select>
+            <input
+              type="text"
+              list="categorylist"
+              class="form-control"
+              id="categoryText"
+              ref="categoryText"
+              tabindex="3"
+              @keypress="onCategoryTextChange"
+              @keyup.enter="addItem()"
+              placeholder="new category"
+            />
+            <datalist id="categorylist">
+              <option
+                v-for="cat in categoriesReactive"
+                :key="cat.name"
+                :value="cat.name"
+                >{{ cat.name }}</option
+              >
+            </datalist>
+          </div>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -84,6 +154,8 @@ import ShoppingCategory from "@/components/ShoppingCategory.vue";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 
+import mitt from "mitt";
+
 import { User } from "firebase/app";
 import { ItemRepository } from "../use/itemStore";
 import { Item, Category } from "../use/localApi";
@@ -92,6 +164,7 @@ import { defineComponent, onMounted, computed, ref } from "vue";
 
 const itemRepo = new ItemRepository("jutebag.shoppinglist");
 // const initialItems = itemRepo.itemList;
+const emitter = mitt();
 
 function createItem(itemName: string, categoryName: string, qty: number): Item {
   const anItem = itemRepo.createShoppingItem(itemName, categoryName, qty);
@@ -100,24 +173,23 @@ function createItem(itemName: string, categoryName: string, qty: number): Item {
 }
 
 export default defineComponent({
-
   setup() {
     const user = ref("Moritz"); // some initial value
 
     // note: this is a reactive vue property ("ref")
-    const items: Ref<Array<Item>> = itemRepo.itemsRef; 
-    const categoriesReactive: Array<Category> = itemRepo.categoriesReactive; 
+    const items: Ref<Array<Item>> = itemRepo.itemsRef;
+    const categoriesReactive: Array<Category> = itemRepo.categoriesReactive;
 
     const showAddItemEnh = ref(false);
     const newCategory = ref("");
     const loggedIn = ref(false);
     const userEmail = ref("");
+    const sidebarVisible = ref(false);
 
     // properties to be filled by the setup method
     const newItem: Ref<null | HTMLInputElement> = ref(null);
     const categoryText: Ref<null | HTMLInputElement> = ref(null);
     const categoryList: Ref<null | HTMLSelectElement> = ref(null);
-
 
     /**
      * Add a new item from the input field to cart
@@ -176,6 +248,7 @@ export default defineComponent({
     };
 
     const toggleCart = (item: Item) => {
+      console.log(`heard toggle cart for ${item.name}`);
       itemRepo.toggleCart(item);
     };
 
@@ -194,7 +267,7 @@ export default defineComponent({
     const onCategoryTextChange = () => {
       console.log("Category Text Change! event target=" + event?.target);
       if (categoryText.value?.value) {
-         categoryList.value!.value = "";
+        categoryList.value!.value = "";
       }
     };
 
@@ -216,6 +289,32 @@ export default defineComponent({
 
     const pushCategory = (categoryName: string) => {
       itemRepo.pushCategory(categoryName);
+    };
+
+    const showSidebar = function() {
+      sidebarVisible.value = !sidebarVisible.value;
+    };
+
+    const scrollToCategory = function(catName: string) {
+      console.log(`that cat is ${catName}`);
+
+      const catElem = document.getElementById("cat:" + catName);
+      const headerOffset = 56;
+      const elementPosition = catElem?.getBoundingClientRect().top;
+      console.log("elem top:" + elementPosition);
+      const elemPos2 = catElem?.offsetTop;
+      console.log("elem offsetTop:" + elemPos2);
+
+      // const offsetPosition = elementPosition ?? -headerOffset;
+      const offsetPosition = elemPos2! - headerOffset;
+      console.log(`scrolling to ${offsetPosition}`);
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+      // catElem?.scrollIntoView();
+      sidebarVisible.value = false;
+      emitter.emit("do-open", catName);
     };
 
     onMounted(() => {
@@ -242,6 +341,8 @@ export default defineComponent({
       categoryListChange,
       onCategoryTextChange,
       toggleAddItemEnh,
+      //
+      emitter,
       // Cart change functionality
       upload,
       download,
@@ -251,19 +352,87 @@ export default defineComponent({
       updateQty,
       updateCategory,
       pushCategory,
-      pullCategory
+      pullCategory,
+      showSidebar,
+      sidebarVisible,
+      scrollToCategory,
     };
   },
 
   components: {
     "shopping-category": ShoppingCategory,
   },
-
 });
 </script>
 
 <style scoped>
-.newItems {
+.new-item-block {
   background-color: #ffeaed;
 }
+
+.spacer {
+  height: 5rem;
+}
+
+.shopping-background {
+  background-image: url("../assets/background-2.jpg");
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  /* filter: saturate(0.35); */
+}
+
+.cardly {
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  background-color: rgba(225, 213, 233, 0.95);
+}
+
+.sidebar {
+  background-color: rgba(76, 0, 130, 0.853);
+  border-radius: 5px;
+  color: aliceblue;
+  position: fixed;
+  bottom: 70px;
+  margin-left: 0;
+  padding-left: 0;
+  max-width: 75vw;
+  z-index: 5000;
+  overflow: scroll;
+  max-height: 70vh;
+}
+
+.sidebar-content {
+  /* overflow: scroll; */
+  text-align: left;
+}
+
+.category-button {
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  padding-left: 0.5rem;
+  margin-left: 20px;
+  /* background-color: azure; */
+  width: 100%;
+  text-align: left;
+  color: antiquewhite;
+}
+
+.category-done-sidebar {
+  font-size: 0.8rem;
+  font-weight: lighter;
+  padding-left: 20px;
+}
+.category-active-sidebar {
+  font-size: 1rem;
+  font-weight: bold;
+  padding-left: 5px;
+}
+
+/* one way to fix the scrollbar issue */
+/* .row {
+  margin-left: 0px;
+  margin-right: 0px;
+} */
 </style>

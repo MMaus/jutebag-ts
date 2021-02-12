@@ -18,6 +18,7 @@ npm install
 ```
 npm run serve
 ```
+Note: this will run the development server on 8088, *not* on 8080!
 
 ### Compiles and minifies for production
 ```
