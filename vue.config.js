@@ -8,6 +8,14 @@ module.exports = {
     themeColor: "#F5A623",
   },
 
+  chainWebpack: (config) => {
+    config.externals({
+      ...config.externals,
+      firebaseui: "firebaseui",
+      firebase: "firebase",
+    });
+  },
+
   devServer: {
     port: 8088 /* must be this port for my firebase setup */,
     proxy: {
