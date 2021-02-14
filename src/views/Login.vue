@@ -45,11 +45,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Ref } from "vue-property-decorator";
-
-import * as firebase from "firebase/app";
+import firebase from "firebase/app";
 import "firebase/auth";
-import { defineComponent, ref, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 
 // @Component
 // export default class Login extends Vue {
@@ -106,7 +104,7 @@ export default {
       firebase
         .auth()
         .signInWithEmailAndPassword(email.value, password.value)
-        .then((res) => displaySuccess())
+        .then(() => displaySuccess())
         .catch((error) => displayError(error));
     };
 
@@ -114,7 +112,7 @@ export default {
       firebase
         .auth()
         .createUserWithEmailAndPassword(email.value, password.value)
-        .then((u) => displaySuccess())
+        .then(() => displaySuccess())
         .catch((error) => displayError(error));
     };
 

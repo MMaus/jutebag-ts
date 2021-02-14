@@ -1,4 +1,4 @@
-import * as firebase from "firebase/app";
+import firebase from "firebase/app";
 import "firebase/auth";
 
 import { createApp } from "vue";
@@ -45,11 +45,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 console.log("firebase initialized");
-console.log("firebase auth change feedback initiated");
 
 let app: any;
 
-firebase.auth().onAuthStateChanged((user) => {
+firebase.auth().onAuthStateChanged((user: any) => {
+  console.log("AUTH CHANGE RECEIVED");
   if (!app) {
     // NOTE: VS code gives an error here, but npm run build / serve does not give an error. I
     app = createApp(App)

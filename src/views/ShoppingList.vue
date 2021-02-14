@@ -151,12 +151,11 @@ import { Ref, reactive } from "vue";
 
 import ShoppingCategory from "@/components/ShoppingCategory.vue";
 
-import * as firebase from "firebase/app";
-import "firebase/auth";
+import firebase from "firebase/app";
+import auth from "firebase/auth";
 
 import mitt from "mitt";
 
-import { User } from "firebase/app";
 import { ItemRepository } from "../use/itemStore";
 import { Item, Category } from "../use/localApi";
 
@@ -205,7 +204,7 @@ export default defineComponent({
       return category;
     };
 
-    const checkLogin = (user: User | null) => {
+    const checkLogin = (user: any | null) => {
       if (!user) {
         loggedIn.value = false;
       } else {

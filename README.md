@@ -6,6 +6,10 @@
 npm run build
 firebase deploy
 
+## unit tests
+
+Note: components should be created using createComponent({}) instead of exporting the default config object
+
 ## Project setup
 
 note: also required to get development started
