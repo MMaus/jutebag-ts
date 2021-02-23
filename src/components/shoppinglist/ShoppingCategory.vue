@@ -81,7 +81,7 @@
 </template>
 
 <script lang="ts">
-import ToShopItem from "@/components/ToShopItem.vue";
+import ToShopItem from "@/components/shoppinglist/ToShopItem.vue";
 import { Category, Item } from "@/use/localApi";
 import { defineComponent, PropType } from "vue";
 import { Emitter, Handler } from "mitt";

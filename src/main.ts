@@ -1,11 +1,11 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 
-import { createApp } from "vue";
+import { Component, createApp } from "vue";
 import App from "./App.vue";
 import "./registerServiceWorker";
 import router from "./router";
-import { createStore } from "vuex";
+import store from "@/store";
 
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -16,14 +16,6 @@ import "bootstrap/dist/js/bootstrap.min.js";
 // import axios from 'axios'
 // Vue.prototype.$axios = axios
 //
-
-const store = createStore({
-  state() {
-    return {
-      counter: 0,
-    };
-  },
-});
 
 const firebaseConfig = {
   apiKey: "AIzaSyCjjVJikqJ1KwGPuOm8NOdZPt5ICrtCyg8",
@@ -46,9 +38,9 @@ firebase.initializeApp(firebaseConfig);
 
 console.log("firebase initialized");
 
-let app: any;
+let app: Component;
 
-firebase.auth().onAuthStateChanged((user: any) => {
+firebase.auth().onAuthStateChanged(() => {
   console.log("AUTH CHANGE RECEIVED");
   if (!app) {
     // NOTE: VS code gives an error here, but npm run build / serve does not give an error. I

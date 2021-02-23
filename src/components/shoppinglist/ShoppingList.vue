@@ -1,6 +1,6 @@
 <template>
   <div class="bg-secondary shopping-background">
-    <div id="sidebar-wrapper" class="sidebar" v-if="sidebarVisible">
+    <!-- <div id="sidebar-wrapper" class="sidebar" v-if="sidebarVisible">
       <h5 class="p-2">Categories</h5>
       <div class="sidebar-content">
         <div
@@ -23,7 +23,7 @@
           </button>
         </div>
       </div>
-    </div>
+    </div> -->
     <div v-if="loggedIn" class="cardly">
       <button class="button btn btn-warning rounded" @click="upload">
         Save
@@ -156,8 +156,8 @@ import auth from "firebase/auth";
 
 import mitt from "mitt";
 
-import { ItemRepository } from "../use/itemStore";
-import { Item, Category } from "../use/localApi";
+import { ItemRepository } from "@/use/itemStore";
+import { Item, Category } from "@/use/localApi";
 
 import { defineComponent, onMounted, computed, ref } from "vue";
 
