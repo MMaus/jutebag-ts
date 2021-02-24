@@ -28,7 +28,7 @@ export default {
   setup() {
     const store = useStore();
     const importData = function() {
-      const categories = importState();
+      // const categories = importState();
       store.commit("Shopping/logStuff", "shibby");
     };
     return {

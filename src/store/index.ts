@@ -1,9 +1,9 @@
 import Vuex from "vuex";
-import Shopping from "./shopping/";
+import shopping from "./shopping/";
 
 export default new Vuex.Store({
   modules: {
-    Shopping,
+    shopping,
   },
   getters: {},
   actions: {},

@@ -98,7 +98,7 @@ import mitt from "mitt";
 
 import { Item, Category } from "@/use/localApi";
 
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, ref } from "vue";
 
 // function createItem(itemName: string, categoryName: string, qty: number): Item {
 //   const anItem = itemRepo.createShoppingItem(itemName, categoryName, qty);

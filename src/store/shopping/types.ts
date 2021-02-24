@@ -1,6 +1,7 @@
 export interface ShoppingListState {
   categories: Array<Category>;
   version: number;
+  nextCategoryId: number;
 }
 
 export interface Category {

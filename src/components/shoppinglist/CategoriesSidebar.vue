@@ -1,41 +1,34 @@
 <template>
   <div class="sidebar">
-    <div v-if="show">
-      <h5 class="p-2">Categories</h5>
-      <div class="sidebar-content">
-        <div
-          class="m-0 p-0 text-left"
-          v-for="cat in categories"
-          :key="cat.name"
+    <h5 class="p-2">Categories</h5>
+    <div class="sidebar-content">
+      <div class="m-0 p-0 text-left" v-for="cat in categories" :key="cat.name">
+        <button
+          class="btn shadow m-0 p-0 category-button px-1"
+          @click="selectCategory(cat.name)"
         >
-          <button
-            class="btn shadow m-0 p-0 category-button px-1"
-            @click="selectCategory(cat.name)"
+          <span
+            :class="{
+              'category-active-sidebar': !cat.isDone,
+              'category-done-sidebar': cat.isDone,
+            }"
           >
-            <span
-              :class="{
-                'category-active-sidebar': !cat.isDone,
-                'category-done-sidebar': cat.isDone,
-              }"
-            >
-              {{ cat.name }}
-            </span>
-          </button>
-        </div>
+            {{ cat.name }}
+          </span>
+        </button>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
-import { PropType } from "vue";
+import { PropType, SetupContext } from "vue";
 import { Category } from "@/use/localApi";
 export default {
   props: {
-    show: Boolean,
     categories: Array as PropType<Array<Category>>,
   },
   emits: ["categorySelected"],
-  setup(_, context) {
+  setup(_: unknown, context: SetupContext) {
     const selectCategory = function(catName: string) {
       context.emit("categorySelected", catName);
       console.log(`Category ${catName} selected`);
@@ -67,7 +60,7 @@ export default {
   padding-left: 0;
   max-width: 75vw;
   z-index: 5000;
-  overflow: scroll;
+  overflow: auto;
   max-height: 70vh;
 }
 

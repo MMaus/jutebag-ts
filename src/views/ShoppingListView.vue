@@ -1,10 +1,12 @@
 <template>
   <div class="bg-secondary shopping-background">
-    <categories-sidebar
-      :show="sidebarVisible"
-      :categories="categoriesReactive"
-      @categorySelected="scrollToCategory"
-    />
+    <transition>
+      <categories-sidebar
+        v-if="sidebarVisible"
+        :categories="categoriesReactive"
+        @categorySelected="scrollToCategory"
+      />
+    </transition>
     <div v-if="loggedIn" class="cardly">
       <button class="button btn btn-warning rounded" @click="upload">
         Save
@@ -21,6 +23,26 @@
           :key="cat.name"
           :category="cat"
           :id="'cat:' + cat.name"
+          :mitt="emitter"
+          :categorylist="categoriesReactive"
+          @toggle-cart="toggleCart"
+          @delete-item="deleteItem"
+          @update-qty="updateQty"
+          @update-category="updateCategory"
+          @pull-category="pullCategory"
+          @push-category="pushCategory"
+        >
+        </shopping-category>
+      </div>
+    </div>
+
+    <div class="container mb-5">
+      <div class="row px-1">
+        <shopping-category
+          v-for="cat in storedCategories"
+          :key="cat.id"
+          :category="cat"
+          :id="cat.id"
           :mitt="emitter"
           :categorylist="categoriesReactive"
           @toggle-cart="toggleCart"
@@ -57,6 +79,9 @@ import { Item, Category } from "../use/localApi";
 
 import { defineComponent, onMounted, computed, ref } from "vue";
 
+import { useStore } from "vuex";
+import { importState } from "@/store/shopping/importer";
+
 const itemRepo = new ItemRepository("jutebag.shoppinglist");
 // const initialItems = itemRepo.itemList;
 const emitter = mitt();
@@ -69,6 +94,23 @@ function createItem(itemName: string, categoryName: string, qty: number): Item {
 
 export default defineComponent({
   setup() {
+    const store = useStore();
+    const categories = importState();
+    categories.forEach((cat) => {
+      store.commit("shopping/createCategory", cat.catName);
+      console.log(`Category ${cat.catName} has ${cat.items.length} items`);
+      cat.items.forEach((it) =>
+        store.commit("shopping/addByCategoryName", {
+          category: cat.catName,
+          item: it,
+        })
+      );
+    });
+    // FIXME: add type information
+    const storedCategories = computed(
+      () => store.getters["shopping/categories"]
+    );
+
     const user = ref("Moritz"); // some initial value
 
     // note: this is a reactive vue property ("ref")
@@ -221,6 +263,8 @@ export default defineComponent({
     });
 
     return {
+      storedCategories,
+
       user,
       items,
       showAddItemEnh,
@@ -293,7 +337,22 @@ export default defineComponent({
   color: antiquewhite;
 }
 
-.category-done-sidebar {
+.v-enter-from,
+.v-leave-to {
+  transform: translateX(-50vw);
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: all 0.5s ease-in-out;
+}
+
+.v-enter-to,
+.v-leave-from {
+  transform: translateX(0);
+}
+
+/* .category-done-sidebar {
   font-size: 0.8rem;
   font-weight: lighter;
   padding-left: 20px;
@@ -302,7 +361,7 @@ export default defineComponent({
   font-size: 1rem;
   font-weight: bold;
   padding-left: 5px;
-}
+} */
 
 /* one way to fix the scrollbar issue */
 /* .row {
