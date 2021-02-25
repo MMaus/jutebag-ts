@@ -8,6 +8,7 @@ export interface Category {
   id: string;
   catName: string;
   items: Array<ShoppingItem>;
+  isDone: boolean;
 }
 
 export interface ShoppingItem {

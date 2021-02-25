@@ -7,6 +7,7 @@ export default {
       id: "category" + state.nextCategoryId,
       catName: name,
       items: [],
+      isDone: true,
     };
     state.nextCategoryId = state.nextCategoryId + 1;
     state.categories.push(newCategory);

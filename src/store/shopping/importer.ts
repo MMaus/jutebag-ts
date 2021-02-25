@@ -8,6 +8,7 @@ function importState() {
 
   const newCategories: Array<Category> = [];
 
+  // fixme: create proper ID, compatible with store (fetch from store)!
   // items: itemStore.itemsRef;
   for (const category of itemStore.categoriesReactive) {
     const oldCategory: OldCat = category;
@@ -15,6 +16,7 @@ function importState() {
       id: "category-" + oldCategory.id,
       items: [],
       catName: oldCategory.name,
+      isDone: true,
     };
     itemStore.itemsRef.value
       .filter((it) => it.category === oldCategory.name)

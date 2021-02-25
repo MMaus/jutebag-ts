@@ -38,7 +38,7 @@
 
     <div class="container mb-5">
       <div class="row px-1">
-        <shopping-category
+        <category-panel
           v-for="cat in storedCategories"
           :key="cat.id"
           :category="cat"
@@ -52,7 +52,7 @@
           @pull-category="pullCategory"
           @push-category="pushCategory"
         >
-        </shopping-category>
+        </category-panel>
       </div>
     </div>
 
@@ -68,6 +68,7 @@ import { Ref, reactive } from "vue";
 import ShoppingCategory from "@/components/shoppinglist/ShoppingCategory.vue";
 import ShoppingListFooter from "@/components/shoppinglist/ShoppingListFooter.vue";
 import CategoriesSidebar from "@/components/shoppinglist/CategoriesSidebar.vue";
+import CategoryPanel from "@/components/shoppinglist/CategoryPanel.vue";
 
 import firebase from "firebase/app";
 import auth from "firebase/auth";
@@ -95,23 +96,13 @@ function createItem(itemName: string, categoryName: string, qty: number): Item {
 export default defineComponent({
   setup() {
     const store = useStore();
-    const categories = importState();
-    categories.forEach((cat) => {
-      store.commit("shopping/createCategory", cat.catName);
-      console.log(`Category ${cat.catName} has ${cat.items.length} items`);
-      cat.items.forEach((it) =>
-        store.commit("shopping/addByCategoryName", {
-          category: cat.catName,
-          item: it,
-        })
-      );
-    });
+
     // FIXME: add type information
     const storedCategories = computed(
       () => store.getters["shopping/categories"]
     );
 
-    const user = ref("Moritz"); // some initial value
+    const user = ref(""); // some initial value
 
     // note: this is a reactive vue property ("ref")
     const items: Ref<Array<Item>> = itemRepo.itemsRef;
@@ -302,6 +293,7 @@ export default defineComponent({
     "shopping-category": ShoppingCategory,
     ShoppingListFooter,
     CategoriesSidebar,
+    CategoryPanel,
   },
 });
 </script>

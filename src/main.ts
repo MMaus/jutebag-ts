@@ -11,6 +11,7 @@ import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "jquery/src/jquery.js";
 import "bootstrap/dist/js/bootstrap.min.js";
+import { importState } from "./store/shopping/importer";
 
 //  TODO: checkout axios (npm install axios --save)
 // import axios from 'axios'
@@ -39,6 +40,18 @@ firebase.initializeApp(firebaseConfig);
 console.log("firebase initialized");
 
 let app: Component;
+
+const categories = importState();
+categories.forEach((cat) => {
+  store.commit("shopping/createCategory", cat.catName);
+  console.log(`Category ${cat.catName} has ${cat.items.length} items`);
+  cat.items.forEach((it) =>
+    store.commit("shopping/addByCategoryName", {
+      category: cat.catName,
+      item: it,
+    })
+  );
+});
 
 firebase.auth().onAuthStateChanged(() => {
   console.log("AUTH CHANGE RECEIVED");
