@@ -29,12 +29,7 @@ const firebaseConfig = {
   measurementId: "G-JLRRL13388",
 };
 
-// TODO: Replace the following with your app's Firebase project configuration
-// const firebaseConfig = {
-//   // ...
-// };
-
-// Initialize Firebase
+/// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
 console.log("firebase initialized");
