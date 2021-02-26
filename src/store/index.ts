@@ -1,5 +1,6 @@
 import { createStore, Store } from "vuex";
 import shopping from "./shopping/";
+import user from "./user/";
 import { JuteBagState } from "./types";
 
 // export default new Vuex.Store<JuteBagState>({
@@ -12,6 +13,7 @@ import { JuteBagState } from "./types";
 
 export default createStore({
   modules: {
+    user,
     shopping,
   },
 }) as Store<JuteBagState>;

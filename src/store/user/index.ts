@@ -1,13 +1,12 @@
 import { Module } from "vuex";
-import { JuteBagState } from "@/store/types";
-import { ShoppingListState } from "./types";
-
-import { state as initialState } from "./state";
+import { JuteBagState } from "../types";
+import { UserState } from "./types";
+import { initialState } from "./state";
 import getters from "./getters";
 import mutations from "./mutations";
 import actions from "./actions";
 
-const module: Module<ShoppingListState, JuteBagState> = {
+const module: Module<UserState, JuteBagState> = {
   getters: getters,
   mutations: mutations,
   actions: actions,

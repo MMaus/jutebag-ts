@@ -34,8 +34,6 @@ firebase.initializeApp(firebaseConfig);
 
 console.log("firebase initialized");
 
-let app: Component;
-
 const categories = importState();
 categories.forEach((cat) => {
   store.commit("shopping/createCategory", cat.catName);
@@ -48,13 +46,12 @@ categories.forEach((cat) => {
   );
 });
 
-firebase.auth().onAuthStateChanged(() => {
-  console.log("AUTH CHANGE RECEIVED");
-  if (!app) {
-    // NOTE: VS code gives an error here, but npm run build / serve does not give an error. I
-    app = createApp(App)
-      .use(router)
-      .use(store)
-      .mount("#app");
-  }
+firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
+  store.dispatch("user/authStateChanged", user);
 });
+
+const app = createApp(App)
+  .use(router)
+  .use(store);
+
+app.mount("#app");
