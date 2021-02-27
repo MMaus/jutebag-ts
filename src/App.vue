@@ -73,7 +73,7 @@
         verify email!
       </div>
     </div>
-    <router-view></router-view>
+    <router-view class="view"></router-view>
   </div>
 </template>
 
@@ -127,8 +127,16 @@ export default {
 </script>
 
 <style>
+body {
+  height: 100%;
+}
 html {
   scroll-behavior: smooth;
+  height: 100%;
+}
+
+.view {
+  height: 100%;
 }
 
 #app {

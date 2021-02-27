@@ -17,9 +17,9 @@
             type="text"
             class="form-control"
             id="newWhishlistItem"
-            v-model="newItemName"
+            v-model="newItemText"
             ref="newItemInput"
-            v-on:keyup.enter="addItem()"
+            v-on:keyup.enter="submitNewItem()"
             tabindex="1"
             @focus="onInputFocus()"
             placeholder="add item here"
@@ -29,7 +29,7 @@
               tabindex="5"
               class="btn btn-primary"
               type="button"
-              @click="addItem()"
+              @click="submitNewItem()"
             >
               Enter Item
             </button>
@@ -53,15 +53,15 @@
             tabindex="2"
             id="categoryList"
             ref="categoryList"
-            @change="categoryListChange($event)"
-            @keyup.enter="addItem()"
+            @change="onCategoryListChange"
+            @keyup.enter="submitNewItem"
           >
             <option value></option>
             <option
-              v-for="cat in categoriesReactive"
-              :key="cat.name"
-              :value="cat.name"
-              >{{ cat.name }}</option
+              v-for="cat in allCategories"
+              :key="cat.id"
+              :value="cat.catName"
+              >{{ cat.catName }}</option
             >
           </select>
           <input
@@ -72,12 +72,12 @@
             v-model="categoryText"
             tabindex="3"
             @keypress="onCategoryTextChange"
-            @keyup.enter="addItem()"
+            @keyup.enter="submitNewItem()"
             placeholder="new category"
           />
           <datalist id="categorylist">
             <option
-              v-for="cat in categoriesReactive"
+              v-for="cat in allCategoryNames"
               :key="cat.name"
               :value="cat.name"
               >{{ cat.name }}</option
@@ -90,80 +90,51 @@
 </template>
 
 <script lang="ts">
-import { Ref } from "vue";
-
-import ShoppingCategory from "@/components/shoppinglist/ShoppingCategory.vue";
-
-import mitt from "mitt";
-
-import { Item, Category } from "@/use/localApi";
-
+import { computed, inject, Ref } from "vue";
 import { defineComponent, ref } from "vue";
-
-// function createItem(itemName: string, categoryName: string, qty: number): Item {
-//   const anItem = itemRepo.createShoppingItem(itemName, categoryName, qty);
-//   console.log("itemId :" + anItem.id);
-//   return anItem;
-// }
-function createItem(itemName: string, categoryName: string, qty: number): Item {
-  return {
-    id: 999 /* BROKEN! CREATE IDS TO GO (USE STORE)*/,
-    name: itemName,
-    category: categoryName,
-    qty: qty,
-    stored: false,
-  };
-}
+import { Category } from "@/store/shopping/types";
+import { useStore } from "vuex";
 
 export default defineComponent({
   emits: ["toggle-sidebar"],
   setup(_, context) {
+    const store = useStore();
+
     const showAddItemEnh = ref(false);
-    const newCategory = ref("");
     const sidebarVisible = ref(false);
 
-    // properties to be filled by the setup method
     const newItemText = ref("");
     const categoryText = ref("");
+
+    const allCategories = inject("categoriesList");
+
+    const allCategoryNames = computed(() =>
+      (inject("categoriesList") as Array<Category>).map((it) => it.catName)
+    );
+
     const categoryList: Ref<null | HTMLSelectElement> = ref(null);
-    const newItemRef: Ref<null | HTMLInputElement> = ref(null);
+    const newItemInput: Ref<null | HTMLInputElement> = ref(null);
 
-    /**
-     * Add a new item from the input field to cart
-     */
-    const readCategory: () => string = () => {
-      let category: string | undefined = categoryList.value?.value;
-      if (!category) {
-        category = categoryText.value;
-      }
-      if (!category) {
-        category = "undefined";
-      }
-      return category;
-    };
-
-    const addItem = () => {
-      const itemName = newItemText.value;
-      if (!itemName) {
-        return;
-      }
-      const category = readCategory();
+    function resetForm() {
       newItemText.value = "";
-      categoryList.value!.value = "";
       categoryText.value = "";
-      const newQty = 1; // TODO: parse from string etc.; e.g. "milk !!!"" => 3x milk
-      const newShoppingItem = createItem(itemName!, category, newQty);
-      //   itemRepo.addItem(newShoppingItem);
-      console.log("added 1 " + itemName + " to shopping list");
-      newItemRef.value?.focus();
-    };
+      newItemInput.value?.focus();
+    }
+
+    function submitNewItem() {
+      store.dispatch("shopping/addOrCreateItem", {
+        itemName: newItemText.value,
+        categoryName: categoryText.value,
+      });
+      resetForm();
+    }
 
     const onInputFocus = () => {
       console.log("input got focus");
       showAddItemEnh.value = true;
     };
 
-    const categoryListChange = (event: Event) => {
+    const onCategoryListChange = (event: Event) => {
       console.log("Category List Change! event target=" + event?.target);
       if (event?.target) {
         categoryText.value = "";
@@ -171,7 +142,7 @@ export default defineComponent({
     };
 
     const onCategoryTextChange = () => {
-      console.log("Category Text Change! event target=" + event?.target);
+      console.log("Category Text Changed!");
       if (categoryText.value) {
         categoryList.value!.value = "";
       }
@@ -186,48 +157,37 @@ export default defineComponent({
       sidebarVisible.value = !sidebarVisible.value;
     };
 
-    // const scrollToCategory = function(catName: string) {
-    //   console.log(`that cat is ${catName}`);
-
-    //   const catElem = document.getElementById("cat:" + catName);
-    //   const headerOffset = 56;
-    //   const elementPosition = catElem?.getBoundingClientRect().top;
-    //   console.log("elem top:" + elementPosition);
-    //   const elemPos2 = catElem?.offsetTop;
-    //   console.log("elem offsetTop:" + elemPos2);
-
-    //   // const offsetPosition = elementPosition ?? -headerOffset;
-    //   if (elemPos2 === undefined) {
-    //     return;
-    //   }
-    //   const offsetPosition = elemPos2 - headerOffset;
-    //   console.log(`scrolling to ${offsetPosition}`);
-    //   window.scrollTo({
-    //     top: offsetPosition,
-    //     behavior: "smooth",
-    //   });
-    //   // catElem?.scrollIntoView();
-    //   sidebarVisible.value = false;
-    //   // FIXME: find replacement for this! E.g. via store
-    //   //   emitter.emit("do-open", catName);
-    // };
-
-    return {
-      showAddItemEnh,
-      newCategory,
-      newItemText,
-      categoryText,
-      categoryList,
-      // UI functionality
-      newItemRef,
+    const uiCallbacks = {
       onInputFocus,
-      categoryListChange,
+      onCategoryListChange,
       onCategoryTextChange,
       toggleAddItemEnh,
-      addItem,
       toggleSidebar,
+    };
+
+    // data binding to UI input elements
+    const uiModels = {
+      newItemText,
+      categoryText,
+    };
+
+    // references to HTML input elements
+    const uiElements = {
+      newItemInput,
+      categoryList,
+    };
+
+    return {
+      allCategories,
+      allCategoryNames,
+      showAddItemEnh,
       sidebarVisible,
-      //   scrollToCategory,
+
+      submitNewItem,
+
+      ...uiModels,
+      ...uiElements,
+      ...uiCallbacks,
     };
   },
 });

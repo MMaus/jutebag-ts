@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-secondary shopping-background">
+  <div class="bg-secondary shopping-background max">
     <transition>
       <categories-sidebar
         v-if="sidebarVisible"
@@ -16,26 +16,7 @@
       </button>
     </div>
 
-    <div class="container mb-5">
-      <div class="row px-1">
-        <shopping-category
-          v-for="cat in categoriesReactive"
-          :key="cat.name"
-          :category="cat"
-          :id="'cat:' + cat.name"
-          :mitt="emitter"
-          :categorylist="categoriesReactive"
-          @toggle-cart="toggleCart"
-          @delete-item="deleteItem"
-          @update-qty="updateQty"
-          @update-category="updateCategory"
-          @pull-category="pullCategory"
-          @push-category="pushCategory"
-        >
-        </shopping-category>
-      </div>
-    </div>
-
+    <!-- FIXME: pass in somehow category selector ... or use provide / inject -->
     <div class="container mb-5">
       <div class="row px-1">
         <category-panel
@@ -45,12 +26,7 @@
           :id="cat.id"
           :mitt="emitter"
           :categorylist="categoriesReactive"
-          @toggle-cart="toggleCart"
-          @delete-item="deleteItem"
-          @update-qty="updateQty"
-          @update-category="updateCategory"
-          @pull-category="pullCategory"
-          @push-category="pushCategory"
+          v-on="categoryCallbacks"
         >
         </category-panel>
       </div>
@@ -63,15 +39,13 @@
 </template>
 
 <script lang="ts">
-import { Ref, reactive } from "vue";
+import { Ref, provide, readonly } from "vue";
 
-import ShoppingCategory from "@/components/shoppinglist/ShoppingCategory.vue";
 import ShoppingListFooter from "@/components/shoppinglist/ShoppingListFooter.vue";
 import CategoriesSidebar from "@/components/shoppinglist/CategoriesSidebar.vue";
 import CategoryPanel from "@/components/shoppinglist/CategoryPanel.vue";
 
-import firebase from "firebase/app";
-import auth from "firebase/auth";
+// import firebase from "firebase/app";
 
 import mitt from "mitt";
 
@@ -80,8 +54,9 @@ import { Item, Category } from "../use/localApi";
 
 import { defineComponent, onMounted, computed, ref } from "vue";
 
-import { useStore } from "vuex";
-import { importState } from "@/store/shopping/importer";
+import { Store, useStore } from "vuex";
+import { ShoppingItem } from "@/store/shopping/types";
+import { JuteBagState } from "@/store/types";
 
 const itemRepo = new ItemRepository("jutebag.shoppinglist");
 // const initialItems = itemRepo.itemList;
@@ -95,7 +70,10 @@ function createItem(itemName: string, categoryName: string, qty: number): Item {
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const store = useStore() as Store<JuteBagState>;
+
+    console.log("CATEGORIES:", store.getters["shopping/categories"]);
+    provide("categoriesList", readonly(store.getters["shopping/categories"]));
 
     // FIXME: add type information
     const storedCategories = computed(
@@ -112,7 +90,7 @@ export default defineComponent({
     const newCategory = ref("");
     const loggedIn = ref(false);
     const userEmail = ref("");
-    const sidebarVisible = ref(true);
+    const sidebarVisible = ref(false);
 
     // properties to be filled by the setup method
     const newItem: Ref<null | HTMLInputElement> = ref(null);
@@ -133,42 +111,27 @@ export default defineComponent({
       return category;
     };
 
-    const checkLogin = (user: any | null) => {
-      if (!user) {
-        loggedIn.value = false;
-      } else {
-        loggedIn.value = user.emailVerified;
-        userEmail.value = user.email ?? "<no email>";
-      }
-    };
+    // const checkLogin = (user: any | null) => {
+    //   if (!user) {
+    //     loggedIn.value = false;
+    //   } else {
+    //     loggedIn.value = user.emailVerified;
+    //     userEmail.value = user.email ?? "<no email>";
+    //   }
+    // };
 
     const upload = () => {
       itemRepo.upload(userEmail.value);
     };
 
     const download = () => {
-      const user = firebase.auth().currentUser?.email;
-      if (user == null) {
-        console.error("Unknown user, cannot download cart items.");
-        return;
-      }
-      itemRepo.download(user);
-    };
-
-    const addItem = () => {
-      const itemName = newItem.value?.value;
-      if (!itemName) {
-        return;
-      }
-      const category = readCategory();
-      newItem.value!.value = "";
-      categoryList.value!.value = "";
-      categoryText.value!.value = "";
-      const newQty = 1; // TODO: parse from string etc.; e.g. "milk !!!"" => 3x milk
-      const newShoppingItem = createItem(itemName!, category, newQty);
-      itemRepo.addItem(newShoppingItem);
-      console.log("added 1 " + itemName + " to shopping list");
-      newItem.value!.focus();
+      console.log("TODO: download from store!");
+      // const user = firebase.auth().currentUser?.email;
+      // if (user == null) {
+      //   console.error("Unknown user, cannot download cart items.");
+      //   return;
+      // }
+      // itemRepo.download(user);
     };
 
     const deleteItem = (itemId: number) => {
@@ -245,16 +208,49 @@ export default defineComponent({
       emitter.emit("do-open", catName);
     };
 
-    onMounted(() => {
-      // just a synatx reminder for myself:
-      // `checkLogin` is short for `user => checkLogin(user)`
-      console.log("(Re-)Initialized ShoppingList");
-      // items.value = itemRepo.itemList;
-      firebase.auth().onAuthStateChanged(checkLogin);
-    });
+    const categoryCallbacks = {
+      "toggle-cart": function(item: ShoppingItem) {
+        console.log("====== toggle-cart called for", item); // ?? not cats!
+      },
+      toggleCart: function(item: ShoppingItem) {
+        console.log("====== toggleCart called for item", item);
+      },
+      "delete-item": function(item: ShoppingItem) {
+        console.log("delete item called for", item);
+      },
+      "update-qty": function(item: ShoppingItem) {
+        console.log("update qty for item", item);
+      },
+      "update-category": function(item: ShoppingItem) {
+        console.log("update category for item", item);
+      },
+      "pull-category": function(cat: Category) {
+        console.log("pull category category ", cat);
+      },
+      pullCategory: function(cat: Category) {
+        console.log("pullCategory called for ", cat);
+      },
+      "push-category": function(cat: Category) {
+        console.log("push category category ", cat);
+      },
+      // @delete-item="deleteItem"
+      // @update-qty="updateQty"
+      // @update-category="updateCategory"
+      // @pull-category="pullCategory"
+      // @push-category="pushCategory"
+    };
+
+    // onMounted(() => {
+    //   // just a synatx reminder for myself:
+    //   // `checkLogin` is short for `user => checkLogin(user)`
+    //   console.log("(Re-)Initialized ShoppingList");
+    //   // items.value = itemRepo.itemList;
+    //   firebase.auth().onAuthStateChanged(checkLogin);
+    // });
 
     return {
       storedCategories,
+      categoryCallbacks,
 
       user,
       items,
@@ -276,7 +272,6 @@ export default defineComponent({
       // Cart change functionality
       upload,
       download,
-      addItem,
       deleteItem,
       toggleCart,
       updateQty,
@@ -290,7 +285,7 @@ export default defineComponent({
   },
 
   components: {
-    "shopping-category": ShoppingCategory,
+    // "shopping-category": ShoppingCategory,
     ShoppingListFooter,
     CategoriesSidebar,
     CategoryPanel,
@@ -301,6 +296,10 @@ export default defineComponent({
 <style scoped>
 .spacer {
   height: 5rem;
+}
+
+.max {
+  min-height: 80vh;
 }
 
 .shopping-background {

@@ -3,9 +3,9 @@
     <div
       v-if="item.stored"
       class="storedItem mt-1 text-success text-left font-weight-bold"
-      v-on:click="onClickHandler"
+      @click="toggleInCart"
     >
-      {{ item.qty }}x {{ item.name }}
+      {{ item.quantity }}x {{ item.name }}
     </div>
 
     <div v-else class="bg-secondary rounded p-0 m-1">
@@ -34,17 +34,14 @@
             </button>
           </div>
         </div>
-        <div
-          class="container-fluid pl-3 text-left mt-1"
-          @click="onClickHandler"
-        >
+        <div class="container-fluid pl-3 text-left mt-1" @click="toggleInCart">
           {{ item.itemName }}
         </div>
         <div class="ml-auto mr-1" aria-label="change quantity">
           <button
             type="button"
             class="btn btn-warning btn-sm"
-            v-on:click="toggleCollapse()"
+            @click="toggleCollapse"
           >
             <span class="nav-item dropdown-toggle"></span>
           </button>
@@ -57,13 +54,13 @@
         >
           x
         </button>
-        <select id="category" ref="category" @change="changeCategory($event)">
+        <select id="category" ref="category" @change="changeCategory">
           <option
-            v-for="cat in categories"
-            :key="cat.name"
-            :value="cat.name"
+            v-for="cat in categoriesList"
+            :key="cat.id"
+            :value="cat.catName"
             :selected="cat.name === item.category"
-            >{{ cat.name }}</option
+            >{{ cat.catName }}</option
           >
         </select>
       </div>
@@ -72,73 +69,59 @@
 </template>
 <script lang="ts">
 import { ShoppingItem } from "@/store/shopping/types";
-import { defineComponent, PropType } from "vue";
+import { Category } from "@/use/localApi";
+import { defineComponent, inject, PropType, ref } from "vue";
 
 export default defineComponent({
-  data: function() {
-    return {
-      showOptions: false,
-    };
-  },
-  methods: {
-    toggleCollapse: function() {
-      this.showOptions = !this.showOptions;
-    },
-    notifyDelete: function() {
-      this.emitChained("delete-item", this.item.id);
-      console.log("Deleting " + this.item.itemName);
-    },
-    increaseQty: function() {
-      const copy = {} as ShoppingItem;
-      Object.assign(copy, this.item);
-      copy.quantity = this.item.quantity + 1;
-      this.emitChained("update-qty", copy);
-    },
-
-    emitChained: function(eventName: string, eventData: unknown) {
-      console.log(`emitting ${eventName} with data:`, eventData);
-      this.$emit(eventName, eventData);
-      console.log("done emitting");
-      let vm = this.$parent;
-      while (vm) {
-        console.log("emitting to:", vm);
-        vm.$emit(eventName, eventData);
-        vm = vm.$parent;
-      }
-    },
-
-    changeCategory: function(event: Event) {
-      throw new Error("Changing Category is not implemented yet!");
-      // const copy = {} as ShoppingItem;
-      // Object.assign(copy, this.item);
-      // copy.category = event.target.value;
-      // this.emitChained("update-category", copy);
-      // console.log(
-      //   "Category of " + this.item.name + " changed to " + event.target.value
-      // );
-    },
-
-    decreaseQty: function() {
-      const copy = {} as ShoppingItem;
-      Object.assign(copy, this.item);
-      copy.quantity = this.item.quantity - 1;
-      this.emitChained("update-qty", copy);
-    },
-
-    onClickHandler: function() {
-      console.log(`toggling item ${this.item.itemName}`);
-      this.emitChained("toggle-cart", this.item);
-    },
-  },
   props: {
     item: {
       type: Object as PropType<ShoppingItem>,
       required: true,
     },
-    categories: {
-      type: Array,
-      required: true,
-    },
+  },
+  setup(props) {
+    const categoriesList = inject("categoriesList") as Array<Category>;
+    console.log("FOO");
+    console.log(`ITEM ${props.item.id}: CATS ARE`, categoriesList);
+    console.log(`ITEM ${props.item.id}: CATS ARE`, categoriesList.length);
+    const showOptions = ref(false);
+    function toggleCollapse() {
+      showOptions.value = !showOptions.value;
+    }
+    function notifyDelete() {
+      console.log("TO BE DONE: delete item ", props.item);
+    }
+    function increaseQty() {
+      console.log("TO BE DONE: increase qty", props.item);
+      // const copy = {} as ShoppingItem;
+      // Object.assign(copy, this.item);
+      // copy.quantity = this.item.quantity + 1;
+      // this.emitChained("update-qty", copy);
+    }
+    function decreaseQty() {
+      console.log("TO BE DONE: decrease qty", props.item);
+      // const copy = {} as ShoppingItem;
+      // Object.assign(copy, this.item);
+      // copy.quantity = this.item.quantity + 1;
+      // this.emitChained("update-qty", copy);
+    }
+    function changeCategory() {
+      console.log("TO BE DONE: change category", props.item);
+    }
+    function toggleInCart() {
+      console.log("TO BE DONE: toggle in cart", props.item);
+    }
+    return {
+      categoriesList,
+      showOptions,
+
+      toggleCollapse,
+      notifyDelete,
+      increaseQty,
+      decreaseQty,
+      changeCategory,
+      toggleInCart,
+    };
   },
 });
 </script>
