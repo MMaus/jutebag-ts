@@ -81,9 +81,6 @@ export default defineComponent({
   },
   setup(props) {
     const categoriesList = inject("categoriesList") as Array<Category>;
-    console.log("FOO");
-    console.log(`ITEM ${props.item.id}: CATS ARE`, categoriesList);
-    console.log(`ITEM ${props.item.id}: CATS ARE`, categoriesList.length);
     const showOptions = ref(false);
     function toggleCollapse() {
       showOptions.value = !showOptions.value;

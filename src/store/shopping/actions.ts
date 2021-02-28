@@ -3,13 +3,17 @@ import { JuteBagState } from "../types";
 import { ShoppingListState } from "./types";
 
 export default {
-  async addOrCreateItem(
+  /**
+   * Adds (creates) the item and a corresponding category if it does not exist.
+   * If the item is added,
+   *
+   * @param context
+   * @param args description of the category, of type {itemName, categoryName}
+   */
+  async addItem(
     context: ActionContext<ShoppingListState, JuteBagState>,
-    args: { itemName: string; categoryName: string }
+    { itemName, categoryName }: { itemName: string; categoryName: string }
   ): Promise<void> {
-    console.log(
-      "TODO: ADD ITEM TO STORE, POTENTIALLY: SAVE TO REMOTE?: ",
-      args
-    );
+    context.commit("addItem", { itemName, categoryName });
   },
 };

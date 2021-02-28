@@ -122,7 +122,7 @@ export default defineComponent({
     }
 
     function submitNewItem() {
-      store.dispatch("shopping/addOrCreateItem", {
+      store.dispatch("shopping/addItem", {
         itemName: newItemText.value,
         categoryName: categoryText.value,
       });

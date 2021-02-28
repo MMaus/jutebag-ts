@@ -52,7 +52,7 @@ import mitt from "mitt";
 import { ItemRepository } from "../use/itemStore";
 import { Item, Category } from "../use/localApi";
 
-import { defineComponent, onMounted, computed, ref } from "vue";
+import { defineComponent, computed, ref } from "vue";
 
 import { Store, useStore } from "vuex";
 import { ShoppingItem } from "@/store/shopping/types";
@@ -62,11 +62,11 @@ const itemRepo = new ItemRepository("jutebag.shoppinglist");
 // const initialItems = itemRepo.itemList;
 const emitter = mitt();
 
-function createItem(itemName: string, categoryName: string, qty: number): Item {
-  const anItem = itemRepo.createShoppingItem(itemName, categoryName, qty);
-  console.log("itemId :" + anItem.id);
-  return anItem;
-}
+// function createItem(itemName: string, categoryName: string, qty: number): Item {
+//   const anItem = itemRepo.createShoppingItem(itemName, categoryName, qty);
+//   console.log("itemId :" + anItem.id);
+//   return anItem;
+// }
 
 export default defineComponent({
   setup() {
@@ -97,31 +97,9 @@ export default defineComponent({
     const categoryText: Ref<null | HTMLInputElement> = ref(null);
     const categoryList: Ref<null | HTMLSelectElement> = ref(null);
 
-    /**
-     * Add a new item from the input field to cart
-     */
-    const readCategory: () => string = () => {
-      let category: string | undefined = categoryList.value?.value;
-      if (!category) {
-        category = categoryText.value?.value;
-      }
-      if (!category) {
-        category = "undefined";
-      }
-      return category;
-    };
-
-    // const checkLogin = (user: any | null) => {
-    //   if (!user) {
-    //     loggedIn.value = false;
-    //   } else {
-    //     loggedIn.value = user.emailVerified;
-    //     userEmail.value = user.email ?? "<no email>";
-    //   }
-    // };
-
     const upload = () => {
-      itemRepo.upload(userEmail.value);
+      console.log("TODO: commit upload action to store");
+      // itemRepo.upload(userEmail.value);
     };
 
     const download = () => {
@@ -141,29 +119,6 @@ export default defineComponent({
     const toggleCart = (item: Item) => {
       console.log(`heard toggle cart for ${item.name}`);
       itemRepo.toggleCart(item);
-    };
-
-    const onInputFocus = () => {
-      console.log("input got focus");
-      showAddItemEnh.value = true;
-    };
-
-    const categoryListChange = (event: Event) => {
-      console.log("Category List Change! event target=" + event?.target);
-      if (event?.target) {
-        categoryText.value!.value = "";
-      }
-    };
-
-    const onCategoryTextChange = () => {
-      console.log("Category Text Change! event target=" + event?.target);
-      if (categoryText.value?.value) {
-        categoryList.value!.value = "";
-      }
-    };
-
-    const toggleAddItemEnh = () => {
-      showAddItemEnh.value = !showAddItemEnh.value;
     };
 
     const updateQty = (item: Item) => {
@@ -240,14 +195,6 @@ export default defineComponent({
       // @push-category="pushCategory"
     };
 
-    // onMounted(() => {
-    //   // just a synatx reminder for myself:
-    //   // `checkLogin` is short for `user => checkLogin(user)`
-    //   console.log("(Re-)Initialized ShoppingList");
-    //   // items.value = itemRepo.itemList;
-    //   firebase.auth().onAuthStateChanged(checkLogin);
-    // });
-
     return {
       storedCategories,
       categoryCallbacks,
@@ -263,11 +210,6 @@ export default defineComponent({
       categoryList,
       categoriesReactive,
       // UI functionality
-      onInputFocus,
-      categoryListChange,
-      onCategoryTextChange,
-      toggleAddItemEnh,
-      //
       emitter,
       // Cart change functionality
       upload,
@@ -285,7 +227,6 @@ export default defineComponent({
   },
 
   components: {
-    // "shopping-category": ShoppingCategory,
     ShoppingListFooter,
     CategoriesSidebar,
     CategoryPanel,
@@ -342,21 +283,4 @@ export default defineComponent({
 .v-leave-from {
   transform: translateX(0);
 }
-
-/* .category-done-sidebar {
-  font-size: 0.8rem;
-  font-weight: lighter;
-  padding-left: 20px;
-}
-.category-active-sidebar {
-  font-size: 1rem;
-  font-weight: bold;
-  padding-left: 5px;
-} */
-
-/* one way to fix the scrollbar issue */
-/* .row {
-  margin-left: 0px;
-  margin-right: 0px;
-} */
 </style>

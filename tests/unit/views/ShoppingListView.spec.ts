@@ -2,11 +2,19 @@ import { mount } from "@vue/test-utils";
 import { createStore, Store } from "vuex";
 
 import ShoppingListView from "@/views/ShoppingListView.vue";
+import CategoryPanel from "@/components/shoppinglist/CategoryPanel.vue";
 import { JuteBagState } from "@/store/types";
 import shopping from "@/store/shopping";
 
 describe("The ShoppingList", () => {
   let store: Store<JuteBagState>;
+
+  async function addItem(itemName: string, categoryName: string) {
+    await store.dispatch("shopping/addItem", {
+      itemName,
+      categoryName,
+    });
+  }
 
   beforeEach(() => {
     store = createStore({
@@ -16,25 +24,18 @@ describe("The ShoppingList", () => {
     });
   });
 
-  it("renders a new Category when it is added to the store", () => {
+  it("renders a new category panel when categories appear.", async () => {
     const wrapper = mount(ShoppingListView, {
-      // store,
       global: {
         plugins: [store],
       },
-      props: {
-        category: {
-          id: 1,
-          name: "Cat1",
-          items: [],
-          isDone: false,
-        },
-        categorylist: [],
-        mitt: {
-          on: jest.fn(),
-        },
-      },
     });
-    expect(wrapper.html().includes("Cat1")).toBe(true);
+    expect(wrapper.findAllComponents(CategoryPanel).length).toBe(0);
+    await addItem("item1", "cat1");
+    expect(wrapper.findAllComponents(CategoryPanel).length).toBe(1);
+    await addItem("item2", "cat2");
+    expect(wrapper.findAllComponents(CategoryPanel).length).toBe(2);
+    await addItem("item3", "cat1");
+    expect(wrapper.findAllComponents(CategoryPanel).length).toBe(2);
   });
 });

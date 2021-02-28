@@ -39,9 +39,10 @@ categories.forEach((cat) => {
   store.commit("shopping/createCategory", cat.catName);
   console.log(`Category ${cat.catName} has ${cat.items.length} items`);
   cat.items.forEach((it) =>
-    store.commit("shopping/addByCategoryName", {
-      category: cat.catName,
-      item: it,
+    store.commit("shopping/addItem", {
+      itemName: it.itemName,
+      quantity: it.quantity,
+      categoryName: cat.catName,
     })
   );
 });
