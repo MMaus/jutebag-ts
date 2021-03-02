@@ -77,10 +77,10 @@
           />
           <datalist id="categorylist">
             <option
-              v-for="cat in allCategoryNames"
-              :key="cat.name"
-              :value="cat.name"
-              >{{ cat.name }}</option
+              v-for="catName in allCategoryNames"
+              :key="catName"
+              :value="catName"
+              >{{ catName }}</option
             >
           </datalist>
         </div>

@@ -3,8 +3,8 @@
     <span class="float-right">
       <button class="btn border" @click="pullCategory">
         <svg
-          width="1.5rem"
-          height="1.5rem"
+          width="1.5em"
+          height="1.5em"
           viewBox="0 0 16 16"
           class="bi bi-arrow-up-square"
           fill="currentColor"

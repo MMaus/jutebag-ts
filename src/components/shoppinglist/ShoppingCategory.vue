@@ -19,8 +19,8 @@
             <span class="float-right">
               <button class="btn border" @click="pullCategory">
                 <svg
-                  width="1.5rem"
-                  height="1.5rem"
+                  width="16px"
+                  height="16px"
                   viewBox="0 0 16 16"
                   class="bi bi-arrow-up-square"
                   fill="currentColor"

@@ -3,6 +3,7 @@ import { createStore, Store } from "vuex";
 
 import ShoppingListView from "@/views/ShoppingListView.vue";
 import CategoryPanel from "@/components/shoppinglist/CategoryPanel.vue";
+import ShoppingItemDisplay from "@/components/shoppinglist/ShoppingItemDisplay.vue";
 import { JuteBagState } from "@/store/types";
 import shopping from "@/store/shopping";
 
@@ -37,5 +38,19 @@ describe("The ShoppingList", () => {
     expect(wrapper.findAllComponents(CategoryPanel).length).toBe(2);
     await addItem("item3", "cat1");
     expect(wrapper.findAllComponents(CategoryPanel).length).toBe(2);
+  });
+
+  it("renders a shopping item for each item that is created.", async () => {
+    const wrapper = mount(ShoppingListView, {
+      global: {
+        plugins: [store],
+      },
+    });
+    await addItem("item1", "cat1");
+    expect(wrapper.findAllComponents(ShoppingItemDisplay).length).toBe(1);
+    await addItem("item2", "cat2");
+    expect(wrapper.findAllComponents(ShoppingItemDisplay).length).toBe(2);
+    await addItem("item3", "cat1");
+    expect(wrapper.findAllComponents(ShoppingItemDisplay).length).toBe(3);
   });
 });
