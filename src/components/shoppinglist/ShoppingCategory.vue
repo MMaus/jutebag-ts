@@ -82,7 +82,7 @@
 
 <script lang="ts">
 import ToShopItem from "@/components/shoppinglist/ToShopItem.vue";
-import { Category, Item } from "@/use/localApi";
+import { Item } from "@/use/localApi";
 import { defineComponent, PropType } from "vue";
 import { Emitter, Handler } from "mitt";
 

@@ -1,4 +1,4 @@
-import { mount } from "@vue/test-utils";
+import { mount, VueWrapper } from "@vue/test-utils";
 import { createStore, Store } from "vuex";
 
 import ShoppingListView from "@/views/ShoppingListView.vue";
@@ -6,51 +6,65 @@ import CategoryPanel from "@/components/shoppinglist/CategoryPanel.vue";
 import ShoppingItemDisplay from "@/components/shoppinglist/ShoppingItemDisplay.vue";
 import { JuteBagState } from "@/store/types";
 import shopping from "@/store/shopping";
+import { ShoppingItem } from "@/store/shopping/types";
+
 
 describe("The ShoppingList", () => {
   let store: Store<JuteBagState>;
+  let viewWrapper: VueWrapper<any>;
 
   async function addItem(itemName: string, categoryName: string) {
     await store.dispatch("shopping/addItem", {
       itemName,
       categoryName,
+      inCart: false,
     });
   }
 
   beforeEach(() => {
     store = createStore({
       modules: {
+        FIXME: import should return a constructor function to create a NEW state!
         shopping,
+      },
+    });
+    viewWrapper = mount(ShoppingListView, {
+      global: {
+        plugins: [store],
       },
     });
   });
 
   it("renders a new category panel when categories appear.", async () => {
-    const wrapper = mount(ShoppingListView, {
-      global: {
-        plugins: [store],
-      },
-    });
-    expect(wrapper.findAllComponents(CategoryPanel).length).toBe(0);
+    expect(viewWrapper.findAllComponents(CategoryPanel).length).toBe(0);
     await addItem("item1", "cat1");
-    expect(wrapper.findAllComponents(CategoryPanel).length).toBe(1);
+    expect(viewWrapper.findAllComponents(CategoryPanel).length).toBe(1);
     await addItem("item2", "cat2");
-    expect(wrapper.findAllComponents(CategoryPanel).length).toBe(2);
+    expect(viewWrapper.findAllComponents(CategoryPanel).length).toBe(2);
     await addItem("item3", "cat1");
-    expect(wrapper.findAllComponents(CategoryPanel).length).toBe(2);
+    expect(viewWrapper.findAllComponents(CategoryPanel).length).toBe(2);
   });
 
   it("renders a shopping item for each item that is created.", async () => {
-    const wrapper = mount(ShoppingListView, {
-      global: {
-        plugins: [store],
-      },
-    });
     await addItem("item1", "cat1");
-    expect(wrapper.findAllComponents(ShoppingItemDisplay).length).toBe(1);
+    expect(viewWrapper.findAllComponents(ShoppingItemDisplay).length).toBe(1);
     await addItem("item2", "cat2");
-    expect(wrapper.findAllComponents(ShoppingItemDisplay).length).toBe(2);
+    expect(viewWrapper.findAllComponents(ShoppingItemDisplay).length).toBe(2);
     await addItem("item3", "cat1");
-    expect(wrapper.findAllComponents(ShoppingItemDisplay).length).toBe(3);
+    expect(viewWrapper.findAllComponents(ShoppingItemDisplay).length).toBe(3);
+  });
+
+  // TODO: think about moving this into a dedicated test, e.g. the component itself
+  it("toggles the 'in cart' property of an item when the user clicks on it.", async () => {
+    await addItem("item1", "cat1");
+    const textDisplay = viewWrapper
+      .findComponent(ShoppingItemDisplay)
+      .find(".itemNameDisplay");
+    expect(textDisplay.exists()).toBe(true);
+    const theItem = store.getters["shopping/categories"][0]
+      .items[0] as ShoppingItem;
+    expect(theItem.inCart).toBe(false);
+    await textDisplay.trigger("click");
+    expect(theItem.inCart).toBe(true); // ACTUALLY this *only* works because the proxy returned from the getter is reactive!
   });
 });

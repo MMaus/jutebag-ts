@@ -1,11 +1,11 @@
 <template>
   <div class="m-0 p-0">
     <div
-      v-if="item.stored"
+      v-if="item.inCart"
       class="storedItem mt-1 text-success text-left font-weight-bold"
       @click="toggleInCart"
     >
-      {{ item.quantity }}x {{ item.name }}
+      {{ item.quantity }}x {{ item.itemName }}
     </div>
 
     <div v-else class="bg-secondary rounded p-0 m-1">
@@ -34,7 +34,10 @@
             </button>
           </div>
         </div>
-        <div class="container-fluid pl-3 text-left mt-1" @click="toggleInCart">
+        <div
+          class="container-fluid pl-3 text-left mt-1 itemNameDisplay"
+          @click="toggleInCart"
+        >
           {{ item.itemName }}
         </div>
         <div class="ml-auto mr-1" aria-label="change quantity">
@@ -50,7 +53,7 @@
       <div class="collapse pt-2" v-bind:class="{ show: showOptions }">
         <button
           class="btn btn-danger text-white font-weight-bold mr-3"
-          v-on:click="notifyDelete()"
+          v-on:click="notifyDelete"
         >
           x
         </button>
@@ -68,9 +71,9 @@
   </div>
 </template>
 <script lang="ts">
-import { ShoppingItem } from "@/store/shopping/types";
-import { Category } from "@/use/localApi";
+import { ShoppingItem, Category } from "@/store/shopping/types";
 import { defineComponent, inject, PropType, ref } from "vue";
+import { useStore } from "vuex";
 
 export default defineComponent({
   props: {
@@ -78,8 +81,13 @@ export default defineComponent({
       type: Object as PropType<ShoppingItem>,
       required: true,
     },
+    category: {
+      type: Object as PropType<Category>,
+      required: true,
+    },
   },
   setup(props) {
+    const store = useStore();
     const categoriesList = inject("categoriesList") as Array<Category>;
     const showOptions = ref(false);
     function toggleCollapse() {
@@ -89,6 +97,10 @@ export default defineComponent({
       console.log("TO BE DONE: delete item ", props.item);
     }
     function increaseQty() {
+      store.dispatch("shopping/updateQuantity", {
+        itemId: props.item.id,
+        quantity: props.item.quantity + 1,
+      });
       console.log("TO BE DONE: increase qty", props.item);
       // const copy = {} as ShoppingItem;
       // Object.assign(copy, this.item);
@@ -96,6 +108,10 @@ export default defineComponent({
       // this.emitChained("update-qty", copy);
     }
     function decreaseQty() {
+      store.dispatch("shopping/updateQuantity", {
+        itemId: props.item.id,
+        quantity: props.item.quantity - 1,
+      });
       console.log("TO BE DONE: decrease qty", props.item);
       // const copy = {} as ShoppingItem;
       // Object.assign(copy, this.item);
@@ -106,6 +122,10 @@ export default defineComponent({
       console.log("TO BE DONE: change category", props.item);
     }
     function toggleInCart() {
+      store.dispatch("shopping/toggleInCart", {
+        itemId: props.item.id,
+        categoryId: props.category.id,
+      });
       console.log("TO BE DONE: toggle in cart", props.item);
     }
     return {
@@ -125,5 +145,8 @@ export default defineComponent({
 <style scoped>
 .stored-item {
   background-color: palegoldenrod;
+}
+.itemNameDisplay {
+  text-transform: capitalize;
 }
 </style>

@@ -45,7 +45,44 @@ function addItem(
   }
 }
 
+function toggleInCart(
+  state: ShoppingListState,
+  { itemId, categoryId }: { itemId: string; categoryId: string }
+): void {
+  const isInCart = state.categories
+    .find((cat) => cat.id === categoryId)
+    ?.items.find((it) => it.id === itemId)?.inCart;
+  if (isInCart === undefined) {
+    return;
+  } else {
+    state.categories
+      .find((cat) => cat.id === categoryId)!
+      .items.find((it) => it.id === itemId)!.inCart = !isInCart;
+  }
+}
+
+function setQuantity(
+  state: ShoppingListState,
+  { itemId, quantity }: { itemId: string; quantity: number }
+) {
+  // TODO: this seems so awkward and inefficient. How to improve (ideally without loops)?
+  // The problems are that we do the search over the items twice, and continue searching after
+  // we found the item. Maybe this indicates an inefficient representation of the data.
+  const catIdx = state.categories.findIndex(
+    (cat) => cat.items.findIndex((it) => it.id === itemId) > -1
+  );
+  if (catIdx < 0) {
+    throw new Error(`Item with ID ${itemId} was not in any category`);
+  }
+  const itemIdx = state.categories[catIdx].items.findIndex(
+    (it) => it.id === itemId
+  );
+  state.categories[catIdx].items[itemIdx].quantity = quantity;
+}
+
 export default {
   createCategory,
   addItem,
+  setQuantity,
+  toggleInCart,
 } as MutationTree<ShoppingListState>;

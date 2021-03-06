@@ -72,7 +72,6 @@ export default defineComponent({
   setup() {
     const store = useStore() as Store<JuteBagState>;
 
-    console.log("CATEGORIES:", store.getters["shopping/categories"]);
     provide("categoriesList", readonly(store.getters["shopping/categories"]));
 
     // FIXME: add type information

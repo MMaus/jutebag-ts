@@ -26,6 +26,7 @@
           v-for="item in category.items"
           :key="item.id"
           :item="item"
+          :category="category"
           :categories="categorylist"
           @toggle-cart="logToggle"
         ></shopping-item-display>

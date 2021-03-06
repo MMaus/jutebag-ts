@@ -16,4 +16,16 @@ export default {
   ): Promise<void> {
     context.commit("addItem", { itemName, categoryName });
   },
+  async updateQuantity(
+    context: ActionContext<ShoppingListState, JuteBagState>,
+    { itemId, quantity }: { itemId: string; quantity: number }
+  ): Promise<void> {
+    context.commit("setQuantity", { itemId, quantity });
+  },
+  async toggleInCart(
+    context: ActionContext<ShoppingListState, JuteBagState>,
+    { itemId, categoryId }: { itemId: string; categoryId: string }
+  ): Promise<void> {
+    context.commit("toggleInCart", { itemId, categoryId });
+  },
 };

@@ -1,7 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 
-import { Component, createApp } from "vue";
+import { createApp } from "vue";
 import App from "./App.vue";
 import "./registerServiceWorker";
 import router from "./router";
@@ -43,6 +43,7 @@ categories.forEach((cat) => {
       itemName: it.itemName,
       quantity: it.quantity,
       categoryName: cat.catName,
+      inCart: it.inCart,
     })
   );
 });
