@@ -59,14 +59,7 @@ import { ShoppingItem } from "@/store/shopping/types";
 import { JuteBagState } from "@/store/types";
 
 const itemRepo = new ItemRepository("jutebag.shoppinglist");
-// const initialItems = itemRepo.itemList;
 const emitter = mitt();
-
-// function createItem(itemName: string, categoryName: string, qty: number): Item {
-//   const anItem = itemRepo.createShoppingItem(itemName, categoryName, qty);
-//   console.log("itemId :" + anItem.id);
-//   return anItem;
-// }
 
 export default defineComponent({
   setup() {

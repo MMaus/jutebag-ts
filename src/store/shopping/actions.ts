@@ -24,8 +24,14 @@ export default {
   },
   async toggleInCart(
     context: ActionContext<ShoppingListState, JuteBagState>,
-    { itemId, categoryId }: { itemId: string; categoryId: string }
+    { itemId }: { itemId: string }
   ): Promise<void> {
-    context.commit("toggleInCart", { itemId, categoryId });
+    context.commit("toggleInCart", { itemId });
+  },
+  async deleteItem(
+    context: ActionContext<ShoppingListState, JuteBagState>,
+    { itemId }: { itemId: string }
+  ): Promise<void> {
+    context.commit("deleteItem", { itemId });
   },
 };

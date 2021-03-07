@@ -14,34 +14,42 @@
         expected behaviour.
       </p>
     </div>
-    <button @click="importData" class="btn btn-primary button">
-      Import data
+    <button @click="toggleDialog" class="btn btn-primary button">
+      toggle dialog
     </button>
+    <teleport to="body">
+      <modal-dialog :show="showDialog" @background-click="showDialog = false">
+        <div>
+          This is the main text
+        </div>
+        <template v-slot:buttons>
+          <div>
+            <button class="btn btn-primary" @click="toggleDialog">
+              Try to close this!
+            </button>
+          </div>
+        </template>
+      </modal-dialog>
+    </teleport>
   </div>
 </template>
 
 <script lang="ts">
-// import { ref, reactive } from "vue";
-import { importState } from "@/store/shopping/importer";
-import { useStore } from "vuex";
+import { ref } from "vue";
+import ModalDialog from "@/components/common/ModalDialog.vue";
 export default {
   setup() {
-    const store = useStore();
-    const importData = function() {
-      // const categories = importState();
-    };
+    const showDialog = ref(false);
+    function toggleDialog() {
+      showDialog.value = !showDialog.value;
+    }
     return {
-      importData,
-      // showDiv,
-      // toggleDiv,
-      // isUsersVisible,
-      // showUsers,
-      // hideUsers,
-      // listItems,
-      // newItem,
-      // addItem,
-      // removeItem,
+      showDialog,
+      toggleDialog,
     };
+  },
+  components: {
+    ModalDialog,
   },
 };
 </script>

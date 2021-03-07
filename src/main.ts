@@ -52,8 +52,11 @@ firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
   store.dispatch("user/authStateChanged", user);
 });
 
+// Vue.config.devtools = process.env.NODE_ENV === "development";
+
 const app = createApp(App)
   .use(router)
   .use(store);
+// app.config.devtools = true;
 
 app.mount("#app");

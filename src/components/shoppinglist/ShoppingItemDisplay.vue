@@ -43,36 +43,25 @@
         <div class="ml-auto mr-1" aria-label="change quantity">
           <button
             type="button"
-            class="btn btn-warning btn-sm"
-            @click="toggleCollapse"
+            class="btn btn-danger btn-sm"
+            @click="deleteItem"
           >
-            <span class="nav-item dropdown-toggle"></span>
+            <span>
+              <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M16,10V17A1,1 0 0,1 15,18H9A1,1 0 0,1 8,17V10H16M13.5,6L14.5,7H17V9H7V7H9.5L10.5,6H13.5Z"
+                /></svg
+            ></span>
           </button>
         </div>
-      </div>
-      <div class="collapse pt-2" v-bind:class="{ show: showOptions }">
-        <button
-          class="btn btn-danger text-white font-weight-bold mr-3"
-          v-on:click="notifyDelete"
-        >
-          x
-        </button>
-        <select id="category" ref="category" @change="changeCategory">
-          <option
-            v-for="cat in categoriesList"
-            :key="cat.id"
-            :value="cat.catName"
-            :selected="cat.name === item.category"
-            >{{ cat.catName }}</option
-          >
-        </select>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
 import { ShoppingItem, Category } from "@/store/shopping/types";
-import { defineComponent, inject, PropType, ref } from "vue";
+import { defineComponent, PropType } from "vue";
 import { useStore } from "vuex";
 
 export default defineComponent({
@@ -88,55 +77,32 @@ export default defineComponent({
   },
   setup(props) {
     const store = useStore();
-    const categoriesList = inject("categoriesList") as Array<Category>;
-    const showOptions = ref(false);
-    function toggleCollapse() {
-      showOptions.value = !showOptions.value;
-    }
-    function notifyDelete() {
-      console.log("TO BE DONE: delete item ", props.item);
+    function deleteItem() {
+      store.dispatch("shopping/deleteItem", {
+        itemId: props.item.id,
+      });
     }
     function increaseQty() {
       store.dispatch("shopping/updateQuantity", {
         itemId: props.item.id,
         quantity: props.item.quantity + 1,
       });
-      console.log("TO BE DONE: increase qty", props.item);
-      // const copy = {} as ShoppingItem;
-      // Object.assign(copy, this.item);
-      // copy.quantity = this.item.quantity + 1;
-      // this.emitChained("update-qty", copy);
     }
     function decreaseQty() {
       store.dispatch("shopping/updateQuantity", {
         itemId: props.item.id,
         quantity: props.item.quantity - 1,
       });
-      console.log("TO BE DONE: decrease qty", props.item);
-      // const copy = {} as ShoppingItem;
-      // Object.assign(copy, this.item);
-      // copy.quantity = this.item.quantity + 1;
-      // this.emitChained("update-qty", copy);
-    }
-    function changeCategory() {
-      console.log("TO BE DONE: change category", props.item);
     }
     function toggleInCart() {
       store.dispatch("shopping/toggleInCart", {
         itemId: props.item.id,
-        categoryId: props.category.id,
       });
-      console.log("TO BE DONE: toggle in cart", props.item);
     }
     return {
-      categoriesList,
-      showOptions,
-
-      toggleCollapse,
-      notifyDelete,
+      deleteItem,
       increaseQty,
       decreaseQty,
-      changeCategory,
       toggleInCart,
     };
   },

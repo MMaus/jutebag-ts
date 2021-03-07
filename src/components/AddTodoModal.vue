@@ -1,69 +1,64 @@
 <template>
-        <transition name="modal">
-        <div class="modal-mask">
-          <div class="modal-wrapper">
-            <div class="modal-container">
+  <transition name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container">
+          <div class="modal-header">
+            <slot name="header">
+              Create new Todo item
+            </slot>
+          </div>
 
-              <div class="modal-header">
-                <slot name="header">
-                  Create new Todo item 
-                </slot>
-              </div>
+          <div class="modal-body">
+            <slot name="body">
+              New item
+            </slot>
+            <input
+              type="text"
+              placeholder="new todo item"
+              ref="newItem"
+              @keyup.enter="submit"
+            />
+          </div>
 
-              <div class="modal-body">
-                <slot name="body">
-                    New item
-                </slot>
-                  <input type="text"
-                  placeholder="new todo item"
-                  ref="newItem"
-                  @keyup.enter="submit"
-                  >
-              </div>
-
-              <div class="modal-footer">
-                <slot name="footer">
-                  <button class="modal-default-button" @click="submit">
-                    Add
-                  </button>
-                </slot>
-              </div>
-            </div>
+          <div class="modal-footer">
+            <slot name="footer">
+              <button class="modal-default-button" @click="submit">
+                Add
+              </button>
+            </slot>
           </div>
         </div>
-      </transition>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from 'vue';
-
+import { defineComponent, Ref, ref } from "vue";
 
 export default defineComponent({
+  setup(props, { emit }) {
+    const newItem: Ref<null | HTMLInputElement> = ref(null);
+    const data = [];
+    let itemData = "";
+    const submit = () => {
+      if (newItem.value?.value) {
+        itemData = newItem.value.value!;
+        console.log("You entered " + itemData);
+      }
+      emit("close", itemData);
+    };
 
-    setup(props, { emit }) {
-        const newItem: Ref<null | HTMLInputElement> = ref(null);
-        const data = [];
-        let itemData = "";
-        const submit = () => {
-            if (newItem.value?.value) {
-                itemData = newItem.value.value!
-                console.log("You entered " + itemData);
-            }
-            emit("close", itemData);
-        };
-
-        return {
-            submit,
-            newItem
-            };
-        }
-
-})
-
+    return {
+      submit,
+      newItem,
+    };
+  },
+});
 </script>
 
 <style>
-
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -127,5 +122,4 @@ export default defineComponent({
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
 }
-
 </style>
