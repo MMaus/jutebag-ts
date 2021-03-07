@@ -3,9 +3,9 @@
 module.exports = {
   productionSourceMap: false,
 
-  configureWebpack: {
-    devtool: "source-map",
-  },
+  // configureWebpack: {
+  //   devtool: "source-map",
+  // },
 
   pwa: {
     name: "JuteBag",

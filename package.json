@@ -30,7 +30,7 @@
     "@vue/cli-plugin-typescript": "~4.5.0",
     "@vue/cli-plugin-unit-jest": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
+    "@vue/cli-service": "~4.5.11",
     "@vue/compiler-sfc": "^3.0.5",
     "@vue/eslint-config-typescript": "^5.1.0",
     "@vue/test-utils": "^2.0.0-0",
@@ -55,7 +55,9 @@
           "*.js"
         ],
         "rules": {
-          "@typescript-eslint/no-var-requires": "off"
+          "@typescript-eslint/no-var-requires": "off",
+          "@typescript-eslint/ban-ts-ignore": "off",
+          "@typescript-eslint/ban-ts-comment": "off"
         }
       },
       {

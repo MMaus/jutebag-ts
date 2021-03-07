@@ -1,6 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 
+import Vue from "vue";
 import { createApp } from "vue";
 import App from "./App.vue";
 import "./registerServiceWorker";
@@ -53,10 +54,13 @@ firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
 });
 
 // Vue.config.devtools = process.env.NODE_ENV === "development";
+// Vue.config.devtools = true;
 
 const app = createApp(App)
   .use(router)
   .use(store);
+
+// @ts-ignore
 // app.config.devtools = true;
 
 app.mount("#app");
