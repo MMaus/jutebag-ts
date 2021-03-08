@@ -74,6 +74,13 @@
       </div>
     </div>
     <router-view class="view"></router-view>
+    <modal-dialog
+      :show="showConsent"
+      @ok="onConsentConfirm"
+      @cancel="onConcentCancel"
+    >
+      Do you agree to never store any personal data here?
+    </modal-dialog>
   </div>
 </template>
 
@@ -82,6 +89,7 @@ import firebase from "firebase/app";
 
 // // // Add the Firebase products that you want to use
 import "firebase/auth";
+import ModalDialog from "./components/common/ModalDialog.vue";
 
 // If you enabled Analytics in your project, add the Firebase SDK for Analytics
 // import "firebase/analytics";
@@ -98,6 +106,7 @@ function loginComplete(user) {
 }
 
 export default {
+  components: { ModalDialog },
   created: function() {
     firebase.auth().onAuthStateChanged((user) => this.toggleSignIn(user));
   },
@@ -107,6 +116,7 @@ export default {
       loggedIn: loginComplete(firebase.auth().currentUser),
       verificationRequired: false,
       loggedOut: true,
+      showConsent: true,
     };
   },
 
@@ -121,6 +131,12 @@ export default {
         this.verificationRequired = false;
         this.loggedOut = true;
       }
+    },
+    onConsentConfirm() {
+      this.showConsent = false;
+    },
+    onConcentCancel() {
+      this.showConsent = false;
     },
   },
 };

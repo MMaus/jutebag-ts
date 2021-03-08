@@ -8,7 +8,17 @@
           </div>
           <div class="d-flex">
             <div class="ml-auto button-slot">
-              <slot name="buttons"></slot>
+              <slot name="buttons">
+                <button
+                  class="btn button btn-primary"
+                  @click="signal('cancel')"
+                >
+                  Cancel
+                </button>
+                <button class="btn button btn-primary" @click="signal('ok')">
+                  OK
+                </button>
+              </slot>
             </div>
           </div>
         </div>
@@ -29,6 +39,9 @@ export default defineComponent({
   setup(props, context) {
     const showForeground = ref(props.show);
     const showBackground = ref(props.show);
+    function signal(signalName: string) {
+      context.emit(signalName);
+    }
     function onBackgroundClicked() {
       context.emit("background-click");
     }
@@ -49,6 +62,7 @@ export default defineComponent({
       }
     );
     return {
+      signal,
       showForeground,
       showBackground,
       onBackgroundClicked,
