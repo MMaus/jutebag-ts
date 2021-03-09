@@ -2,7 +2,8 @@ import { MutationTree } from "vuex";
 import { AppState } from "./types";
 
 function setConsentNow(state: AppState): void {
-  state.lastConsent = new Date();
+  state.lastConsent = Date.now();
+  console.log("consent set!");
 }
 
 export default {

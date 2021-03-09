@@ -1,15 +1,16 @@
 import { AppState } from "./types";
 
 export default {
-  lastConsent(state: AppState): Date | null {
-    return state.lastConsent;
+  lastConsent(state: AppState): Date {
+    // also serves as fallback if for some reason state.lastConsent is null or undefined,
+    // which may happen during initial deserialization
+    if (!state.lastConsent) {
+      return new Date(0);
+    }
+    return new Date(state.lastConsent);
   },
   isConsentValid(state: AppState): boolean {
-    if (state.lastConsent == null) {
-      return false;
-    }
-    const dT = Date.now() - state.lastConsent.getTime();
-    return dT < 10 * 1000; // consent every 60 seconds :P
-    // return dT < 3600 * 1000 * 24 * 30; // consent every 30 days
+    const dT = Date.now() - (state.lastConsent == null ? 0 : state.lastConsent);
+    return dT < 30 * 24 * 3600 * 1000; // consent every 30 days
   },
 };

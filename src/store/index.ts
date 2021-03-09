@@ -15,7 +15,7 @@ import { JuteBagState } from "./types";
 import VuexPersistence from "vuex-persist";
 const vuexLocal = new VuexPersistence<JuteBagState>({
   storage: window.localStorage,
-  reducer: (state) => state.app, // remove to store the entire state
+  reducer: (state) => ({ app: state.app }), // remove to store the entire state
 });
 
 export default createStore({
@@ -24,5 +24,5 @@ export default createStore({
     shopping,
     app,
   },
-  // plugins: [vuexLocal.plugin],
+  plugins: [vuexLocal.plugin],
 }) as Store<JuteBagState>;

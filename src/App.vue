@@ -79,7 +79,21 @@
       @ok="onConsentConfirm"
       @cancel="onConcentCancel"
     >
-      Do you agree to never store any personal data here?
+      <h2>WARNING</h2>
+      <div class="text-left">
+        This application is a hobby project. Do not provide personal
+        information, because it is not protected.
+        <br />
+        All data you enter will be stored locally in your browser.
+        <br />
+        If you create and use an account, those data will be stored on the
+        server, where they are publicly accessible! As this violates public
+        laws, you are not allowed to enter personal information when you are
+        using an account. Personal information may be any information you might
+        enter, except for testing purposes.
+        <br /><br />
+        <b>Do you agree to never enter any personal data here?</b>
+      </div>
     </modal-dialog>
   </div>
 </template>
@@ -116,7 +130,6 @@ export default {
       loggedIn: loginComplete(firebase.auth().currentUser),
       verificationRequired: false,
       loggedOut: true,
-      showConsent: true,
     };
   },
 
@@ -133,10 +146,17 @@ export default {
       }
     },
     onConsentConfirm() {
-      this.showConsent = false;
+      // this.showConsent = false;
+      this.$store.dispatch("app/confirmConsent");
     },
     onConcentCancel() {
-      this.showConsent = false;
+      // this.showConsent = false;
+    },
+  },
+
+  computed: {
+    showConsent() {
+      return !this.$store.getters["app/isConsentValid"];
     },
   },
 };
