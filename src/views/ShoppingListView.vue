@@ -8,7 +8,11 @@
       />
     </transition>
     <div v-if="loggedIn" class="cardly">
-      <button class="button btn btn-warning rounded" @click="upload">
+      <button
+        class="button btn btn-warning rounded"
+        :class="buttonClass"
+        @click="upload"
+      >
         Save
       </button>
       <button class="button btn btn-warning rounded ml-2" @click="download">
@@ -39,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { Ref, provide, readonly } from "vue";
+import { Ref, provide, readonly, watch } from "vue";
 
 import ShoppingListFooter from "@/components/shoppinglist/ShoppingListFooter.vue";
 import CategoriesSidebar from "@/components/shoppinglist/CategoriesSidebar.vue";
@@ -55,7 +59,7 @@ import { Item, Category } from "../use/localApi";
 import { defineComponent, computed, ref } from "vue";
 
 import { Store, useStore } from "vuex";
-import { ShoppingItem } from "@/store/shopping/types";
+import { ShoppingItem, SyncState } from "@/store/shopping/types";
 import { JuteBagState } from "@/store/types";
 
 const itemRepo = new ItemRepository("jutebag.shoppinglist");
@@ -86,13 +90,33 @@ export default defineComponent({
 
     // properties to be filled by the setup method
     const newItem: Ref<null | HTMLInputElement> = ref(null);
-    const categoryText: Ref<null | HTMLInputElement> = ref(null);
     const categoryList: Ref<null | HTMLSelectElement> = ref(null);
 
+    const buttonClass = computed(() => {
+      const syncState = store.getters["shopping/syncState"] as SyncState;
+      if (syncState === "SYNC") {
+        return "bg-yellow";
+      }
+      if (syncState === "SYNCING") {
+        return "bg-green";
+      }
+      return "bg-gray";
+    });
+
     const upload = () => {
+      store.dispatch("shopping/uploadItems");
       console.log("TODO: commit upload action to store");
       // itemRepo.upload(userEmail.value);
     };
+
+    loggedIn.value = store.getters["user/isLoggedIn"];
+
+    watch(
+      () => store.getters["user/isLoggedIn"],
+      (isLoggedIn) => {
+        loggedIn.value = (isLoggedIn as unknown) as boolean;
+      }
+    );
 
     const download = () => {
       console.log("TODO: download from store!");
@@ -190,6 +214,7 @@ export default defineComponent({
     return {
       storedCategories,
       categoryCallbacks,
+      buttonClass,
 
       user,
       items,
@@ -198,7 +223,6 @@ export default defineComponent({
       loggedIn,
       userEmail,
       newItem,
-      categoryText,
       categoryList,
       categoriesReactive,
       // UI functionality
@@ -227,6 +251,18 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.bg-gray {
+  background-color: grey;
+}
+
+.bg-green {
+  background-color: green;
+}
+
+.bg-yellow {
+  background-color: goldenrod;
+}
+
 .spacer {
   height: 5rem;
 }

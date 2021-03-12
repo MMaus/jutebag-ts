@@ -1,8 +1,11 @@
 import { ShoppingListState } from "./types";
 
-export const state: ShoppingListState = {
-  categories: [],
-  version: 1,
-  nextCategoryId: 1,
-  nextItemId: 1,
-};
+export function createState(): ShoppingListState {
+  return {
+    categories: [],
+    version: 1,
+    nextCategoryId: 1,
+    nextItemId: 1,
+    syncState: "NOT_SYNCED",
+  };
+}

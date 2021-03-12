@@ -1,5 +1,5 @@
 import { MutationTree } from "vuex";
-import { Category, ShoppingListState, ShoppingItem } from "./types";
+import { Category, ShoppingListState, ShoppingItem, SyncState } from "./types";
 
 function createCategory(state: ShoppingListState, name: string): Category {
   const newCategory: Category = {
@@ -43,6 +43,7 @@ function addItem(
   if (!item.inCart) {
     category.isDone = false;
   }
+  state.syncState = "NOT_SYNCED";
 }
 
 /**
@@ -86,6 +87,7 @@ function getItem(state: ShoppingListState, itemId: string): ShoppingItem {
 function deleteItem(state: ShoppingListState, { itemId }: { itemId: string }) {
   const { itemIndex, categoryIndex } = locateItem(state, itemId);
   state.categories[categoryIndex].items.splice(itemIndex, 1);
+  state.syncState = "NOT_SYNCED";
 }
 
 function toggleInCart(
@@ -94,6 +96,7 @@ function toggleInCart(
 ): void {
   const item = getItem(state, itemId);
   item.inCart = !item.inCart;
+  state.syncState = "NOT_SYNCED";
 }
 
 function setQuantity(
@@ -101,6 +104,14 @@ function setQuantity(
   { itemId, quantity }: { itemId: string; quantity: number }
 ) {
   getItem(state, itemId).quantity = quantity;
+  state.syncState = "NOT_SYNCED";
+}
+
+function setSyncState(
+  state: ShoppingListState,
+  { syncState }: { syncState: SyncState }
+): void {
+  state.syncState = syncState;
 }
 
 export default {
@@ -109,4 +120,5 @@ export default {
   setQuantity,
   toggleInCart,
   deleteItem,
+  setSyncState,
 } as MutationTree<ShoppingListState>;

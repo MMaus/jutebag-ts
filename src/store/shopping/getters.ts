@@ -1,4 +1,4 @@
-import { Category, ShoppingItem, ShoppingListState } from "./types";
+import { Category, ShoppingItem, ShoppingListState, SyncState } from "./types";
 
 export default {
   categories(state: ShoppingListState): Array<Category> {
@@ -10,5 +10,8 @@ export default {
   ): (arg0: string) => Array<ShoppingItem> {
     return (id: string) =>
       state.categories.find((category) => category.id === id)?.items || [];
+  },
+  syncState(state: ShoppingListState): SyncState {
+    return state.syncState;
   },
 };

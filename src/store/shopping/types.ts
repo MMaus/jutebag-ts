@@ -1,8 +1,11 @@
+export type SyncState = "SYNC" | "SYNCING" | "NOT_SYNCED";
+
 export interface ShoppingListState {
   categories: Array<Category>;
   version: number;
   nextCategoryId: number;
   nextItemId: number;
+  syncState: SyncState;
 }
 
 export interface Category {

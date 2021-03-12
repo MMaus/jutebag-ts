@@ -5,9 +5,8 @@ import ShoppingListView from "@/views/ShoppingListView.vue";
 import CategoryPanel from "@/components/shoppinglist/CategoryPanel.vue";
 import ShoppingItemDisplay from "@/components/shoppinglist/ShoppingItemDisplay.vue";
 import { JuteBagState } from "@/store/types";
-import shopping from "@/store/shopping";
+import { createModule as createShoppingModule } from "@/store/shopping";
 import { ShoppingItem } from "@/store/shopping/types";
-
 
 describe("The ShoppingList", () => {
   let store: Store<JuteBagState>;
@@ -24,8 +23,7 @@ describe("The ShoppingList", () => {
   beforeEach(() => {
     store = createStore({
       modules: {
-        FIXME: import should return a constructor function to create a NEW state!
-        shopping,
+        shopping: createShoppingModule(),
       },
     });
     viewWrapper = mount(ShoppingListView, {
@@ -33,6 +31,10 @@ describe("The ShoppingList", () => {
         plugins: [store],
       },
     });
+  });
+
+  it("display the store / load toolbar when user is logged in.", async () => {
+    fail("test not implemented");
   });
 
   it("renders a new category panel when categories appear.", async () => {

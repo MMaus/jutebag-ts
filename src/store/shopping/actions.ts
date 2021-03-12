@@ -34,4 +34,11 @@ export default {
   ): Promise<void> {
     context.commit("deleteItem", { itemId });
   },
+  async uploadItems(
+    context: ActionContext<ShoppingListState, JuteBagState>
+  ): Promise<void> {
+    context.commit("setSyncState", { syncState: "SYNCING" });
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    context.commit("setSyncState", { syncState: "SYNC" });
+  },
 };
