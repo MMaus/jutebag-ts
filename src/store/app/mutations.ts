@@ -6,6 +6,12 @@ function setConsentNow(state: AppState): void {
   console.log("consent set!");
 }
 
+function disableShoppingListImport(state: AppState): void {
+  state.enableShoppingListImport = false;
+  console.log("shoppinglist import disabled!");
+}
+
 export default {
   setConsentNow,
+  disableShoppingListImport,
 } as MutationTree<AppState>;

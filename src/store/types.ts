@@ -4,7 +4,7 @@ import { UserState } from "./user/types";
 
 export interface JuteBagState {
   version: number;
-  shoppingList: ShoppingListState;
+  shopping: ShoppingListState;
   user: UserState;
   app: AppState;
 }

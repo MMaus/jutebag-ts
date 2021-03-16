@@ -15,7 +15,11 @@
       >
         Save
       </button>
-      <button class="button btn btn-warning rounded ml-2" @click="download">
+      <button
+        class="button btn btn-warning rounded ml-2"
+        :class="buttonClass"
+        @click="download"
+      >
         Load
       </button>
     </div>
@@ -100,6 +104,9 @@ export default defineComponent({
       if (syncState === "SYNCING") {
         return "bg-green";
       }
+      if (syncState === "SYNC_ERROR") {
+        return "bg-error";
+      }
       return "bg-gray";
     });
 
@@ -119,7 +126,8 @@ export default defineComponent({
     );
 
     const download = () => {
-      console.log("TODO: download from store!");
+      store.dispatch("shopping/downloadItems");
+      console.log("TODO: commit upload action to store");
       // const user = firebase.auth().currentUser?.email;
       // if (user == null) {
       //   console.error("Unknown user, cannot download cart items.");
@@ -261,6 +269,12 @@ export default defineComponent({
 
 .bg-yellow {
   background-color: goldenrod;
+}
+
+.bg-error {
+  background-color: crimson;
+  color: azure;
+  font-weight: bold;
 }
 
 .spacer {

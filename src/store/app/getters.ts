@@ -13,4 +13,8 @@ export default {
     const dT = Date.now() - (state.lastConsent == null ? 0 : state.lastConsent);
     return dT < 30 * 24 * 3600 * 1000; // consent every 30 days
   },
+  enableShoppingListImport(state: AppState): boolean {
+    console.log("FOUND VALUE" + state.enableShoppingListImport);
+    return state.enableShoppingListImport;
+  },
 };

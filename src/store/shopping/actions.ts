@@ -1,5 +1,7 @@
 import { ActionContext } from "vuex";
 import { JuteBagState } from "../types";
+import { User } from "../user/types";
+import { RemoteShoppingList } from "./remoteTypes";
 import { ShoppingListState } from "./types";
 
 export default {
@@ -40,5 +42,31 @@ export default {
     context.commit("setSyncState", { syncState: "SYNCING" });
     await new Promise((resolve) => setTimeout(resolve, 2000));
     context.commit("setSyncState", { syncState: "SYNC" });
+  },
+  async downloadItems(
+    context: ActionContext<ShoppingListState, JuteBagState>
+  ): Promise<void> {
+    context.commit("setSyncState", { syncState: "SYNCING" });
+    if (!context.rootGetters["user/isLoggedIn"]) {
+      console.error("User is not logged in");
+      context.commit("setSyncState", { syncState: "SYNC_ERROR" });
+      return;
+    }
+    const user: User = context.rootGetters["user/user"];
+    const userEmail = user.email;
+    let jsonResponse: RemoteShoppingList;
+    try {
+      jsonResponse = await fetch("/bagpy/" + userEmail).then((res) =>
+        res.json()
+      );
+    } catch (e) {
+      console.log("Error on download", e);
+      context.commit("setSyncState", { syncState: "SYNC_ERROR" });
+      return;
+    }
+    console.log("Received object:", jsonResponse);
+    console.log(
+      `There are ${jsonResponse.categories.length} categories with ${jsonResponse.items.length} items`
+    );
   },
 };

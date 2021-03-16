@@ -1,4 +1,4 @@
-export type SyncState = "SYNC" | "SYNCING" | "NOT_SYNCED";
+export type SyncState = "SYNC" | "SYNCING" | "NOT_SYNCED" | "SYNC_ERROR";
 
 export interface ShoppingListState {
   categories: Array<Category>;
