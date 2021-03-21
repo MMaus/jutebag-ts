@@ -19,8 +19,8 @@
             <span class="float-right">
               <button class="btn border" @click="pullCategory">
                 <svg
-                  width="1.5rem"
-                  height="1.5rem"
+                  width="16px"
+                  height="16px"
                   viewBox="0 0 16 16"
                   class="bi bi-arrow-up-square"
                   fill="currentColor"
@@ -80,12 +80,15 @@
   </div>
 </template>
 
-<script>
-import ToShopItem from "@/components/ToShopItem.vue";
-import { Category } from "@/use/localApi";
+<script lang="ts">
+import ToShopItem from "@/components/shoppinglist/ToShopItem.vue";
+import { Item } from "@/use/localApi";
+import { defineComponent, PropType } from "vue";
+import { Emitter, Handler } from "mitt";
 
-const instance = {
-  data: function() {
+// note: defineComponent is required because of the use of TypeScript (not kidding!)
+export default defineComponent({
+  data() {
     return {
       showNevertheless: false,
     };
@@ -93,25 +96,25 @@ const instance = {
 
   props: {
     category: {
-      type: Category,
+      type: Object, // as PropType<Category>,
       required: true,
     },
     categorylist: {
-      type: Array,
+      type: Array, // as PropType<Array<String>>,
       required: true,
     },
     mitt: {
-      type: Object,
+      type: Object as PropType<Emitter>,
       required: true,
     },
   },
 
   created: function() {
-    this.mitt.on("do-open", this.doOpen);
+    this.mitt.on("do-open", this.doOpen as Handler);
   },
 
   methods: {
-    toggleShowNevertheless: function() {
+    toggleShowNevertheless: function(): void {
       if (!this.isDone) {
         this.showNevertheless = false; // debatable behaviour
         // deactivate toggling when not done
@@ -120,8 +123,7 @@ const instance = {
 
       this.showNevertheless = !this.showNevertheless;
     },
-
-    doOpen: function(catName) {
+    doOpen: function(catName: string): void {
       if (this.category.name === catName) {
         this.showNevertheless = true;
       }
@@ -133,7 +135,7 @@ const instance = {
     pushCategory: function() {
       this.$emit("push-category", this.category.name);
     },
-    logToggle: function(firstArg, secondArg) {
+    logToggle: function(firstArg: any, secondArg: any) {
       console.log("logtoggle called");
       console.log("first arg:", firstArg);
       console.log("second arg:", secondArg);
@@ -141,20 +143,20 @@ const instance = {
   },
 
   computed: {
-    items: function() {
+    items(): Array<Item> {
       return this.category.items;
     },
-    isDone: function() {
+    isDone(): boolean {
       return this.category.isDone;
     },
-    showItems: function() {
+    showItems(): boolean {
       return !this.isDone || this.showNevertheless;
     },
   },
 
   watch: {
     // reset "showNevertheless" if category is not done, so that it always collapses when just being finished
-    isDone: function(newIsDone, oldIsDone) {
+    isDone: function(newIsDone: boolean) {
       if (!newIsDone) {
         this.showNevertheless = false;
       }
@@ -162,11 +164,10 @@ const instance = {
   },
 
   components: {
-    "to-shop-item": ToShopItem,
+    ToShopItem,
+    // "to-shop-item": ToShopItem,
   },
-};
-
-export default instance;
+});
 </script>
 
 <style scoped>

@@ -5,23 +5,23 @@
  */
 
  interface RemoteSaveRequest {
-     email: string,
-     items: Array<RemoteShoppingItem>,
-     categories: Array<RemoteCategory>,
-    revision: number
+     email: string;
+     items: Array<RemoteShoppingItem>;
+     categories: Array<RemoteCategory>;
+    revision: number;
  }
 
  interface RemoteShoppingItem {
-    id: number,
-    name: string,
-    qty: number,
-    category: string, // grouped by category,
-    stored: boolean
+    id: number;
+    name: string;
+    qty: number;
+    category: string; // grouped by category,
+    stored: boolean;
  }
 
  interface RemoteCategory {
-     id: number,
-     name: string
+     id: number;
+     name: string;
  }
 
 

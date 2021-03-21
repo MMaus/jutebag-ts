@@ -73,15 +73,37 @@
         verify email!
       </div>
     </div>
-    <router-view></router-view>
+    <router-view class="view"></router-view>
+    <modal-dialog
+      :show="showConsent"
+      @ok="onConsentConfirm"
+      @cancel="onConcentCancel"
+    >
+      <h2>WARNING</h2>
+      <div class="text-left">
+        This application is a hobby project. Do not provide personal
+        information, because it is not protected.
+        <br />
+        All data you enter will be stored locally in your browser.
+        <br />
+        If you create and use an account, those data will be stored on the
+        server, where they are publicly accessible! As this violates public
+        laws, you are not allowed to enter personal information when you are
+        using an account. Personal information may be any information you might
+        enter, except for testing purposes.
+        <br /><br />
+        <b>Do you agree to never enter any personal data here?</b>
+      </div>
+    </modal-dialog>
   </div>
 </template>
 
 <script>
-import * as firebase from "firebase/app";
+import firebase from "firebase/app";
 
 // // // Add the Firebase products that you want to use
 import "firebase/auth";
+import ModalDialog from "./components/common/ModalDialog.vue";
 
 // If you enabled Analytics in your project, add the Firebase SDK for Analytics
 // import "firebase/analytics";
@@ -98,6 +120,7 @@ function loginComplete(user) {
 }
 
 export default {
+  components: { ModalDialog },
   created: function() {
     firebase.auth().onAuthStateChanged((user) => this.toggleSignIn(user));
   },
@@ -122,13 +145,34 @@ export default {
         this.loggedOut = true;
       }
     },
+    onConsentConfirm() {
+      // this.showConsent = false;
+      this.$store.dispatch("app/confirmConsent");
+    },
+    onConcentCancel() {
+      // this.showConsent = false;
+    },
+  },
+
+  computed: {
+    showConsent() {
+      return !this.$store.getters["app/isConsentValid"];
+    },
   },
 };
 </script>
 
 <style>
+body {
+  height: 100%;
+}
 html {
   scroll-behavior: smooth;
+  height: 100%;
+}
+
+.view {
+  height: 100%;
 }
 
 #app {

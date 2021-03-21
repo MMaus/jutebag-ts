@@ -3,6 +3,10 @@
 module.exports = {
   productionSourceMap: false,
 
+  // configureWebpack: {
+  //   devtool: "source-map",
+  // },
+
   pwa: {
     name: "JuteBag",
     themeColor: "#F5A623",

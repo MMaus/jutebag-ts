@@ -14,74 +14,42 @@
         expected behaviour.
       </p>
     </div>
-    <!-- <div class="row">
-      <div class="col-4 bg-primary">
-        <button class="btn button" @click="toggleDiv">Toggle</button>
-      </div>
-      <transition name="t1">
-        <div class="col-4 bg-warning" v-if="showDiv">
-          <div class="bg-dark text-white">Hello</div>
+    <button @click="toggleDialog" class="btn btn-primary button">
+      toggle dialog
+    </button>
+    <teleport to="body">
+      <modal-dialog :show="showDialog" @background-click="showDialog = false">
+        <div>
+          This is the main text
         </div>
-      </transition>
-      <div class="col-4 bg-primary p-5">
-        <transition name="t2" mode="out-in">
-          <button @click="showUsers" v-if="!isUsersVisible">Show users</button>
-          <button @click="hideUsers" v-else>Hide users</button>
-        </transition>
-      </div>
-    </div>
-    <transition-group tag="ul" name="t2">
-      <li v-for="elem in listItems" :key="elem" @click="removeItem(elem)">
-        {{ elem }}
-      </li>
-    </transition-group>
-    <input type="text" id="foo" v-model="newItem" placeholder="add some item" />
-    <button @click="addItem" class="btn btn-primary button">Add item</button> -->
+        <template v-slot:buttons>
+          <div>
+            <button class="btn btn-primary" @click="toggleDialog">
+              Try to close this!
+            </button>
+          </div>
+        </template>
+      </modal-dialog>
+    </teleport>
   </div>
 </template>
 
 <script lang="ts">
-// import { ref, reactive } from "vue";
+import { ref } from "vue";
+import ModalDialog from "@/components/common/ModalDialog.vue";
 export default {
   setup() {
-    // const listItems = reactive(["a", "b", "c", "d", "e"]);
-    // const showDiv = ref(true);
-    // const newItem = ref("");
-    // const isUsersVisible = ref(false);
-
-    // const showUsers = function() {
-    //   isUsersVisible.value = true;
-    // };
-    // const hideUsers = function() {
-    //   isUsersVisible.value = false;
-    // };
-    // const toggleDiv = function() {
-    //   showDiv.value = !showDiv.value;
-    //   console.log("visibility toggled");
-    // };
-
-    // const addItem = function() {
-    //   console.log(`adding new item: ${newItem}`);
-    //   listItems.push(newItem.value);
-    // };
-
-    // const removeItem = function(item: string) {
-    //   console.log(`removing item ${item}`);
-    //   const index = listItems.findIndex((it) => it === item);
-    //   listItems.splice(index, 1);
-    // };
-
+    const showDialog = ref(false);
+    function toggleDialog() {
+      showDialog.value = !showDialog.value;
+    }
     return {
-      // showDiv,
-      // toggleDiv,
-      // isUsersVisible,
-      // showUsers,
-      // hideUsers,
-      // listItems,
-      // newItem,
-      // addItem,
-      // removeItem,
+      showDialog,
+      toggleDialog,
     };
+  },
+  components: {
+    ModalDialog,
   },
 };
 </script>

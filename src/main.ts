@@ -1,29 +1,24 @@
-import * as firebase from "firebase/app";
+import firebase from "firebase/app";
 import "firebase/auth";
 
 import { createApp } from "vue";
 import App from "./App.vue";
 import "./registerServiceWorker";
 import router from "./router";
-import { createStore } from "vuex";
+import generateStore from "@/store";
 
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "jquery/src/jquery.js";
 import "bootstrap/dist/js/bootstrap.min.js";
+import { importState } from "./store/shopping/importer";
+import { Category } from "./store/shopping/types";
+import { ItemRepository } from "./use/itemStore";
 
 //  TODO: checkout axios (npm install axios --save)
 // import axios from 'axios'
 // Vue.prototype.$axios = axios
 //
-
-const store = createStore({
-  state() {
-    return {
-      counter: 0,
-    };
-  },
-});
 
 const firebaseConfig = {
   apiKey: "AIzaSyCjjVJikqJ1KwGPuOm8NOdZPt5ICrtCyg8",
@@ -36,25 +31,61 @@ const firebaseConfig = {
   measurementId: "G-JLRRL13388",
 };
 
-// TODO: Replace the following with your app's Firebase project configuration
-// const firebaseConfig = {
-//   // ...
-// };
-
-// Initialize Firebase
+/// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
 console.log("firebase initialized");
-console.log("firebase auth change feedback initiated");
 
-let app: any;
+const store = generateStore();
 
-firebase.auth().onAuthStateChanged((user) => {
-  if (!app) {
-    // NOTE: VS code gives an error here, but npm run build / serve does not give an error. I
-    app = createApp(App)
-      .use(router)
-      .use(store)
-      .mount("#app");
+const enableImport = store.getters["app/enableShoppingListImport"];
+console.log("====> enabling shopping list impoirt?", enableImport);
+if (enableImport) {
+  console.log("IMPORTING shoppingList from localStorage");
+  const categories = importState();
+  const existingCategories = store.getters["shopping/categories"] as Array<
+    Category
+  >;
+  let anyItemImported = false;
+  categories.forEach((cat) => {
+    if (existingCategories.map((c) => c.catName).includes(cat.catName)) {
+      console.log("SKIPPING category" + cat.catName);
+      return;
+    }
+    anyItemImported = true;
+    store.commit("shopping/createCategory", cat.catName);
+    console.log(`Category ${cat.catName} has ${cat.items.length} items`);
+    cat.items.forEach((it) =>
+      store.commit("shopping/addItem", {
+        itemName: it.itemName,
+        quantity: it.quantity,
+        categoryName: cat.catName,
+        inCart: it.inCart,
+      })
+    );
+  });
+
+  store.commit("app/disableShoppingListImport");
+  console.log("=== IMPORT DISABLED ===");
+  if (!anyItemImported) {
+    const itemStore = new ItemRepository("jutebag.shoppinglist");
+    console.log("deleting store");
+    // itemStore.deleteStore();
   }
+}
+
+firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
+  store.dispatch("user/authStateChanged", user);
 });
+
+// Vue.config.devtools = process.env.NODE_ENV === "development";
+// Vue.config.devtools = true;
+
+const app = createApp(App)
+  .use(router)
+  .use(store);
+
+// @ts-ignore
+// app.config.devtools = true;
+
+app.mount("#app");

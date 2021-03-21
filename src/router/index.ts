@@ -23,7 +23,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/shoppinglist',
     name: 'Shopping List',
     // route level code-splitting
-    component: () => { return import(/* webpackChunkName: "shoppingList" */ '../views/ShoppingList.vue'); }
+    component: () => { return import(/* webpackChunkName: "shoppingList" */ '@/views/ShoppingListView.vue'); }
   },
   {
     path: '/login',
