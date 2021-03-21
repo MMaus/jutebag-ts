@@ -100,12 +100,16 @@ export default defineComponent({
   /* -shadow: 0 2px 8px rgba(0, 0, 0, 0.33); */
   /* transition: all 0.3s ease; */
   font-family: Helvetica, Arial, sans-serif;
+  /* overflow-y: scroll;
+  max-height: 49vh; */
 }
 
 .modal-content {
   padding: 20px;
   /* background-color: whitesmoke; */
   /* box-shadow: 0 3px 3px rgba(0, 0, 0, 0.33); */
+  overflow-y: scroll;
+  max-height: 50vh;
 }
 
 .button-slot {

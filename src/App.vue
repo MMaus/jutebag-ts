@@ -81,8 +81,10 @@
     >
       <h2>WARNING</h2>
       <div class="text-left">
-        This application is a hobby project. Do not provide personal
-        information, because it is not protected.
+        This application is a hobby project.
+        <strong>Do not provide personal information</strong>, because it is not
+        protected. Personal information may be anything which is not testing
+        data.
         <br />
         All data you enter will be stored locally in your browser.
         <br />
