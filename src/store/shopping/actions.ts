@@ -1,8 +1,7 @@
 import { ActionContext } from "vuex";
 import { JuteBagState } from "../types";
 import { User } from "../user/types";
-import { RemoteShoppingList } from "./remoteTypes";
-import { ShoppingListState } from "./types";
+import { RemoteShoppingListState, ShoppingListState } from "./types";
 
 export default {
   /**
@@ -40,8 +39,37 @@ export default {
     context: ActionContext<ShoppingListState, JuteBagState>
   ): Promise<void> {
     context.commit("setSyncState", { syncState: "SYNCING" });
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    context.commit("setSyncState", { syncState: "SYNC" });
+    const isLoggedIn = context.rootGetters["user/isLoggedIn"] as boolean;
+    if (!isLoggedIn) {
+      console.error("User is not logged in, unable to sync");
+      context.commit("setSyncState", { syncState: "SYNC_ERROR" });
+      return;
+    }
+    const stringifiedData = JSON.stringify(
+      context.getters["remoteDataExcerpt"]
+    );
+    const user = context.rootGetters["user/user"] as User;
+    const postURL = "/bagpy/v2/" + user.email;
+    console.log("Pushing data:", stringifiedData);
+    console.log("POSTING TO ", postURL);
+    fetch(postURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: stringifiedData,
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        console.log("received POST result:" + JSON.stringify(json));
+        context.commit("setSyncState", { syncState: "SYNC" });
+      })
+      .catch((err) => {
+        console.log("POST error: " + err);
+        context.commit("setSyncState", { syncState: "SYNC_ERROR" });
+      });
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
+    // context.commit("setSyncState", { syncState: "SYNC" });
   },
   async downloadItems(
     context: ActionContext<ShoppingListState, JuteBagState>
@@ -54,9 +82,9 @@ export default {
     }
     const user: User = context.rootGetters["user/user"];
     const userEmail = user.email;
-    let jsonResponse: RemoteShoppingList;
+    let jsonResponse: RemoteShoppingListState;
     try {
-      jsonResponse = await fetch("/bagpy/" + userEmail).then((res) =>
+      jsonResponse = await fetch("/bagpy/v2/" + userEmail).then((res) =>
         res.json()
       );
     } catch (e) {
@@ -64,9 +92,11 @@ export default {
       context.commit("setSyncState", { syncState: "SYNC_ERROR" });
       return;
     }
-    console.log("Received object:", jsonResponse);
-    console.log(
-      `There are ${jsonResponse.categories.length} categories with ${jsonResponse.items.length} items`
-    );
+    if (jsonResponse) {
+      console.log("Received object:", jsonResponse);
+      console.log(`There are ${jsonResponse.categories.length} categories`);
+      context.commit("setRemoteData", jsonResponse);
+      context.commit("setSyncState", { syncState: "SYNC" });
+    }
   },
 };

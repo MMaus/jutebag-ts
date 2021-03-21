@@ -1,5 +1,11 @@
 import { MutationTree } from "vuex";
-import { Category, ShoppingListState, ShoppingItem, SyncState } from "./types";
+import {
+  Category,
+  ShoppingListState,
+  ShoppingItem,
+  SyncState,
+  RemoteShoppingListState,
+} from "./types";
 
 function createCategory(state: ShoppingListState, name: string): Category {
   const newCategory: Category = {
@@ -107,6 +113,16 @@ function setQuantity(
   state.syncState = "NOT_SYNCED";
 }
 
+function setRemoteData(
+  state: ShoppingListState,
+  remoteData: RemoteShoppingListState
+): void {
+  console.log("Received remote data with version:", remoteData.version);
+  state.categories = remoteData.categories;
+  state.nextCategoryId = remoteData.nextCategoryId;
+  state.nextItemId = remoteData.nextItemId;
+}
+
 function setSyncState(
   state: ShoppingListState,
   { syncState }: { syncState: SyncState }
@@ -115,10 +131,11 @@ function setSyncState(
 }
 
 export default {
-  createCategory,
   addItem,
-  setQuantity,
-  toggleInCart,
+  createCategory,
   deleteItem,
+  setQuantity,
+  setRemoteData,
   setSyncState,
+  toggleInCart,
 } as MutationTree<ShoppingListState>;

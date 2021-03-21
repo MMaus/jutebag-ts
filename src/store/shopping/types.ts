@@ -1,10 +1,13 @@
 export type SyncState = "SYNC" | "SYNCING" | "NOT_SYNCED" | "SYNC_ERROR";
 
-export interface ShoppingListState {
+export interface RemoteShoppingListState {
   categories: Array<Category>;
   version: number;
   nextCategoryId: number;
   nextItemId: number;
+}
+
+export interface ShoppingListState extends RemoteShoppingListState {
   syncState: SyncState;
 }
 
