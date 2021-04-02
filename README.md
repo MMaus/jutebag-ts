@@ -1,6 +1,15 @@
 
 # jutebag
 
+# NEWS
+
+2. April 2021: Right now, my motivation dropped significantly. This is mostly
+   due to a lack of time, very similar tasks at work and a raising interest in
+   the field of ML.
+
+Thus, the work here is currently quite pragmatic, i.e. focussed on achieving
+results rather quickly than properly.
+
 ## Build & Deploy
 
 npm run build
