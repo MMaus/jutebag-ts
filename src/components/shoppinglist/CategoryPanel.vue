@@ -2,6 +2,7 @@
   <div
     class="col-md-6 col-xl-4 p-1 m-0"
     :class="{ 'col-4 greenish': !showItems, 'col-12': showItems }"
+    :id="'cat:' + category.name"
   >
     <div class="card">
       <div
@@ -27,7 +28,6 @@
           :key="item.id"
           :item="item"
           :category="category"
-          :categories="categorylist"
           @toggle-cart="logToggle"
         ></shopping-item-display>
       </div>
@@ -113,7 +113,7 @@ export default defineComponent({
 
   watch: {
     // reset "showNevertheless" if category is not done, so that it always collapses when just being finished
-    isDone: function(newIsDone: boolean) {
+    isDone(newIsDone: boolean) {
       if (!newIsDone) {
         this.showNevertheless = false;
       }

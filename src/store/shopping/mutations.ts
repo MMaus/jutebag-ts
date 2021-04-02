@@ -7,6 +7,10 @@ import {
   RemoteShoppingListState,
 } from "./types";
 
+function isCategoryDone(category: Category): boolean {
+  return category.items.every((it) => it.inCart);
+}
+
 function createCategory(state: ShoppingListState, name: string): Category {
   const newCategory: Category = {
     id: "category" + state.nextCategoryId,
@@ -45,6 +49,7 @@ function addItem(
     inCart: inCart ? true : false,
   } as ShoppingItem;
   state.nextItemId = state.nextItemId + 1;
+  category.isDone = isCategoryDone(category);
   category.items.push(item);
   if (!item.inCart) {
     category.isDone = false;
@@ -94,6 +99,8 @@ function deleteItem(state: ShoppingListState, { itemId }: { itemId: string }) {
   const { itemIndex, categoryIndex } = locateItem(state, itemId);
   state.categories[categoryIndex].items.splice(itemIndex, 1);
   state.syncState = "NOT_SYNCED";
+  const category = state.categories[categoryIndex];
+  category.isDone = isCategoryDone(category);
 }
 
 function toggleInCart(
@@ -102,7 +109,33 @@ function toggleInCart(
 ): void {
   const item = getItem(state, itemId);
   item.inCart = !item.inCart;
+  const category = state.categories.find((cat) =>
+    cat.items.find((it) => it.id === item.id)
+  );
+  if (category) {
+    category.isDone = isCategoryDone(category);
+  }
   state.syncState = "NOT_SYNCED";
+}
+
+function activateItem(
+  state: ShoppingListState,
+  { itemId }: { itemId: string }
+): void {
+  const item = getItem(state, itemId);
+  console.log("ITEM:", item);
+  if (!item.inCart) {
+    item.quantity = item.quantity + 1;
+  } else {
+    item.inCart = false;
+  }
+  state.syncState = "NOT_SYNCED";
+  const category = state.categories.find((cat) =>
+    cat.items.find((it) => it.id === item.id)
+  );
+  if (category) {
+    category.isDone = isCategoryDone(category);
+  }
 }
 
 function setQuantity(
@@ -138,4 +171,5 @@ export default {
   setRemoteData,
   setSyncState,
   toggleInCart,
+  activateItem,
 } as MutationTree<ShoppingListState>;

@@ -17,6 +17,13 @@ export default {
   ): Promise<void> {
     context.commit("addItem", { itemName, categoryName });
   },
+  async activateItem(
+    context: ActionContext<ShoppingListState, JuteBagState>,
+    { itemId, categoryId }: { itemId: string; categoryId: string }
+  ): Promise<void> {
+    context.commit('activateItem', {itemId, categoryId});
+  },
+
   async updateQuantity(
     context: ActionContext<ShoppingListState, JuteBagState>,
     { itemId, quantity }: { itemId: string; quantity: number }

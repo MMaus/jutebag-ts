@@ -3,7 +3,7 @@
     <transition>
       <categories-sidebar
         v-if="sidebarVisible"
-        :categories="categoriesReactive"
+        :categories="storedCategories"
         @categorySelected="scrollToCategory"
       />
     </transition>
@@ -31,9 +31,8 @@
           v-for="cat in storedCategories"
           :key="cat.id"
           :category="cat"
-          :id="cat.id"
+          :id="'cat:' + cat.id"
           :mitt="emitter"
-          :categorylist="categoriesReactive"
           v-on="categoryCallbacks"
         >
         </category-panel>
@@ -42,7 +41,10 @@
 
     <div class="spacer"></div>
 
-    <shopping-list-footer @toggle-sidebar="toggleSidebar" />
+    <shopping-list-footer
+      @toggle-sidebar="toggleSidebar"
+      @added-to-category="scrollToCategory"
+    />
   </div>
 </template>
 
@@ -58,7 +60,9 @@ import CategoryPanel from "@/components/shoppinglist/CategoryPanel.vue";
 import mitt from "mitt";
 
 import { ItemRepository } from "../use/itemStore";
-import { Item, Category } from "../use/localApi";
+import { Item } from "../use/localApi";
+
+import { Category } from "@/store/shopping/types";
 
 import { defineComponent, computed, ref } from "vue";
 
@@ -74,6 +78,7 @@ export default defineComponent({
     const store = useStore() as Store<JuteBagState>;
 
     provide("categoriesList", readonly(store.getters["shopping/categories"]));
+    provide("allItemsList", readonly(store.getters["shopping/allItems"]));
 
     // FIXME: add type information
     const storedCategories = computed(
@@ -84,7 +89,7 @@ export default defineComponent({
 
     // note: this is a reactive vue property ("ref")
     const items: Ref<Array<Item>> = itemRepo.itemsRef;
-    const categoriesReactive: Array<Category> = itemRepo.categoriesReactive;
+    // const categoriesReactive: Array<Category> = itemRepo.categoriesReactive;
 
     const showAddItemEnh = ref(false);
     const newCategory = ref("");
@@ -166,9 +171,14 @@ export default defineComponent({
     };
 
     const scrollToCategory = function(catName: string) {
-      console.log(`that cat is ${catName}`);
-
-      const catElem = document.getElementById("cat:" + catName);
+      console.log(`SCROLLING ... that cat name is ${catName}`);
+      const cats = storedCategories.value as Array<Category>;
+      console.log("CATS = ", cats);
+      const catId = storedCategories.value.find(
+        (cat: Category) => cat.catName === catName
+      )?.id;
+      console.log("CatId = ", catId);
+      const catElem = document.getElementById("cat:" + catId);
       const headerOffset = 56;
       const elementPosition = catElem?.getBoundingClientRect().top;
       console.log("elem top:" + elementPosition);
@@ -232,7 +242,6 @@ export default defineComponent({
       userEmail,
       newItem,
       categoryList,
-      categoriesReactive,
       // UI functionality
       emitter,
       // Cart change functionality

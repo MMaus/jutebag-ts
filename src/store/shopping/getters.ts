@@ -15,6 +15,9 @@ export default {
       nextItemId: state.nextItemId,
     };
   },
+  allItems(state: ShoppingListState): Array<ShoppingItem> {
+    return state.categories.flatMap((cat) => cat.items);
+  },
 
   itemsByCategory(
     state: ShoppingListState

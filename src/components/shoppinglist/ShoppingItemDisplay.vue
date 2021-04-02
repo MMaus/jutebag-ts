@@ -8,10 +8,14 @@
       {{ item.quantity }}x {{ item.itemName }}
     </div>
 
-    <div v-else class="bg-secondary rounded p-0 m-1">
+    <div v-else class="bg-secondary rounded p-0 m-1 requiredItem">
       <div class="d-flex py-1 align-items-center font-weight-bold text-light">
         <div class="pl-1 text-left">
-          <div class="btn-group m-0 p-0" role="group">
+          <div
+            class="btn-group m-0 p-0"
+            role="group"
+            aria-label="change quantity"
+          >
             <button
               type="button"
               class="btn btn-primary btn-sm"
@@ -40,7 +44,7 @@
         >
           {{ item.itemName }}
         </div>
-        <div class="ml-auto mr-1" aria-label="change quantity">
+        <div class="ml-auto mr-1">
           <button
             type="button"
             class="btn btn-danger btn-sm"

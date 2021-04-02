@@ -16,20 +16,30 @@
           <input
             type="text"
             class="form-control"
+            list="itemlist"
             id="newWhishlistItem"
             v-model="newItemText"
             ref="newItemInput"
-            v-on:keyup.enter="submitNewItem()"
+            v-on:keyup.enter="submitNewItem"
             tabindex="1"
             @focus="onInputFocus()"
             placeholder="add item here"
           />
+          <datalist id="itemlist">
+            <option
+              v-for="item in allItems"
+              :key="item.id"
+              :value="item.itemName"
+              >{{ item.itemName }}</option
+            >
+          </datalist>
+
           <div class="input-group-append">
             <button
               tabindex="5"
               class="btn btn-primary"
               type="button"
-              @click="submitNewItem()"
+              @click="submitNewItem"
             >
               Enter Item
             </button>
@@ -72,7 +82,7 @@
             v-model="categoryText"
             tabindex="3"
             @keypress="onCategoryTextChange"
-            @keyup.enter="submitNewItem()"
+            @keyup.enter="submitNewItem"
             placeholder="new category"
           />
           <datalist id="categorylist">
@@ -92,11 +102,11 @@
 <script lang="ts">
 import { computed, inject, Ref } from "vue";
 import { defineComponent, ref } from "vue";
-import { Category } from "@/store/shopping/types";
+import { Category, ShoppingItem } from "@/store/shopping/types";
 import { useStore } from "vuex";
 
 export default defineComponent({
-  emits: ["toggle-sidebar"],
+  emits: ["toggle-sidebar", "added-to-category"],
   setup(_, context) {
     const store = useStore();
 
@@ -106,10 +116,11 @@ export default defineComponent({
     const newItemText = ref("");
     const categoryText = ref("");
 
-    const allCategories = inject("categoriesList");
+    const allCategories = inject("categoriesList") as Array<Category>;
+    const allItems = inject("allItemsList") as Array<ShoppingItem>;
 
     const allCategoryNames = computed(() =>
-      (inject("categoriesList") as Array<Category>).map((it) => it.catName)
+      allCategories.map((it) => it.catName)
     );
 
     const categoryList: Ref<null | HTMLSelectElement> = ref(null);
@@ -122,10 +133,33 @@ export default defineComponent({
     }
 
     function submitNewItem() {
-      store.dispatch("shopping/addItem", {
-        itemName: newItemText.value,
-        categoryName: categoryText.value,
-      });
+      console.log("YEAH");
+      const matchingItem = allItems.find(
+        (it) => it.itemName === newItemText.value
+      );
+      if (matchingItem) {
+        const matchingCategory = allCategories.find((cat) =>
+          cat.items.find((it) => it.id === matchingItem.id)
+        );
+        if (matchingCategory) {
+          categoryText.value = matchingCategory.catName;
+          console.log(
+            `YEAH, cat = ${matchingCategory.id +
+              ":" +
+              matchingCategory.catName}`
+          );
+          store.dispatch("shopping/activateItem", {
+            itemId: matchingItem.id,
+            categoryId: matchingCategory.id,
+          });
+        }
+      } else {
+        store.dispatch("shopping/addItem", {
+          itemName: newItemText.value,
+          categoryName: categoryText.value,
+        });
+      }
+      context.emit("added-to-category", categoryText.value);
       resetForm();
     }
 
@@ -180,6 +214,7 @@ export default defineComponent({
     return {
       allCategories,
       allCategoryNames,
+      allItems,
       showAddItemEnh,
       sidebarVisible,
 

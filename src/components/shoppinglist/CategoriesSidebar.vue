@@ -2,10 +2,10 @@
   <div class="sidebar">
     <h5 class="p-2">Categories</h5>
     <div class="sidebar-content">
-      <div class="m-0 p-0 text-left" v-for="cat in categories" :key="cat.name">
+      <div class="m-0 p-0 text-left" v-for="cat in categories" :key="cat.id">
         <button
           class="btn shadow m-0 p-0 category-button px-1"
-          @click="selectCategory(cat.name)"
+          @click="selectCategory(cat.catName)"
         >
           <span
             :class="{
@@ -13,7 +13,7 @@
               'category-done-sidebar': cat.isDone,
             }"
           >
-            {{ cat.name }}
+            {{ cat.catName }}
           </span>
         </button>
       </div>
@@ -22,7 +22,7 @@
 </template>
 <script lang="ts">
 import { PropType, SetupContext } from "vue";
-import { Category } from "@/use/localApi";
+import { Category } from "@/store/shopping/types";
 export default {
   props: {
     categories: Array as PropType<Array<Category>>,

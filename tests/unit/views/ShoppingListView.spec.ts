@@ -69,4 +69,20 @@ describe("The ShoppingList", () => {
     await textDisplay.trigger("click");
     expect(theItem.inCart).toBe(true); // ACTUALLY this *only* works because the proxy returned from the getter is reactive!
   });
+
+  it("changes the 'done' property of the category when all items are done", async () => {
+    await addItem("item1", "cat1");
+    expect(viewWrapper.findAllComponents(CategoryPanel).length).toBe(1);
+    const categoryWrapper = viewWrapper.findComponent(CategoryPanel);
+    expect(categoryWrapper.find(".category-done").exists()).toBeFalsy();
+    expect(categoryWrapper.find(".storedItem").exists()).toBeFalsy();
+    const itemNameDisplay = categoryWrapper.find(".itemNameDisplay");
+    expect(itemNameDisplay.exists()).toBeTruthy();
+    await itemNameDisplay.trigger("click");
+    expect(categoryWrapper.find(".requiredItem").exists()).toBeFalsy();
+    const newCatTitle = categoryWrapper.find(".category-done");
+    expect(newCatTitle.exists).toBeTruthy();
+    await newCatTitle.trigger("click");
+    expect(categoryWrapper.find(".storedItem").exists()).toBeTruthy(); // may become false because category collapses
+  });
 });
