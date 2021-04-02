@@ -55,10 +55,6 @@ export default defineComponent({
       type: Object as PropType<Category>,
       required: true,
     },
-    categorylist: {
-      type: Array, // as PropType<Array<String>>,
-      required: true,
-    },
     mitt: {
       type: Object as PropType<Emitter>,
       required: true,
