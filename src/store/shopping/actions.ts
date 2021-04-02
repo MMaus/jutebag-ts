@@ -21,7 +21,7 @@ export default {
     context: ActionContext<ShoppingListState, JuteBagState>,
     { itemId, categoryId }: { itemId: string; categoryId: string }
   ): Promise<void> {
-    context.commit('activateItem', {itemId, categoryId});
+    context.commit("activateItem", { itemId, categoryId });
   },
 
   async updateQuantity(
@@ -103,6 +103,7 @@ export default {
       console.log("Received object:", jsonResponse);
       console.log(`There are ${jsonResponse.categories.length} categories`);
       context.commit("setRemoteData", jsonResponse);
+      context.commit("computeNextItemId");
       context.commit("setSyncState", { syncState: "SYNC" });
     }
   },

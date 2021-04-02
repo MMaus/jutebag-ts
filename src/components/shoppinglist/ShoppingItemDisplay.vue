@@ -1,7 +1,7 @@
 <template>
   <div class="m-0 p-0">
     <div
-      v-if="item.inCart"
+      v-if="isInCart"
       class="storedItem mt-1 text-success text-left font-weight-bold"
       @click="toggleInCart"
     >
@@ -65,7 +65,7 @@
 </template>
 <script lang="ts">
 import { ShoppingItem, Category } from "@/store/shopping/types";
-import { defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType, watch } from "vue";
 import { useStore } from "vuex";
 
 export default defineComponent({
@@ -86,6 +86,7 @@ export default defineComponent({
         itemId: props.item.id,
       });
     }
+    const isInCart = computed(() => props.item.inCart);
     function increaseQty() {
       store.dispatch("shopping/updateQuantity", {
         itemId: props.item.id,
@@ -104,6 +105,7 @@ export default defineComponent({
       });
     }
     return {
+      isInCart,
       deleteItem,
       increaseQty,
       decreaseQty,

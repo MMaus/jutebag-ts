@@ -11,6 +11,42 @@ function isCategoryDone(category: Category): boolean {
   return category.items.every((it) => it.inCart);
 }
 
+function computeNextItemId(state: ShoppingListState): void {
+  let nextId = state.nextItemId;
+  let nextCategoryId = state.nextCategoryId;
+  for (const cat of state.categories) {
+    try {
+      const numCandidate = cat.id?.split("y")[1];
+      if (numCandidate != undefined) {
+        const higherNumber = Math.ceil(+numCandidate + 1);
+        if (higherNumber > nextCategoryId) {
+          nextCategoryId = higherNumber;
+        }
+      }
+    } catch (ignored) {
+      /* exception is okay, we can safely ignore it*/
+    }
+
+    for (const it of cat.items) {
+      try {
+        const numCandidate = it.id?.split(":")[1];
+        if (numCandidate != undefined) {
+          const higherNumber = Math.ceil(+numCandidate + 1);
+          if (higherNumber > nextId) {
+            nextId = higherNumber;
+          }
+        }
+      } catch (ignored) {
+        /* exception is okay, we can safely ignore it*/
+      }
+    }
+  }
+  console.log("initialized nextItemId = ", nextId);
+  console.log("initialized nextCategoryId = ", nextCategoryId);
+  state.nextItemId = nextId;
+  state.nextCategoryId = nextCategoryId;
+}
+
 function createCategory(state: ShoppingListState, name: string): Category {
   const newCategory: Category = {
     id: "category" + state.nextCategoryId,
@@ -165,6 +201,7 @@ function setSyncState(
 
 export default {
   addItem,
+  computeNextItemId,
   createCategory,
   deleteItem,
   setQuantity,

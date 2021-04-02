@@ -37,6 +37,7 @@ firebase.initializeApp(firebaseConfig);
 console.log("firebase initialized");
 
 const store = generateStore();
+store.commit("shopping/computeNextItemId");
 
 const enableImport = store.getters["app/enableShoppingListImport"];
 console.log("====> enabling shopping list impoirt?", enableImport);
