@@ -84,11 +84,11 @@ export default defineComponent({
     // FIXME: introduce consistent event naming scheme, either kebap-case or CamelCase
     pullCategory: function() {
       console.log("PULLING BABY");
-      this.$emit("pull-category", this.category.catName);
+      this.$emit("pull-category", this.category.id);
     },
     pushCategory: function() {
       console.log("PUSH IT TO THE LIMIT BABY");
-      this.$emit("push-category", this.category.catName);
+      this.$emit("push-category", this.category.id);
     },
 
     logToggle: function(firstArg: any, secondArg: any) {

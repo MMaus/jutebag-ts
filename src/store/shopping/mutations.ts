@@ -137,6 +137,9 @@ function deleteItem(state: ShoppingListState, { itemId }: { itemId: string }) {
   state.syncState = "NOT_SYNCED";
   const category = state.categories[categoryIndex];
   category.isDone = isCategoryDone(category);
+  if (state.categories.find((cat) => cat.items.length === 0)) {
+    state.categories = state.categories.filter((cat) => cat.items.length > 0);
+  }
 }
 
 function toggleInCart(
@@ -177,7 +180,7 @@ function activateItem(
 function setQuantity(
   state: ShoppingListState,
   { itemId, quantity }: { itemId: string; quantity: number }
-) {
+): void {
   getItem(state, itemId).quantity = quantity;
   state.syncState = "NOT_SYNCED";
 }
@@ -199,6 +202,44 @@ function setSyncState(
   state.syncState = syncState;
 }
 
+function pullCategory(
+  state: ShoppingListState,
+  { categoryId }: { categoryId: string }
+): void {
+  const catId = categoryId;
+  const index = state.categories.findIndex((cat) => cat.id === catId);
+  if (index < 0) {
+    throw new Error(`No Category with id '${catId}' found`);
+  }
+  if (index === 0) {
+    // nothing to do
+    return;
+  }
+  const catA = state.categories[index - 1];
+  const catB = state.categories[index];
+  state.categories[index - 1] = catB;
+  state.categories[index] = catA;
+}
+
+function pushCategory(
+  state: ShoppingListState,
+  { categoryId }: { categoryId: string }
+): void {
+  const catId = categoryId;
+  const index = state.categories.findIndex((cat) => cat.id === catId);
+  if (index < 0) {
+    throw new Error(`No Category with id '${catId}' found`);
+  }
+  if (index >= state.categories.length - 1) {
+    // nothing to do
+    return;
+  }
+  const catA = state.categories[index + 1];
+  const catB = state.categories[index];
+  state.categories[index + 1] = catB;
+  state.categories[index] = catA;
+}
+
 export default {
   addItem,
   computeNextItemId,
@@ -209,4 +250,6 @@ export default {
   setSyncState,
   toggleInCart,
   activateItem,
+  pullCategory,
+  pushCategory,
 } as MutationTree<ShoppingListState>;

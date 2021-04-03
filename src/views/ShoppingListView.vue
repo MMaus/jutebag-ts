@@ -213,14 +213,14 @@ export default defineComponent({
       "update-category": function(item: ShoppingItem) {
         console.log("update category for item", item);
       },
-      "pull-category": function(cat: Category) {
-        console.log("pull category category ", cat);
+      // "pull-category": function(catId: string) {
+      //   console.log("pull category category ", catId);
+      // },
+      pullCategory: function(catId: Category) {
+        store.dispatch("shopping/pullCategory", { categoryId: catId });
       },
-      pullCategory: function(cat: Category) {
-        console.log("pullCategory called for ", cat);
-      },
-      "push-category": function(cat: Category) {
-        console.log("push category category ", cat);
+      pushCategory: function(catId: string) {
+        store.dispatch("shopping/pushCategory", { categoryId: catId });
       },
       // @delete-item="deleteItem"
       // @update-qty="updateQty"

@@ -107,4 +107,18 @@ export default {
       context.commit("setSyncState", { syncState: "SYNC" });
     }
   },
+
+  async pullCategory(
+    context: ActionContext<ShoppingListState, JuteBagState>,
+    { categoryId }: { categoryId: string }
+  ): Promise<void> {
+    context.commit("pullCategory", { categoryId });
+  },
+
+  async pushCategory(
+    context: ActionContext<ShoppingListState, JuteBagState>,
+    { categoryId }: { categoryId: string }
+  ): Promise<void> {
+    context.commit("pushCategory", { categoryId });
+  },
 };
