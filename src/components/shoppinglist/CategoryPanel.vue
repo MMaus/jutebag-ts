@@ -49,14 +49,7 @@ import ShoppingItemDisplay from "./ShoppingItemDisplay.vue";
 import { defineComponent, PropType } from "vue";
 import { Emitter, Handler } from "mitt";
 import CategoryMover from "./CategoryMover.vue";
-import { Category, ShoppingItem } from "@/store/shopping/types";
-
-const itemSorter: (a: ShoppingItem, b: ShoppingItem) => number = (a, b) => {
-  return a.itemName
-    .trim()
-    .toLowerCase()
-    .localeCompare(b.itemName.trim().toLowerCase());
-};
+import { Category, itemSorter, ShoppingItem } from "@/store/shopping/types";
 
 // note: defineComponent is required because of the use of TypeScript (not kidding!)
 export default defineComponent({

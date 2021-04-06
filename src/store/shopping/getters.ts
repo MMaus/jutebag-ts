@@ -1,4 +1,10 @@
-import { Category, ShoppingItem, ShoppingListState, SyncState } from "./types";
+import {
+  Category,
+  itemSorter,
+  ShoppingItem,
+  ShoppingListState,
+  SyncState,
+} from "./types";
 
 export default {
   categories(state: ShoppingListState): Array<Category> {
@@ -16,7 +22,7 @@ export default {
     };
   },
   allItems(state: ShoppingListState): Array<ShoppingItem> {
-    return state.categories.flatMap((cat) => cat.items);
+    return state.categories.flatMap((cat) => cat.items).sort(itemSorter);
   },
 
   itemsByCategory(

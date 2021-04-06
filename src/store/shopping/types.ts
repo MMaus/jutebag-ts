@@ -27,3 +27,12 @@ export interface ShoppingItem {
   quantity: number;
   inCart: boolean;
 }
+export const itemSorter: (a: ShoppingItem, b: ShoppingItem) => number = (
+  a,
+  b
+) => {
+  return a.itemName
+    .trim()
+    .toLowerCase()
+    .localeCompare(b.itemName.trim().toLowerCase());
+};
