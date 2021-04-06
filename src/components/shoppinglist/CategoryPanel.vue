@@ -23,13 +23,22 @@
         </div>
       </div>
       <div class="card-body" v-if="showItems">
-        <shopping-item-display
-          v-for="item in category.items"
-          :key="item.id"
-          :item="item"
-          :category="category"
-          @toggle-cart="logToggle"
-        ></shopping-item-display>
+        <transition-group tag="div" name="item-list">
+          <shopping-item-display
+            v-for="item in todoItems"
+            :key="item.id"
+            :item="item"
+            :category="category"
+            @toggle-cart="logToggle"
+          ></shopping-item-display>
+          <shopping-item-display
+            v-for="item in doneItems"
+            :key="item.id"
+            :item="item"
+            :category="category"
+            @toggle-cart="logToggle"
+          ></shopping-item-display>
+        </transition-group>
       </div>
     </div>
   </div>
@@ -40,7 +49,14 @@ import ShoppingItemDisplay from "./ShoppingItemDisplay.vue";
 import { defineComponent, PropType } from "vue";
 import { Emitter, Handler } from "mitt";
 import CategoryMover from "./CategoryMover.vue";
-import { Category } from "@/store/shopping/types";
+import { Category, ShoppingItem } from "@/store/shopping/types";
+
+const itemSorter: (a: ShoppingItem, b: ShoppingItem) => number = (a, b) => {
+  return a.itemName
+    .trim()
+    .toLowerCase()
+    .localeCompare(b.itemName.trim().toLowerCase());
+};
 
 // note: defineComponent is required because of the use of TypeScript (not kidding!)
 export default defineComponent({
@@ -105,6 +121,12 @@ export default defineComponent({
     showItems(): boolean {
       return !this.isDone || this.showNevertheless;
     },
+    doneItems(): Array<ShoppingItem> {
+      return this.category.items.filter((it) => it.inCart).sort(itemSorter);
+    },
+    todoItems(): Array<ShoppingItem> {
+      return this.category.items.filter((it) => !it.inCart).sort(itemSorter);
+    },
   },
 
   watch: {
@@ -144,5 +166,20 @@ export default defineComponent({
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
   /* padding: 0.4rem; */
+}
+
+.item-list-enter-active,
+.item-list-leave-active {
+  transition: all 0.5s ease-in-out;
+}
+
+.item-list-move {
+  transition: transform 0.5s ease;
+}
+
+.item-list-enter-from,
+.item-list-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 </style>
